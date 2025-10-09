@@ -1,0 +1,85 @@
+.page-content {
+    display: block;
+    margin: 80px auto 0 auto;
+    max-width: 100%;
+    box-sizing: border-box;
+    background-color: #d9eef1;
+    display: flex;
+    justify-content: center;
+}
+
+.register-container {
+    width: 60%;
+    display: flex;
+}
+
+.register-logo {
+    width: 50%;
+    background-image: url(../../../assets/quickbuyshop.png);
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+}
+
+.register-form {
+    width: 50%;
+    background-color: white;
+    padding: 10px;
+    margin: 25px;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    border-radius: 8px;
+}
+
+.register-title {
+    font-size: 20px;
+    color: #fb8016;
+    margin-bottom: 20px;
+    font-weight: bold;
+}
+
+.register-fullName {
+    display: flex;
+    gap: 10px;
+}
+
+.register {
+    display: flex;
+    justify-content: start;
+    font-size: 12px;
+    color: #aaa;
+    gap: 3px;
+    margin-top: 10px;
+    width: 60%;
+}
+
+.login-link {
+    color: #fb8016;
+    cursor: pointer;
+
+    &:hover {
+        color: red;
+    }
+}
+
+.social-register {
+    display: flex;
+    align-items: center;
+    text-align: center;
+}
+
+.forgot-password-register {
+    width: 40%;
+    display: flex;
+    justify-content: end;
+    font-size: 12px;
+    color: red;
+    cursor: pointer;
+
+    &:hover {
+        color: darkorchid;
+    }
+}

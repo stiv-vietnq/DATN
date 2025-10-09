@@ -1,0 +1,42 @@
+.top-search {
+    padding: 1% 0;
+}
+
+.top-search-container {
+    background-color: white;
+    width: 60%;
+    margin: 0 auto;
+}
+
+.top-search-header{
+    display: flex;
+    padding: 15px;
+    border-bottom: 1px solid #ccc;
+    align-items: center;
+}
+
+.top-search-title {
+    font-size: 18px;
+    color: #fb723c;
+    text-align: start;
+    text-transform: uppercase;
+    width: 30%;
+}
+
+.top-search-view-all {
+    width: 70%;
+}
+
+.view-all-button {
+    font-size: 16px;
+    color: #fb723c;
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    cursor: pointer;
+
+    &:hover {
+       color: red;
+       gap: 5px;
+    }
+}
