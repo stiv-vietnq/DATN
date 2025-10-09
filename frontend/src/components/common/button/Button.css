@@ -1,0 +1,71 @@
+.btn {
+    font-size: 12px;
+    font-weight: 500;
+    padding: 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    border: none;
+    transition: all 0.2s ease;
+}
+
+.btn-primary {
+    background-color: #007bff;
+    color: #fff;
+}
+
+.btn-primary:hover:not(:disabled) {
+    background-color: #0069d9;
+}
+
+.btn-secondary {
+    background-color: #6c757d;
+    color: #fff;
+}
+
+.btn-secondary:hover:not(:disabled) {
+    background-color: #5a6268;
+}
+
+.btn-danger {
+    background-color: #dc3545;
+    color: #fff;
+}
+
+.btn-danger:hover:not(:disabled) {
+    background-color: #c82333;
+}
+
+.btn-outline {
+    background-color: transparent;
+    border: 1px solid #007bff;
+    color: #007bff;
+}
+
+.btn-outline:hover:not(:disabled) {
+    background-color: #007bff;
+    color: #fff;
+}
+
+.btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.btn-login-often {
+    background-color: #fb8016;
+    color: #fff;
+    border: none;
+    outline: none;
+    cursor: pointer;
+}
+
+.btn-login-often:hover:not(:disabled) {
+    background-color: #e67315;
+}
+
+.btn-login-often:focus,
+.btn-login-often:active {
+    border: none;
+    outline: none;
+    box-shadow: none;
+}
