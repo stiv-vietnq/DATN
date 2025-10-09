@@ -78,5 +78,11 @@
   "change_password": "Đổi mật khẩu",
   "profile_address": "Địa chỉ",
   "top_search": "Tìm kiếm hàng đầu",
-  "view_all": "Xem tất cả"
+  "view_all": "Xem tất cả",
+  "home": {
+    "product":{
+      "title": "Gợi ý hôm nay",
+      "view_all": "Xem thêm"
+    }
+  }
 }

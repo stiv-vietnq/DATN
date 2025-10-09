@@ -78,5 +78,11 @@
   "change_password": "Change Password",
   "profile_address": "Address",
   "top_search": "Top Search",
-  "view_all": "View All"
+  "view_all": "View All",
+  "home": {
+    "product":{
+      "title": "Today's Suggestions",
+      "view_all": "View More"
+    }
+  }
 }
