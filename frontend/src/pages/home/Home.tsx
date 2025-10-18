@@ -8,10 +8,16 @@ export default function Home() {
   return (
     <div className="main-content">
       <Slider>
-        {images.map((image, index) => {
-          return <img key={index} src={image.imgURL} alt={image.imgAlt} />;
-        })}
+        {images.map((image, index) => (
+          <img
+            key={index}
+            src={image.imgURL}
+            alt={image.imgAlt}
+            data-title={image.title}
+          />
+        ))}
       </Slider>
+
       <TopSearch />
       <Products />
     </div>

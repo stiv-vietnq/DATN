@@ -2,10 +2,11 @@ import Button from '../../../components/common/button/Button';
 import './Products.css';
 import { useTranslation } from 'react-i18next';
 import logo from '../../../assets/quickbuyshop.png';
+import { useNavigate } from 'react-router-dom';
 
 export default function Products() {
     const { t } = useTranslation();
-
+    const navigate = useNavigate();
     const products = [
         {
             id: 1,
@@ -63,6 +64,10 @@ export default function Products() {
         }
     ];
 
+    const handleViewProductDetail = (id: number) => {
+        navigate(`/product-detail/${id}`);
+    };
+
     return (
         <div className="product-content">
             <div className='product-title'>
@@ -70,7 +75,7 @@ export default function Products() {
             </div>
             <div className='product-data'>
                 {products?.slice(0, 48).map((item) => (
-                    <div key={item?.id} className="product-card">
+                    <div key={item?.id} className="product-card" onClick={() => handleViewProductDetail(item?.id)}>
                         <img src={item?.img} alt={item?.name} className="product-img" />
                         <div className="product-name">{item?.name}</div>
                     </div>
