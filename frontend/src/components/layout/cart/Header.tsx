@@ -19,9 +19,6 @@ export default function Header() {
             <img src={logo} alt="Logo" className="logo-image" />
           </div>
           <div className="navbar-title">Giỏ hàng</div>
-          {/* <div className="navbar-note">
-            <div className="navbar-note-title">{t("help")}</div>
-          </div> */}
         </div>
       </div>
     </header>
