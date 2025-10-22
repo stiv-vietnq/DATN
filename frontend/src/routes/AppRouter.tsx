@@ -12,6 +12,8 @@ import TopProduct from "../pages/topProduct/TopProduct";
 import User from "../pages/user/User";
 import Profile from "../pages/user/profile/Profile";
 import Purchase from "../pages/user/purchase/Purchase";
+import Cart from "../pages/cart/Cart";
+import CartLayout from "../components/layout/CartLayout";
 
 export default function AppRouter() {
   return (
@@ -26,6 +28,10 @@ export default function AppRouter() {
           <Route path="profile" element={<Profile />} />
           <Route path="purchases" element={<Purchase />} />
         </Route>
+      </Route>
+
+      <Route element={<CartLayout />}>
+        <Route path="/cart" element={<Cart />} />
       </Route>
 
       <Route element={<AuthLayout />}>
