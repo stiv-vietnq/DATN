@@ -9,6 +9,7 @@
   font-size: 24px;
   color: #fb8016;
   text-transform: uppercase;
+  padding: 15px;
 }
 
 .top-product-list {
@@ -108,6 +109,7 @@
     opacity: 0;
     transform: translateY(-4px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -119,4 +121,114 @@
 .top-product-list,
 .top-product-header {
   overflow: visible !important;
+}
+
+.product-grid {
+  margin-top: 24px;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 20px;
+}
+
+.product-card {
+  position: relative;
+  border: 1px solid #eee;
+  border-radius: 6px;
+  background-color: #fff;
+  padding: 10px;
+  transition: box-shadow 0.3s;
+  cursor: pointer;
+}
+
+.product-card:hover {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+}
+
+.product-img {
+  width: 100%;
+  height: 200px;
+  object-fit: cover;
+  border-radius: 4px;
+}
+
+.product-info {
+  margin-top: 8px;
+}
+
+.product-name {
+  font-size: 14px;
+  font-weight: 500;
+  color: #222;
+  line-height: 1.4;
+  height: 38px;
+  overflow: hidden;
+}
+
+.product-price {
+  color: #ee4d2d;
+  font-weight: 600;
+  margin-top: 4px;
+}
+
+.product-meta {
+  font-size: 12px;
+  color: #777;
+  display: flex;
+  justify-content: space-between;
+  margin-top: 6px;
+}
+
+/* TOP badge */
+.top-rank {
+  position: absolute;
+  top: 6px;
+  left: 6px;
+  background-color: #ee4d2d;
+  color: #fff;
+  font-size: 12px;
+  font-weight: bold;
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
+.rank-1 { background-color: #ff3d00; color: white; }
+.rank-2 { background-color: #ff5722; color: white; }
+.rank-3 { background-color: #ff6f00; color: white; }
+.rank-4 { background-color: #ff8f00; color: white; }
+.rank-5 { background-color: #ffa000; color: white; }
+.rank-6 { background-color: #ffb300; color: white; }
+.rank-7 { background-color: #ffc107; color: black; }
+.rank-8 { background-color: #ffd54f; color: black; }
+.rank-9 { background-color: #ffe082; color: black; }
+.rank-10 { background-color: #ffee58; color: black; }
+
+.rank-11 { background-color: #dce775; color: black; }
+.rank-12 { background-color: #cddc39; color: black; }
+.rank-13 { background-color: #aed581; color: black; }
+.rank-14 { background-color: #8bc34a; color: white; }
+.rank-15 { background-color: #66bb6a; color: white; }
+.rank-16 { background-color: #4caf50; color: white; }
+.rank-17 { background-color: #43a047; color: white; }
+.rank-18 { background-color: #388e3c; color: white; }
+.rank-19 { background-color: #2e7d32; color: white; }
+.rank-20 { background-color: #1b5e20; color: white; }
+
+.rank-21 { background-color: #26a69a; color: white; }
+.rank-22 { background-color: #009688; color: white; }
+.rank-23 { background-color: #00897b; color: white; }
+.rank-24 { background-color: #00796b; color: white; }
+.rank-25 { background-color: #00695c; color: white; }
+.rank-26 { background-color: #004d40; color: white; }
+.rank-27 { background-color: #03a9f4; color: white; }
+.rank-28 { background-color: #0288d1; color: white; }
+.rank-29 { background-color: #0277bd; color: white; }
+.rank-30 { background-color: #01579b; color: white; }
+
+.rank {
+  border-radius: 50%;
+  padding: 6px 10px;
+  font-weight: bold;
+  display: inline-block;
+  width: 32px;
+  text-align: center;
 }
