@@ -84,5 +84,11 @@
       "title": "Today's Suggestions",
       "view_all": "View More"
     }
+  },
+  "product_detail": {
+    "select_version": "Select Version",
+    "select_color": "Select Color",
+    "buy_now": "Buy Now",
+    "add_to_cart": "Add to Cart"
   }
 }

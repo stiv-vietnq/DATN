@@ -84,5 +84,11 @@
       "title": "Gợi ý hôm nay",
       "view_all": "Xem thêm"
     }
+  },
+  "product_detail": {
+    "select_version": "Lựa chọn phiên bản",
+    "select_color": "Lựa chọn màu sắc",
+    "buy_now": "Mua ngay",
+    "add_to_cart": "Thêm vào giỏ hàng"
   }
 }
