@@ -1,9 +1,10 @@
-import { Drawer, List, Stack, Toolbar } from "@mui/material";
+import { Avatar, Box, Drawer, List, Stack, Toolbar } from "@mui/material";
 import colorConfigs from "../../../admin/configs/colorConfigs";
 import sizeConfigs from "../../../admin/configs/sizeConfigs";
 import appRoutes from "../../../routes/admin-routes/appRoutes";
 import SidebarItem from "./SidebarItem";
 import SidebarItemCollapse from "./SidebarItemCollapse";
+import logo from "../../../assets/quickbuyshop.png";
 
 interface AppRoute {
   path: string;
@@ -29,6 +30,17 @@ const Sidebar = () => {
     >
       <List disablePadding>
         <Toolbar sx={{ marginBottom: "20px" }}>
+          <Box
+            component="img"
+            src={logo}
+            alt="Logo"
+            sx={{
+              width: 80,
+              height: 80,
+              borderRadius: 2,
+              cursor: "pointer",
+            }}
+          />
           <Stack
             sx={{ width: "100%" }}
             direction="row"

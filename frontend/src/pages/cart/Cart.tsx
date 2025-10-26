@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from "react";
+import { useMemo, useState } from "react";
 import "./Cart.css";
 
 // ------------------- Types -------------------

@@ -1,7 +1,6 @@
-import { useLocation } from 'react-router-dom';
-import './TopProduct.css';
-import { useTranslation } from 'react-i18next';
 import { useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import './TopProduct.css';
 
 interface Category {
   id: number;
