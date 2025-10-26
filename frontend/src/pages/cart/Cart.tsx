@@ -181,7 +181,7 @@ export default function Cart() {
         shop.items.length > 0 && shop.items.every((it) => it.selected);
 
     return (
-        <div className="main-content">
+        <div className="main-content-cart">
             <div className="cart-container">
                 <div className="cart-header">
                     <div className="col-product">

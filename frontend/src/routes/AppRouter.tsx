@@ -14,6 +14,9 @@ import Profile from "../pages/user/profile/Profile";
 import Purchase from "../pages/user/purchase/Purchase";
 import Cart from "../pages/cart/Cart";
 import CartLayout from "../components/layout/CartLayout";
+import { renderRoutes } from "./RenderRoutes";
+import appRoutes from "./admin-routes/appRoutes";
+import MainLayout from "../components/layoutAdmin/layout/MainLayout";
 
 export default function AppRouter() {
   return (
@@ -24,7 +27,7 @@ export default function AppRouter() {
         <Route path="/products" element={<Products />} />
         <Route path="/product-detail/:id" element={<ProductDetail />} />
         <Route path="/top-products" element={<TopProduct />} />
-        <Route path="/user" element={<User />} >
+        <Route path="/user" element={<User />}>
           <Route path="profile" element={<Profile />} />
           <Route path="purchases" element={<Purchase />} />
         </Route>
@@ -39,6 +42,10 @@ export default function AppRouter() {
         <Route path="/register" element={<Register />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/verify" element={<Verify />} />
+      </Route>
+
+      <Route element={<MainLayout />}>
+        <Route path="/admin/*">{renderRoutes(appRoutes)}</Route>
       </Route>
     </Routes>
   );
