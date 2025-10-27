@@ -14,7 +14,6 @@ public class Constants {
     public static final String CREATED_DATE = "createdDate";
     public static final String QUANTITY_SOLD = "quantitySold";
     public static final String NUMBER_OF_VISITS = "numberOfVisits";
-    public static final String BRAND_NOT_FOUND = "Brand not found";
     public static final String CATEGORY_NOT_FOUND = "Category not found";
     public static final String ADDRESS_NOT_FOUND = "Address not found";
     public static final String NOT_IMAGE = "Image field cannot be left blank";

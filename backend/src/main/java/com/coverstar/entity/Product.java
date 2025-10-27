@@ -28,9 +28,6 @@ public class Product {
     @JoinColumn(name = "productType_id", nullable = false)
     private ProductType productType;
 
-    @Column(name = "brand_id", nullable = false)
-    private Long brandId;
-
     @Column(name = "category_id", nullable = false)
     private Long categoryId;
 

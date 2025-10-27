@@ -22,7 +22,6 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
             "WHERE (:productTypeId IS NULL OR pt.id = :productTypeId) " +
             "AND (:name IS NULL OR LOWER(p.productName) LIKE LOWER(CONCAT('%', :name, '%'))) " +
             "AND p.price BETWEEN :minPrice AND :maxPrice " +
-            "AND (:brandId IS NULL OR p.brandId = :brandId) " +
             "AND (:categoryId IS NULL OR p.categoryId = :categoryId) " +
             "AND (COALESCE(:shippingMethodIds, NULL) IS NULL OR sm.id IN :shippingMethodIds) " +
             "AND a.type = 1 " +
@@ -33,7 +32,6 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
             @Param("name") String name,
             @Param("minPrice") BigDecimal minPrice,
             @Param("maxPrice") BigDecimal maxPrice,
-            @Param("brandId") Long brandId,
             @Param("categoryId") Long categoryId,
             @Param("shippingMethodIds") List<Long> shippingMethodIds,
             @Param("status") Boolean status,
@@ -51,8 +49,6 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
     Product getProductById(Long id);
 
     List<Product> findAllByProductTypeId(Long id);
-
-    List<Product> findAllByBrandId(Long id);
 
     List<Product> findAllByCategoryId(Long id);
 }

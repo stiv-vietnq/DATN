@@ -268,7 +268,6 @@ public class ProductServiceImpl implements ProductService {
             BigDecimal minPriceValue = searchProductDto.getMinPrice() != null ? searchProductDto.getMinPrice() : BigDecimal.ZERO;
             BigDecimal maxPriceValue = searchProductDto.getMaxPrice() != null ? searchProductDto.getMaxPrice() : BigDecimal.valueOf(Double.MAX_VALUE);
             Long productTypeId = searchProductDto.getProductTypeId() != null ? searchProductDto.getProductTypeId() : 0L;
-            Long brandId = searchProductDto.getBrandId() != null ? searchProductDto.getBrandId() : 0L;
             if (searchProductDto.getCategoryId() != null) {
                 Category category = categoryService.getCategoryById(searchProductDto.getCategoryId());
                 long numberOfVisits;
@@ -307,7 +306,7 @@ public class ProductServiceImpl implements ProductService {
 
             Pageable pageable = PageRequest.of(searchProductDto.getPage(), searchProductDto.getSize(), sort);
             return productRepository.findByNameContainingAndPriceBetweenWithDetails(productTypeId, nameValue,
-                    minPriceValue, maxPriceValue, brandId, categoryId, shippingMethodIds, status, evaluate, pageable);
+                    minPriceValue, maxPriceValue, categoryId, shippingMethodIds, status, evaluate, pageable);
         } catch (Exception e) {
             e.fillInStackTrace();
             throw e;
@@ -427,7 +426,6 @@ public class ProductServiceImpl implements ProductService {
             product.setSize(productDto.getSize());
             product.setPrice(productDto.getPrice());
             product.setPercentageReduction(productDto.getPercentageReduction());
-            product.setBrandId(productDto.getBrandId());
             product.setCategoryId(productDto.getCategoryId());
             product.setStatus(productDto.getStatus());
 
