@@ -6,6 +6,7 @@ import Input from "../../../components/common/input/Input";
 import './Verify.css';
 import { useLocation, useNavigate } from 'react-router-dom';
 import Loading from '../../../components/common/loading/Loading';
+import { verify } from '../../../api/auth';
 
 export default function Verify() {
 
@@ -31,7 +32,14 @@ export default function Verify() {
             return;
         }
         setError("");
-        navigate("/login");
+
+        verify({ token: code })
+            .then(res => {
+                navigate("/login");
+            })
+            .catch(err => {
+                setError(t("verification_failed"));
+            });
     };
 
     if (loading) return <Loading />;
@@ -42,7 +50,7 @@ export default function Verify() {
                 <div className="forgot-password-box">
                     <div className="forgot-password-title">
                         <div>
-                            <FaArrowLeft className="back-icon-svg" onClick={handleBack}/>
+                            <FaArrowLeft className="back-icon-svg" onClick={handleBack} />
                         </div>
                         <div className='forgot-password-title-label'>{t("verify")}</div>
                     </div>

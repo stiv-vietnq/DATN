@@ -7,12 +7,13 @@ import Input from "../../../components/common/input/Input";
 import PasswordInput from "../../../components/common/passwordInput/PasswordInput";
 import { validateFields } from "../../../utils/Validation";
 import Loading from "../../../components/common/loading/Loading";
+import { register } from "../../../api/auth";
 
 interface FormErrors {
   firstName?: string;
   lastName?: string;
   email?: string;
-  userName?: string;
+  username?: string;
   password?: string;
   confirmPassword?: string;
 }
@@ -24,7 +25,7 @@ export default function Register() {
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
-  const [userName, setUserName] = useState("");
+  const [username, setUserName] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [errors, setErrors] = useState<FormErrors>({});
@@ -57,8 +58,8 @@ export default function Register() {
         customError: "validation.emailInvalid",
       },
       {
-        field: "userName" as const,
-        value: userName,
+        field: "username" as const,
+        value: username,
         required: true,
         minLength: 6,
         maxLength: 255,
@@ -86,9 +87,44 @@ export default function Register() {
     const errors = validateFields(rules, t);
     setErrors(errors);
     if (Object.keys(errors).length === 0) {
-      navigate("/verify", {
-        state: { from: location.pathname },
-      });
+      if (Object.keys(errors).length === 0) {
+        setLoading(true);
+        register({
+          username,
+          email,
+          firstName,
+          lastName,
+          password,
+          repeatPassword: confirmPassword,
+        })
+          .then(() => {
+            setLoading(false);
+            navigate("/verify");
+          })
+          .catch(err => {
+            setLoading(false);
+            if (err.response) {
+              const status = err.response.status;
+              const message = err.response.data;
+
+              if (status === 409) {
+                if (message === "DUPLICATE_EMAIL") {
+                  alert("Email đã tồn tại. Vui lòng dùng email khác!");
+                } else if (message === "DUPLICATE_USERNAME") {
+                  alert("Tên đăng nhập đã tồn tại. Vui lòng chọn tên khác!");
+                } else {
+                  alert("Tên đăng nhập hoặc email đã tồn tại!");
+                }
+              } else if (status === 400) {
+                alert("Dữ liệu không hợp lệ. Vui lòng kiểm tra lại form!");
+              } else {
+                alert("Đăng ký thất bại. Vui lòng thử lại sau!");
+              }
+            } else {
+              alert("Không thể kết nối đến máy chủ!");
+            }
+          });
+      }
     }
   };
 
@@ -146,11 +182,11 @@ export default function Register() {
             />
 
             <Input
-              value={userName}
+              value={username}
               onChange={(e) => setUserName(e.target.value)}
               placeholder={t("enter_username")}
               style={{ width: "100%" }}
-              error={errors.userName}
+              error={errors.username}
             />
 
             <PasswordInput

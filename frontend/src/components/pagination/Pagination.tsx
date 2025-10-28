@@ -14,7 +14,8 @@ type PaginationProps = {
   className?: string;
   hideIfSinglePage?: boolean;
   headerContent?: React.ReactNode;
-  children?: React.ReactNode; // ⬅️ Thêm dòng này
+  children?: React.ReactNode;
+  t?: (key: string) => string; // i18n optional
 };
 
 const range = (from: number, to: number) => {
@@ -34,12 +35,14 @@ export default function Pagination({
   boundaryCount = 1,
   showPageSizeSelector = false,
   className = "",
-  hideIfSinglePage = true,
+  hideIfSinglePage = false, // luôn hiển thị
   headerContent,
-  children, // ⬅️ thêm children vào destructuring
+  children,
+  t,
 }: PaginationProps) {
   const totalPages = Math.max(1, Math.ceil(totalItems / itemsPerPage));
-  if (hideIfSinglePage && totalPages <= 1) return <>{children}</>;
+
+  const translate = (key: string, fallback: string) => (t ? t(key) : fallback);
 
   const createPagination = () => {
     const totalPageNumbers = siblingCount * 2 + 3 + boundaryCount * 2;
@@ -97,19 +100,28 @@ export default function Pagination({
 
   return (
     <div className={`pagination-wrapper ${className}`}>
+      {/* Header (luôn hiển thị) */}
       {headerContent && <div className="pagination-header">{headerContent}</div>}
 
-      {/* ✅ HIỂN THỊ DATA Ở ĐÂY */}
-      <div className="pagination-content">{children}</div>
+      {/* Nội dung chính */}
+      <div className="pagination-content">
+        {totalItems > 0 ? (
+          children
+        ) : (
+          <div className="no-data-message">
+            {translate("no_data", "Không có dữ liệu")}
+          </div>
+        )}
+      </div>
 
-      {/* THANH PHÂN TRANG */}
+      {/* Thanh điều hướng phân trang */}
       <nav className="pagination-container" aria-label="Pagination Navigation">
         <button
           className="pagination-button"
           disabled={currentPage <= 1}
           onClick={() => safeOnPageChange(currentPage - 1)}
         >
-          ‹ Prev
+          ‹ {translate("prev", "Trước")}
         </button>
 
         <ul className="pagination-list">
@@ -138,12 +150,12 @@ export default function Pagination({
           disabled={currentPage >= totalPages}
           onClick={() => safeOnPageChange(currentPage + 1)}
         >
-          Next ›
+          {translate("next", "Sau")} ›
         </button>
 
         {showPageSizeSelector && (
           <div className="pagination-size">
-            <label>Hiển thị:</label>
+            <label>{translate("show", "Hiển thị")}:</label>
             <select
               value={itemsPerPage}
               onChange={(e) =>
@@ -161,8 +173,14 @@ export default function Pagination({
         )}
 
         <div className="pagination-summary">
-          Hiển thị {(currentPage - 1) * itemsPerPage + 1} -{" "}
-          {Math.min(currentPage * itemsPerPage, totalItems)} / {totalItems}
+          {translate("displaying", "Hiển thị")}{" "}
+          {totalItems > 0
+            ? `${(currentPage - 1) * itemsPerPage + 1} - ${Math.min(
+                currentPage * itemsPerPage,
+                totalItems
+              )}`
+            : "0"}{" "}
+          / {totalItems}
         </div>
       </nav>
     </div>

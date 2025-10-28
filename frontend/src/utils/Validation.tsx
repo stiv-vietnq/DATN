@@ -2,7 +2,7 @@ type FieldKey =
   | "firstName"
   | "lastName"
   | "email"
-  | "userName"
+  | "username"
   | "password"
   | "confirmPassword";
 
@@ -29,7 +29,7 @@ const fieldKeys: Record<
     invalid: "validation.emailInvalid",
     tooLong: "validation.emailTooLong",
   },
-  userName: {
+  username: {
     required: "validation.userNameRequired",
     invalid: "validation.userNameInvalid",
     tooLong: "validation.userNameTooLong",

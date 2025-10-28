@@ -14,6 +14,7 @@ import DefaultPage from "../../admin/pages/dashboard/DefaultPage";
 import SaasPage from "../../admin/pages/dashboard/SaasPage";
 import { RouteType } from "./config";
 import { FaList } from "react-icons/fa";
+import CategoryPage from "../../admin/pages/category/CategoryPage";
 
 const appRoutes: RouteType[] = [
   {
@@ -67,7 +68,7 @@ const appRoutes: RouteType[] = [
   },
   {
     path: "categories",
-    element: <BrandPage />,
+    element: <CategoryPage />,
     state: "categories",
     sidebarProps: {
       displayText: "Categories",

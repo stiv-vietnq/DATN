@@ -15,14 +15,32 @@ export default function Login() {
     const [usernameOrEmail, setUsernameOrEmail] = useState("");
     const [loading, setLoading] = useState(false);
 
-    useEffect(() => {
-        login({ email: "test@gmail.com", password: "123456" })
-            .then(res => console.log(res.data))
-            .catch(err => console.error(err));
-    }, []);
-
     const handleChange = (e: React.FormEvent<HTMLInputElement>) => {
         setPw(e.currentTarget.value);
+    };
+
+    const handleLogin = () => {
+        setLoading(true);
+        login({ usernameOrEmail: usernameOrEmail, password: pw })
+
+            .then((response) => {
+                debugger
+                setLoading(false);
+                const token = response.data?.token;
+
+                if (token) {
+                    localStorage.setItem("tokenWeb", token);
+                    alert("Đăng nhập thành công!");
+                    navigate("/");
+                } else {
+                    alert("Không nhận được token từ server!");
+                }
+                navigate("/admin/brands");
+            })
+            .catch(() => {
+                setLoading(false);
+                alert(t("login_failed"));
+            });
     };
 
     const handleClick = () => {
@@ -68,7 +86,7 @@ export default function Login() {
                             width="100%"
                         />
 
-                        <Button width="100%" variant="login-often" onClick={() => alert("Primary")}>
+                        <Button width="100%" variant="login-often" onClick={handleLogin}>
                             {t("login")}
                         </Button>
 

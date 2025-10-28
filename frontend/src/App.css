@@ -60,3 +60,19 @@ header {
 .css-wnh6mk {
   padding: 0 !important;
 }
+
+.action-buttons {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  justify-content: center;
+}
+
+.action-buttons-icon {
+  cursor: pointer;
+}
+
+.action-buttons-icon:hover {
+  transform: scale(1.2);
+  transition: transform 0.2s;
+}

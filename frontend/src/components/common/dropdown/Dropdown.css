@@ -1,0 +1,30 @@
+.dropdown-wrapper {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    margin-bottom: 28px;
+}
+
+.dropdown-field {
+    padding: 10px 12px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    font-size: 14px;
+    outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.dropdown-field:focus {
+    border-color: #4a90e2;
+    box-shadow: 0 0 3px rgba(74, 144, 226, 0.4);
+}
+
+.dropdown-error {
+    border-color: #e74c3c;
+}
+
+.dropdown-error-message {
+    color: #e74c3c;
+    font-size: 12px;
+    margin-top: 4px;
+}

@@ -48,7 +48,7 @@ public class ProductTypeController {
         }
     }
 
-    @GetMapping("/getProductType/{id}")
+    @GetMapping("/admin/getProductType/{id}")
     public ResponseEntity<?> getProductType(@PathVariable Long id) {
         try {
             ProductType productType = productTypeService.getProductType(id);
