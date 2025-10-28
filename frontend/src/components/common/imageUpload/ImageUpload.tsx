@@ -51,7 +51,7 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
                 !disabled && (
                     <label className="upload-box">
                         <FaUpload className="upload-icon" />
-                        <span>Chọn ảnh thương hiệu</span>
+                        <span>Vui lòng chọn ảnh</span>
                         <input
                             type="file"
                             accept="image/*"
