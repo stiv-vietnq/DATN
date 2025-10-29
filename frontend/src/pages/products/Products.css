@@ -1,0 +1,78 @@
+.products-content {
+  display: flex;
+  width: 70%;
+  margin: 0 auto;
+  padding: 3% 0;
+}
+
+.products-search-results {
+  width: 15%;
+}
+
+.phone-company-search-title {
+  font-size: 14px;
+  text-transform: uppercase;
+  font-weight: 500;
+  text-align: left;
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  gap: 5px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid #ccc;
+}
+
+.icon-bars {
+  font-size: 15px;
+}
+
+.phone-company-search-list {
+  text-align: left;
+  padding-top: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.phone-company-search-item {
+  display: flex;
+  gap: 5px;
+  align-items: center;
+  padding: 6px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.2s, color 0.2s;
+}
+
+.phone-company-search-item:hover {
+  background-color: #f3f3f3;
+}
+
+.phone-company-search-item.active {
+  background-color: #e6f0ff;
+  color: #007bff;
+  font-weight: 500;
+}
+
+.phone-company-search-item-logo {
+  width: 15px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: #007bff;
+  transition: transform 0.2s ease, opacity 0.2s ease;
+}
+
+.phone-company-search-item-logo svg {
+  opacity: 0;
+  transform: translateX(-5px);
+}
+
+.phone-company-search-item.active .phone-company-search-item-logo svg {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+.phone-company-search-item-name {
+  flex: 1;
+}

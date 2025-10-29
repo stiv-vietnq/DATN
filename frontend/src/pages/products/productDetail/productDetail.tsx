@@ -59,7 +59,7 @@ export default function ProductDetail() {
 
     return (
         <div className="main-content" style={{ paddingBottom: "40px" }}>
-            <div style={{ width: "60%", margin: "120px auto 0 auto" }}>
+            <div style={{ width: "70%", margin: "120px auto 0 auto" }}>
                 <div className="product-page">
                     <Breadcrumb items={breadcrumbItems} />
                     <Banner />

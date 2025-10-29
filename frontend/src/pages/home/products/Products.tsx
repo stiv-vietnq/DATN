@@ -68,6 +68,10 @@ export default function Products() {
         navigate(`/product-detail/${id}`);
     };
 
+    const handleViewAllProducts = () => {
+        navigate('/products');
+    };
+
     return (
         <div className="product-content">
             <div className='product-title'>
@@ -82,7 +86,7 @@ export default function Products() {
                 ))}
             </div>
             <div className='product-view-all'>
-                <Button width="15%" variant="login-often" onClick={() => alert("Primary")}  disabled={products?.length < 48}>
+                <Button width="15%" variant="login-often" onClick={handleViewAllProducts} disabled={products?.length < 1}>
                     {t("home.product.view_all")}
                 </Button>
             </div>

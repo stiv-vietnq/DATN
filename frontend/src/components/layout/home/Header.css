@@ -3,7 +3,7 @@
             #57ddf5 0%,
             #8aeff3 20%,
             #a8f8f4 40%,
-            #aff8f8 60%,
+            #aff8f8 70%,
             #c8f2f8 100%);
     transition: transform .2s cubic-bezier(.4, 0, .2, 1);
     box-sizing: border-box;
@@ -19,7 +19,7 @@
 }
 
 .navbar-wrapper {
-    width: 60%;
+    width: 70%;
     margin: 0 auto;
     text-align: center;
 }
@@ -363,7 +363,7 @@
 }
 
 .cart-popup-item-name {
-    width: 60%;
+    width: 70%;
     font-size: 14px;
     color: #333;
     text-align: start;
