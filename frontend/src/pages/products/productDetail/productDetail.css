@@ -166,6 +166,7 @@
     display: flex;
     gap: 10px;
     margin-top: 25px;
+    font-size: 14px;
 }
 
 .btn-buy {
@@ -189,6 +190,10 @@
     background-color: #ff2b2b;
 }
 
+.btn-buy:focus {
+    outline: none;
+}
+
 .btn-credit {
     flex: 1;
     background-color: #008c45;
@@ -208,6 +213,10 @@
 
 .btn-credit:hover {
     background-color: #005a9e;
+}
+
+.btn-credit:focus {
+    outline: none;
 }
 
 .image-modal-overlay {
@@ -341,4 +350,104 @@
         opacity: 1;
         transform: scale(1);
     }
+}
+
+.product-description {
+    margin-top: 20px;
+    font-size: 16px;
+    line-height: 1.6;
+    color: #333;
+    text-align: left;
+    text-indent: 0;
+}
+
+.product-page {
+    padding-bottom: 15px;
+}
+
+.comment-page {
+    margin-top: 15px;
+    background-color: #ffffff;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    border-radius: 10px;
+    padding: 40px;
+}
+
+.comment-section {
+    display: flex;
+    gap: 15px;
+}
+
+.comment-section-action {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 10px;
+}
+
+.comment-title {
+    font-size: 22px;
+    font-weight: bold;
+    margin-bottom: 20px;
+    text-align: left;
+}
+
+.btn-submit-comment {
+    margin-top: 15px;
+    background-color: #00a651;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 12px 20px;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.btn-submit-comment:hover {
+    background-color: #008c45;
+}
+
+.btn-submit-comment:focus {
+    outline: none;
+}
+
+.comment-section-data {
+    margin-top: 30px;
+    display: flex;
+    gap: 15px;
+}
+
+.comment-data-avatar {
+    width: 8%;
+}
+
+.comment-data-avatar img {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.comment-username-date {
+    display: grid;
+    text-align: start;
+    margin-bottom: 30px;
+}
+
+.comment-text {
+    margin-top: 5px;
+    font-size: 16px;
+    color: #333;
+    background-color: #f9f9f9;
+    padding: 20px;
+    border-radius: 15px;
+}
+
+.comment-username {
+    font-weight: bold;
+    font-size: 18px;
 }

@@ -80,7 +80,7 @@
   "top_search": "Top Search",
   "view_all": "View All",
   "home": {
-    "product":{
+    "product": {
       "title": "Today's Suggestions",
       "view_all": "View More"
     }
@@ -90,5 +90,13 @@
     "select_color": "Select Color",
     "buy_now": "Buy Now",
     "add_to_cart": "Add to Cart"
+  },
+  "product-description": "Product Description",
+  "comment": {
+    "enter_username": "Enter username...",
+    "enter_email": "Enter email...",
+    "enter_phone_number": "Enter phone number...",
+    "enter_comment": "Enter comment...",
+    "submit_comment": "Submit Comment"
   }
 }

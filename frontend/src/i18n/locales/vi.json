@@ -90,5 +90,13 @@
     "select_color": "Lựa chọn màu sắc",
     "buy_now": "Mua ngay",
     "add_to_cart": "Thêm vào giỏ hàng"
+  },
+  "product-description": "Mô tả sản phẩm",
+  "comment" : {
+    "enter_username": "Nhập tên người dùng...",
+    "enter_email": "Nhập email...",
+    "enter_phone_number": "Nhập số điện thoại...",
+    "enter_comment": "Nhập bình luận...",
+    "submit_comment": "Gửi bình luận"
   }
 }

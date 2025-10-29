@@ -4,8 +4,11 @@ import "./productDetail.css";
 import logo from "../../../assets//quickbuyshop.png";
 import logo2 from "../../../assets//quickbuyshopwhite.png";
 import Breadcrumb from "../../../components/breadcrumb/Breadcrumb";
-import { FaBagShopping, FaCartShopping, FaChevronLeft, FaChevronRight, FaXmark } from "react-icons/fa6"
+import { FaBagShopping, FaCartShopping, FaChevronLeft, FaChevronRight, FaPaperPlane, FaShareNodes, FaXmark } from "react-icons/fa6"
 import { useTranslation } from "react-i18next";
+import Textarea from "../../../components/common/textarea/Textarea";
+import Input from "../../../components/common/input/Input";
+import CommentAvatar from "./commentAvatar/CommentAvatar";
 
 export default function ProductDetail() {
     const { t } = useTranslation();
@@ -14,6 +17,10 @@ export default function ProductDetail() {
     const [selectedImage, setSelectedImage] = useState(logo);
     const [currentIndex, setCurrentIndex] = useState<number>(0);
     const [showModal, setShowModal] = useState<boolean>(false);
+    const [name, setName] = useState<string>("");
+    const [email, setEmail] = useState<string>("");
+    const [comment, setComment] = useState<string>("");
+    const [phoneNumber, setPhoneNumber] = useState<string>("");
 
     const storageOptions = [
         { name: "12GB/512GB", price: 6990000 },
@@ -64,7 +71,7 @@ export default function ProductDetail() {
                             <img src={selectedImage} alt="POCO" className="product-main-img" onClick={() => setShowModal(true)} />
 
                             <div className="thumbnail-list">
-                                {colorOptions.map((c) => (
+                                {colorOptions?.slice(0, 4).map((c) => (
                                     <div
                                         key={c.name}
                                         className={`thumbnail-item ${selectedColor === c.name ? "active" : ""}`}
@@ -78,6 +85,7 @@ export default function ProductDetail() {
                                     </div>
                                 ))}
                             </div>
+
                         </div>
 
                         <div className="product-right">
@@ -86,7 +94,6 @@ export default function ProductDetail() {
                                 <span className="old">7.990.000 ₫</span>
                             </div>
 
-                            {/* Storage selection */}
                             <div className="option-group">
                                 <p className="option-title">{t("product_detail.select_version")}</p>
                                 <div className="option-list">
@@ -122,7 +129,13 @@ export default function ProductDetail() {
                                 </div>
                             </div>
 
-                            {/* Buttons */}
+                            <div className="product-description-main">
+                                <p className="option-title">{t("product-description")}</p>
+                                <div className="product-description">
+                                    Xiaomi POCO M7 Pro 5G là chiếc điện thoại thuộc phân khúc giá rẻ nhưng mang đến trải nghiệm vượt trội trong tầm giá. Máy sở hữu thiết kế hiện đại, khung viền tinh tế và màn hình lớn 6.67 inch sử dụng tấm nền AMOLED cho màu sắc rực rỡ, hiển thị sắc nét. Bên trong là sức mạnh của chip Dimensity 920, kết hợp RAM 12GB và bộ nhớ trong lên đến 512GB, giúp xử lý mượt mà mọi tác vụ. Viên pin 5000mAh hỗ trợ sạc nhanh 18W, cho thời gian sử dụng dài lâu, đáp ứng tốt nhu cầu học tập, làm việc và giải trí mỗi ngày.
+                                </div>
+                            </div>
+
                             <div className="btn-group">
                                 <button className="btn-buy">
                                     <FaBagShopping />
@@ -132,6 +145,60 @@ export default function ProductDetail() {
                                     <FaCartShopping />
                                     <div>{t("product_detail.add_to_cart")}</div>
                                 </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div className="comment-page">
+                    <div className="comment-title">Bình luận về sản phẩm A</div>
+
+                    <div className="comment-section">
+                        <Input
+                            value={name}
+                            onChange={(e) => setName(e.target.value)}
+                            placeholder={t("comment.enter_username")}
+                            style={{ width: "100%" }}
+                        />
+                        <Input
+                            value={email}
+                            onChange={(e) => setEmail(e.target.value)}
+                            placeholder={t("comment.enter_email")}
+                            style={{ width: "100%" }}
+                        />
+                        <Input
+                            value={phoneNumber}
+                            onChange={(e) => setPhoneNumber(e.target.value)}
+                            placeholder={t("comment.enter_phone_number")}
+                            style={{ width: "100%" }}
+                        />
+                    </div>
+                    <div className="comment-section">
+                        <Textarea
+                            value={comment}
+                            onChange={(e) => setComment(e.target.value)}
+                            placeholder={t("comment.enter_comment")}
+                        />
+                    </div>
+
+                    <div className="comment-section-action">
+                        <button className="btn-submit-comment">
+                            <FaPaperPlane />
+                            <div>{t("comment.submit_comment")}</div>
+                        </button>
+                    </div>
+
+
+                    <div className="comment-section-data">
+                        <div className="comment-data-avatar">
+                            <CommentAvatar avatarUrl={""} />
+                        </div>
+                        <div className="comment-data-content">
+                            <div className="comment-username-date">
+                                <span className="comment-username">Nguyen Van A</span>
+                                <span className="comment-date">01/01/2024</span>
+                            </div>
+                            <div className="comment-text">
+                                Đây là một sản phẩm tuyệt vời! Tôi rất hài lòng với hiệu suất và thiết kế của nó.
                             </div>
                         </div>
                     </div>
@@ -155,7 +222,6 @@ export default function ProductDetail() {
                             <FaXmark />
                         </button>
 
-                        {/* thumbnail trong modal */}
                         <div className="modal-thumbnail-list">
                             {colorOptions.map((c, index) => (
                                 <div

@@ -1,4 +1,3 @@
-import React from "react";
 import type { CSSProperties, ChangeEvent } from "react";
 import "./Input.css";
 
