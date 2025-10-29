@@ -44,8 +44,8 @@ public class ProductServiceImpl implements ProductService {
     @Autowired
     private ProductDetailRepository productDetailRepository;
 
-    @Autowired
-    private ShippingMethodRepository shippingMethodRepository;
+//    @Autowired
+//    private ShippingMethodRepository shippingMethodRepository;
 
     @Lazy
     @Autowired
@@ -280,9 +280,9 @@ public class ProductServiceImpl implements ProductService {
                 categoryRepository.save(category);
             }
             Long categoryId = searchProductDto.getCategoryId() != null ? searchProductDto.getCategoryId() : 0L;
-            List<Long> shippingMethodIds = searchProductDto.getShippingMethodIds().stream()
-                    .map(Long::parseLong)
-                    .collect(Collectors.toList());
+//            List<Long> shippingMethodIds = searchProductDto.getShippingMethodIds().stream()
+//                    .map(Long::parseLong)
+//                    .collect(Collectors.toList());
             Boolean status = searchProductDto.getStatus() != null ? searchProductDto.getStatus() : null;
             String orderBy = searchProductDto.getOrderBy() != null ? searchProductDto.getOrderBy() : Constants.DESC;
             String priceOrder = searchProductDto.getPriceOrder() != null ? searchProductDto.getPriceOrder() : Constants.DESC;
@@ -306,7 +306,9 @@ public class ProductServiceImpl implements ProductService {
 
             Pageable pageable = PageRequest.of(searchProductDto.getPage(), searchProductDto.getSize(), sort);
             return productRepository.findByNameContainingAndPriceBetweenWithDetails(productTypeId, nameValue,
-                    minPriceValue, maxPriceValue, categoryId, shippingMethodIds, status, evaluate, pageable);
+                    minPriceValue, maxPriceValue, categoryId
+//                    , shippingMethodIds
+                    , status, evaluate, pageable);
         } catch (Exception e) {
             e.fillInStackTrace();
             throw e;
@@ -429,10 +431,10 @@ public class ProductServiceImpl implements ProductService {
             product.setCategoryId(productDto.getCategoryId());
             product.setStatus(productDto.getStatus());
 
-            List<ShippingMethod> shippingMethods = shippingMethodRepository.findAllById(
-                    productDto.getShippingMethodIds().stream().map(Long::parseLong).collect(Collectors.toList())
-            );
-            product.setShippingMethods(new HashSet<>(shippingMethods));
+//            List<ShippingMethod> shippingMethods = shippingMethodRepository.findAllById(
+//                    productDto.getShippingMethodIds().stream().map(Long::parseLong).collect(Collectors.toList())
+//            );
+//            product.setShippingMethods(new HashSet<>(shippingMethods));
             product.setDescription(productDto.getDescription());
             if (StringUtils.isNotEmpty(productDto.getImageIdsToRemove())) {
                 List<Long> imageIdsToRemoveDT = Arrays.stream(productDto.getImageIdsToRemove().split(","))

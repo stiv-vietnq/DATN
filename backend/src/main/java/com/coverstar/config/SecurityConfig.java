@@ -57,8 +57,9 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                         "/products/admin/**",
                         "/categories/admin/**",
                         "/discounts/admin/**",
-                        "/purchases/admin/**",
-                        "/shipping-methods/admin/**"
+                        "/purchases/admin/**"
+//                        ,
+//                        "/shipping-methods/admin/**"
                 )
                 .hasRole("ADMIN")
                 .anyRequest()

@@ -1,0 +1,60 @@
+.header-content-product {
+  display: flex;
+  align-items: center;
+  padding: 1%;
+  width: 100%;
+}
+
+.header-info-product {
+  width: 80%;
+  margin-bottom: -28px;
+}
+
+.header-actions-product {
+  width: 20%;
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.button-create-product button {
+  background-color: #4CAF50;
+  border: none;
+  color: white;
+  padding: 10px 24px;
+  display: flex;
+  font-size: 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  gap: 5px;
+}
+
+.button-search-product button {
+  background-color: #008CBA;
+  border: none;
+  color: white;
+  padding: 10px 24px;
+  display: flex;
+  font-size: 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  gap: 5px;
+}
+
+.button-create-product button:hover {
+  background-color: #45a049;
+}
+
+.button-search-product button:hover {
+  background-color: #007bb5;
+}
+
+.action-buttons-product {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+}
+
+.action-buttons-icon-product {
+  cursor: pointer;
+}

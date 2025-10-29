@@ -3,12 +3,12 @@ import "./Dropdown.css";
 
 interface Option {
     label: string;
-    value: string | boolean;
+    value: string;
 }
 
-interface DropdownProps {
-    value: null | boolean;
-    onChange: (value: boolean | null) => void;
+interface StringDropdownProps {
+    value: string | null;
+    onChange: (value: string | null) => void;
     options: Option[];
     placeholder?: string;
     error?: string;
@@ -16,7 +16,7 @@ interface DropdownProps {
     disabled?: boolean;
 }
 
-const Dropdown = ({
+const StringDropdown = ({
     value,
     onChange,
     options,
@@ -24,18 +24,16 @@ const Dropdown = ({
     error,
     style = {},
     disabled = false,
-}: DropdownProps) => {
+}: StringDropdownProps) => {
     const handleChange = (event: ChangeEvent<HTMLSelectElement>) => {
         const val = event.target.value;
-        if (val === "") onChange(null);
-        else if (val === "true") onChange(true);
-        else if (val === "false") onChange(false);
+        onChange(val === "" ? null : val);
     };
 
     return (
         <div className="dropdown-wrapper">
             <select
-                value={value === null ? "" : String(value)}
+                value={value ?? ""}
                 onChange={handleChange}
                 className={`dropdown-field ${error ? "dropdown-error" : ""}`}
                 style={style}
@@ -43,7 +41,7 @@ const Dropdown = ({
             >
                 <option value="">{placeholder}</option>
                 {options.map((opt) => (
-                    <option key={String(opt.value)} value={String(opt.value)}>
+                    <option key={opt.value} value={opt.value}>
                         {opt.label}
                     </option>
                 ))}
@@ -53,4 +51,4 @@ const Dropdown = ({
     );
 };
 
-export default Dropdown;
+export default StringDropdown;

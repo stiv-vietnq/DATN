@@ -9,6 +9,7 @@ interface InputProps {
   placeholder?: string;
   error?: string;
   style?: CSSProperties;
+  disabled?: boolean; // ✅ Thêm thuộc tính disabled
 }
 
 const Input = ({
@@ -18,6 +19,7 @@ const Input = ({
   placeholder,
   error,
   style = {},
+  disabled = false, // ✅ Giá trị mặc định là false
 }: InputProps) => {
   return (
     <div className="input-wrapper">
@@ -28,6 +30,7 @@ const Input = ({
         placeholder={placeholder}
         className={`input-field ${error ? "input-error" : ""}`}
         style={style}
+        disabled={disabled} // ✅ Gán vào input
       />
       {error && <div className="input-error-message">{error}</div>}
     </div>

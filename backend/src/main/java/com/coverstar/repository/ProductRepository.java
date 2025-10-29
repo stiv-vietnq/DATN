@@ -17,13 +17,13 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
             "FROM Product p " +
             "INNER JOIN Image a ON p.id = a.productId " +
             "INNER JOIN ProductDetail pd ON p.id = pd.productId " +
-            "INNER JOIN p.shippingMethods sm " +
+//            "INNER JOIN p.shippingMethods sm " +
             "INNER JOIN p.productType pt " +
             "WHERE (:productTypeId IS NULL OR pt.id = :productTypeId) " +
             "AND (:name IS NULL OR LOWER(p.productName) LIKE LOWER(CONCAT('%', :name, '%'))) " +
             "AND p.price BETWEEN :minPrice AND :maxPrice " +
             "AND (:categoryId IS NULL OR p.categoryId = :categoryId) " +
-            "AND (COALESCE(:shippingMethodIds, NULL) IS NULL OR sm.id IN :shippingMethodIds) " +
+//            "AND (COALESCE(:shippingMethodIds, NULL) IS NULL OR sm.id IN :shippingMethodIds) " +
             "AND a.type = 1 " +
             "AND (:status IS NULL OR p.status = :status) " +
             "AND (:evaluate IS NULL OR p.evaluate >= :evaluate)")
@@ -33,7 +33,7 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
             @Param("minPrice") BigDecimal minPrice,
             @Param("maxPrice") BigDecimal maxPrice,
             @Param("categoryId") Long categoryId,
-            @Param("shippingMethodIds") List<Long> shippingMethodIds,
+//            @Param("shippingMethodIds") List<Long> shippingMethodIds,
             @Param("status") Boolean status,
             @Param("evaluate") Float evaluate,
             Pageable pageable);

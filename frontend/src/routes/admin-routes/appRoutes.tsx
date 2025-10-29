@@ -1,4 +1,4 @@
-import DashboardOutlinedIcon from "@mui/icons-material/DashboardOutlined";
+import { FaList } from "react-icons/fa";
 import {
   FaBoxesStacked,
   FaCartShopping,
@@ -7,14 +7,14 @@ import {
   FaUser,
 } from "react-icons/fa6";
 import BrandPage from "../../admin/pages/brand/BrandPage";
+import CategoryPage from "../../admin/pages/category/CategoryPage";
 import AnalyticsPage from "../../admin/pages/dashboard/AnalyticsPage";
 import DashboardIndex from "../../admin/pages/dashboard/DashboardIndex";
 import DashboardPageLayout from "../../admin/pages/dashboard/DashboardPageLayout";
 import DefaultPage from "../../admin/pages/dashboard/DefaultPage";
 import SaasPage from "../../admin/pages/dashboard/SaasPage";
+import ProductPage from "../../admin/pages/product/ProductPage";
 import { RouteType } from "./config";
-import { FaList } from "react-icons/fa";
-import CategoryPage from "../../admin/pages/category/CategoryPage";
 
 const appRoutes: RouteType[] = [
   {
@@ -77,7 +77,7 @@ const appRoutes: RouteType[] = [
   },
   {
     path: "products",
-    element: <BrandPage />,
+    element: <ProductPage />,
     state: "products",
     sidebarProps: {
       displayText: "Products",

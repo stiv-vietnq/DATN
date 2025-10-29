@@ -24,7 +24,7 @@ public class CreateOrUpdateProduct implements Serializable {
     private String description;
     private String imageIdsToRemove;
     private String listProductDetailIdRemove;
-    private List<String> shippingMethodIds;
+//    private List<String> shippingMethodIds;
     private Long categoryId;
     private Boolean status;
     private List<MultipartFile> images;

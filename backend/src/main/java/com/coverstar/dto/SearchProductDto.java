@@ -16,7 +16,7 @@ public class SearchProductDto implements Serializable {
     private BigDecimal maxPrice;
     private Boolean status;
     private Long categoryId;
-    private List<String> shippingMethodIds;
+//    private List<String> shippingMethodIds;
     private String orderBy;
     private String priceOrder;
     private Integer page;
