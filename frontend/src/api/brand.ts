@@ -1,7 +1,7 @@
 import api from "./index";
 
 export const getBrandById = (brandId?: number | null | string) => {
-  return api.get(`/productTypes/admin/getBrand/${brandId}`);
+  return api.get(`/productTypes/getProductType/${brandId}`);
 };
 
 export const createOrUpdateBrand = (data: FormData) => {
@@ -22,7 +22,13 @@ export const updateStatus = (id: number, status: boolean) => {
 
 export const searchProductType = (params: {
   name?: string;
-  status?: boolean | null;
+  status?: string | null;
 }) => {
   return api.get("/productTypes/search", { params });
+};
+
+export const getProductTypeByStatus = (params: {
+  status?: string | null;
+}) => {
+  return api.get("/productTypes/getAllProductTypesByStatus", { params });
 };

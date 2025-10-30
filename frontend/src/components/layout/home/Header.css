@@ -37,7 +37,7 @@
     padding: 0.3%;
     gap: 10px;
     align-items: center;
-    color: red;
+    color: black;
 }
 
 .navbar-container-account {
@@ -46,7 +46,7 @@
     justify-content: end;
     padding: 0.3%;
     gap: 15px;
-    color: red;
+    color: black;
     font-size: 16px;
 }
 
@@ -69,15 +69,15 @@
 }
 
 .navbar-container-connect-icon.zalo {
-    border-color: red;
+    border-color: royalblue;
 }
 
 .navbar-container-connect-icon.facebook {
-    border-color: red;
+    border-color: royalblue;
 }
 
 .navbar-container-connect-icon.instagram {
-    border-color: red;
+    border-color: royalblue;
 }
 
 .navbar-container-account-item {
@@ -85,12 +85,12 @@
     align-items: center;
     justify-content: center;
     gap: 5px;
-    color: red;
+    color: black;
     position: relative;
 
     &:hover {
         cursor: pointer;
-        color: #fb8016;
+        color: #5661f5;
     }
 }
 
@@ -213,7 +213,7 @@
 
 .user-popup li:hover {
     background: #f5f5f5;
-    color: #fb8016;
+    color: #5661f5;
 }
 
 .navbar-header {
@@ -263,7 +263,7 @@
     top: -8px;
     right: -25px;
     background: white;
-    color: #fb5533;
+    color: #5661f5;
     font-size: 13px;
     font-weight: bold;
     padding: 1px 2px;
@@ -376,7 +376,7 @@
 .cart-popup-item-price {
     width: 20%;
     font-size: 14px;
-    color: #fb8016;
+    color: #5661f5;
     text-align: end;
 }
 
@@ -384,7 +384,7 @@
     font-size: 12px;
     vertical-align: super;
     margin-left: 2px;
-    color: #fb8016;
+    color: #5661f5;
 }
 
 .cart-popup-list-header {

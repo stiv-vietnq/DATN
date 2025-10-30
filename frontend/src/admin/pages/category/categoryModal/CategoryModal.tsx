@@ -1,20 +1,27 @@
 import React, { useEffect, useState } from "react";
 import { FaX } from "react-icons/fa6";
+import { getProductTypeByStatus } from "../../../../api/brand";
 import {
   createOrUpdateCategory,
   getCategoryById,
 } from "../../../../api/category";
+import Dropdown from "../../../../components/common/dropdown/Dropdown";
+import StringDropdown from "../../../../components/common/dropdown/StringDropdown";
 import ImageUpload from "../../../../components/common/imageUpload/ImageUpload";
 import Input from "../../../../components/common/input/Input";
 import Loading from "../../../../components/common/loading/Loading";
 import Textarea from "../../../../components/common/textarea/Textarea";
 import "./CategoryModal.css";
-import Dropdown from "../../../../components/common/dropdown/Dropdown";
 
 interface CategoryModalProps {
   categoryId?: number | null | string;
   onClose: () => void;
   mode: "add" | "edit" | "view";
+}
+
+interface Option {
+  label: string;
+  value: string;
 }
 
 const CategoryModal: React.FC<CategoryModalProps> = ({
@@ -27,10 +34,12 @@ const CategoryModal: React.FC<CategoryModalProps> = ({
   const [file, setFile] = useState<File | null>(null);
   const [preview, setPreview] = useState<string>("");
   const [loading, setLoading] = useState(false);
-  const [selected, setSelected] = useState<boolean | null>(null);
-  const [selectedBrand, setSelectedBrand] = useState<boolean | null>(null);
+  const [selected, setSelected] = useState<string | null>(null);
+  const [selectedBrandId, setSelectedBrandId] = useState<string | null>(null);
+  const [brandOptions, setBrandOptions] = useState<Option[]>([]);
 
   useEffect(() => {
+    getAllBrands();
     if ((mode === "edit" || mode === "view") && categoryId) {
       getCategoryById(categoryId)
         .then((response) => {
@@ -38,6 +47,10 @@ const CategoryModal: React.FC<CategoryModalProps> = ({
           setName(data?.name);
           setDescription(data?.description || "");
           if (data?.directoryPath) setPreview(data?.directoryPath);
+          if (data?.productType?.id) {
+            setSelectedBrandId(String(data.productType.id));
+          }
+          setSelected(data?.status ? "true" : "false");
         })
         .catch((error) => {
           console.error(error);
@@ -45,6 +58,22 @@ const CategoryModal: React.FC<CategoryModalProps> = ({
         });
     }
   }, [categoryId, mode]);
+
+  const getAllBrands = () => {
+    getProductTypeByStatus({ status: "true" })
+      .then((response) => {
+        const data = response?.data || [];
+        const mappedOptions: Option[] = data.map((item: any) => ({
+          label: item.name,
+          value: item.id,
+        }));
+
+        setBrandOptions(mappedOptions);
+      })
+      .catch((error) => {
+        console.error("Lỗi khi lấy thương hiệu:", error);
+      });
+  };
 
   useEffect(() => {
     if (file) {
@@ -65,12 +94,23 @@ const CategoryModal: React.FC<CategoryModalProps> = ({
       return;
     }
 
+    if (!selectedBrandId) {
+      alert("Vui lòng chọn thương hiệu cho danh mục!");
+      return;
+    }
+
     const formData = new FormData();
     formData.append("name", name);
     formData.append("description", description);
-    if (file) formData.append("file", file);
+    formData.append("status", selected === null ? "" : String(selected));
+    if (file) {
+      formData.append("file", file);
+    } else if (preview) {
+      formData.append("directoryPath", preview);
+    }
     if (mode === "edit" && categoryId)
       formData.append("id", categoryId.toString());
+    formData.append("productTypeId", selectedBrandId?.toString() || "");
 
     try {
       setLoading(true);
@@ -116,34 +156,35 @@ const CategoryModal: React.FC<CategoryModalProps> = ({
               onChange={(e) => setName(e.target.value)}
               placeholder="Tìm kiếm theo tên danh mục....."
               style={{ width: "100%" }}
+              disabled={mode === "view"}
             />
           </div>
 
           <div className="modal-field">
             <div className="modal-label-name">Thương hiệu:</div>
-            <Dropdown
-              value={selectedBrand}
-              onChange={setSelectedBrand}
-              options={[
-                { label: "Đang hoạt động", value: true },
-                { label: "Không hoạt động", value: false },
-              ]}
-              placeholder="--Chọn tất cả--"
+            <StringDropdown
+              value={selectedBrandId}
+              onChange={setSelectedBrandId}
+              options={brandOptions}
+              placeholder="--Chọn thương hiệu--"
               error={undefined}
+              disabled={mode === "view"}
             />
           </div>
 
           <div className="modal-field">
             <div className="modal-label-name">Trạng thái:</div>
-            <Dropdown
+            <StringDropdown
               value={selected}
               onChange={setSelected}
               options={[
-                { label: "Đang hoạt động", value: true },
-                { label: "Không hoạt động", value: false },
+                { label: "Đang hoạt động", value: "true" },
+                { label: "Không hoạt động", value: "false" },
               ]}
-              placeholder="--Chọn tất cả--"
+              placeholder="--Chọn trạng thái hoạt động--"
               error={undefined}
+              style={{ width: "100%" }}
+              disabled={mode === "view"}
             />
           </div>
 
@@ -159,7 +200,11 @@ const CategoryModal: React.FC<CategoryModalProps> = ({
 
           <div className="modal-field">
             <div className="modal-label-name">Ảnh danh mục:</div>
-            <ImageUpload onChange={setFile} initialPreview={preview} />
+            <ImageUpload
+              onChange={setFile}
+              initialPreview={preview}
+              disabled={mode === "view"}
+            />
           </div>
         </div>
         <div className="modal-actions">

@@ -11,6 +11,8 @@ import BaseTable, {
 } from "../../../components/table/BaseTableLayout";
 import BrandModal from "./brandModal/BrandModal";
 import "./BrandPage.css";
+import StringDropdown from "../../../components/common/dropdown/StringDropdown";
+import Loading from "../../../components/common/loading/Loading";
 
 interface ProductType {
   id: number;
@@ -22,38 +24,24 @@ interface ProductType {
 }
 
 const BrandPage = () => {
+  const [loading, setLoading] = useState(false);
   const [page, setPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(10);
   const [name, setName] = useState("");
-  const [selected, setSelected] = useState<boolean | null>(null);
+  const [selected, setSelected] = useState<string | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalMode, setModalMode] = useState<"add" | "edit" | "view">("add");
   const [modalBrandId, setModalBrandId] = useState<number | null>(null);
   const [showConfirm, setShowConfirm] = useState(false);
-  const [confirmAction, setConfirmAction] = useState<"delete" | "status" | null>(null);
+  const [confirmAction, setConfirmAction] = useState<
+    "delete" | "status" | null
+  >(null);
   const [selectedId, setSelectedId] = useState<number | null>(null);
-  const [productTypes, setProductTypes] = useState<ProductType[]>([
-    { id: 1, name: "Áo Thun", description: "Áo thun cotton co giãn 4 chiều", createdDate: "2025-10-01", updatedDate: "2025-10-05", status: true },
-    { id: 2, name: "Áo Sơ Mi", description: "Áo sơ mi công sở cao cấp", createdDate: "2025-09-20", updatedDate: "2025-09-25", status: true },
-    { id: 3, name: "Quần Jean", description: "Quần jean nam nữ thời trang", createdDate: "2025-08-15", updatedDate: "2025-08-20", status: true },
-    { id: 4, name: "Áo Khoác", description: "Áo khoác gió chống nước", createdDate: "2025-07-12", updatedDate: "2025-07-15", status: true },
-    { id: 5, name: "Đầm Nữ", description: "Đầm công sở thanh lịch", createdDate: "2025-07-01", updatedDate: "2025-07-05", status: true },
-    { id: 6, name: "Giày Thể Thao", description: "Giày thể thao nam nữ", createdDate: "2025-06-20", updatedDate: "2025-06-25", status: true },
-    { id: 7, name: "Túi Xách", description: "Túi xách thời trang cao cấp", createdDate: "2025-05-15", updatedDate: "2025-05-20", status: false },
-    { id: 8, name: "Mũ Nón", description: "Mũ nón thời trang", createdDate: "2025-04-10", updatedDate: "2025-04-15", status: true },
-    { id: 9, name: "Dép Sandal", description: "Dép sandal nữ", createdDate: "2025-03-05", updatedDate: "2025-03-10", status: false },
-    { id: 10, name: "Áo Len", description: "Áo len mùa đông", createdDate: "2025-02-01", updatedDate: "2025-02-05", status: true },
-    { id: 4, name: "Áo Khoác", description: "Áo khoác gió chống nước", createdDate: "2025-07-12", updatedDate: "2025-07-15", status: true },
-    { id: 5, name: "Đầm Nữ", description: "Đầm công sở thanh lịch", createdDate: "2025-07-01", updatedDate: "2025-07-05", status: true },
-    { id: 6, name: "Giày Thể Thao", description: "Giày thể thao nam nữ", createdDate: "2025-06-20", updatedDate: "2025-06-25", status: true },
-    { id: 7, name: "Túi Xách", description: "Túi xách thời trang cao cấp", createdDate: "2025-05-15", updatedDate: "2025-05-20", status: false },
-    { id: 8, name: "Mũ Nón", description: "Mũ nón thời trang", createdDate: "2025-04-10", updatedDate: "2025-04-15", status: true },
-    { id: 9, name: "Dép Sandal", description: "Dép sandal nữ", createdDate: "2025-03-05", updatedDate: "2025-03-10", status: false },
-    { id: 10, name: "Áo Len", description: "Áo len mùa đông", createdDate: "2025-02-01", updatedDate: "2025-02-05", status: true },
-  ]);
+  const [productTypes, setProductTypes] = useState<ProductType[]>([]);
   const [totalItems, setTotalItems] = useState(productTypes?.length);
 
   const handleSearch = () => {
+    setLoading(true);
     const params = {
       name: name.trim() || "",
       status: selected !== null ? selected : null,
@@ -67,11 +55,14 @@ const BrandPage = () => {
       .catch((error) => {
         console.error("Lỗi khi tìm kiếm loại sản phẩm:", error);
         alert("Không thể tìm kiếm loại sản phẩm!");
+      })
+      .finally(() => {
+        setLoading(false);
       });
   };
 
   useEffect(() => {
-    // handleSearch();
+    handleSearch();
   }, []);
 
   const start = (page - 1) * itemsPerPage;
@@ -80,20 +71,64 @@ const BrandPage = () => {
 
   const columns: BaseColumn<ProductType>[] = [
     { key: "id", label: "ID", width: "5%" },
-    { key: "name", label: "Tên sản phẩm", width: "10%" },
-    { key: "createdDate", label: "Ngày tạo", width: "15%" },
-    { key: "updatedDate", label: "Ngày cập nhật", width: "15%" },
+    { key: "name", label: "Tên thương hiệu", width: "10%" },
+    {
+      key: "createdDate",
+      label: "Ngày tạo",
+      width: "15%",
+      render: (item: ProductType) =>
+        item?.createdDate
+          ? new Date(item.createdDate).toLocaleString("vi-VN", {
+              hour12: false,
+            })
+          : "",
+    },
+    {
+      key: "updatedDate",
+      label: "Ngày cập nhật",
+      width: "15%",
+      render: (item: ProductType) =>
+        item?.updatedDate
+          ? new Date(item.updatedDate).toLocaleString("vi-VN", {
+              hour12: false,
+            })
+          : "",
+    },
     { key: "description", label: "Mô tả", width: "35%" },
-    { key: "status", label: "Trạng thái", width: "10%" },
+    {
+      key: "status",
+      label: "Trạng thái",
+      width: "10%",
+      render: (item: ProductType) => (
+        <span
+          className={`status-label ${
+            item.status ? "status-active" : "status-inactive"
+          }`}
+        >
+          {item.status ? "Đang hoạt động" : "Không hoạt động"}
+        </span>
+      ),
+    },
     {
       key: "actions",
       label: "Thao tác",
       width: "10%",
       render: (item: { id: any }) => (
         <div className="action-buttons">
-          <FaEye className="action-buttons-icon" onClick={() => handleView(item?.id)} />
-          <FaEdit className="action-buttons-icon" color="blue" onClick={() => handleEdit(item?.id)} />
-          <FaTrash className="action-buttons-icon" color="red" onClick={() => openConfirm("delete", item?.id)} />
+          <FaEye
+            className="action-buttons-icon"
+            onClick={() => handleView(item?.id)}
+          />
+          <FaEdit
+            className="action-buttons-icon"
+            color="blue"
+            onClick={() => handleEdit(item?.id)}
+          />
+          <FaTrash
+            className="action-buttons-icon"
+            color="red"
+            onClick={() => openConfirm("delete", item?.id)}
+          />
         </div>
       ),
     },
@@ -103,13 +138,14 @@ const BrandPage = () => {
     setIsModalOpen(true);
     setModalMode("add");
     setModalBrandId(null);
+    handleSearch();
   };
 
   const handleView = (id: any) => {
     setIsModalOpen(true);
     setModalMode("view");
     setModalBrandId(id);
-  }
+  };
 
   const openConfirm = (action: "delete" | "status", id: number) => {
     setSelectedId(id);
@@ -132,7 +168,7 @@ const BrandPage = () => {
     } finally {
       setShowConfirm(false);
     }
-  }
+  };
 
   const handleCloseModal = () => {
     setIsModalOpen(false);
@@ -140,7 +176,10 @@ const BrandPage = () => {
 
   const handleUpdateStatus = (id: any) => {
     console.log("Cập nhật trạng thái:", id);
-  }
+  };
+
+  if (loading) return <Loading />;
+
   return (
     <div className="p-4">
       <Pagination
@@ -159,12 +198,12 @@ const BrandPage = () => {
                 placeholder="Tìm kiếm theo tên thương hiệu....."
                 style={{ width: "100%" }}
               />
-              <Dropdown
+              <StringDropdown
                 value={selected}
                 onChange={setSelected}
                 options={[
-                  { label: "Đang hoạt động", value: true },
-                  { label: "Không hoạt động", value: false },
+                  { label: "Đang hoạt động", value: "true" },
+                  { label: "Không hoạt động", value: "false" },
                 ]}
                 placeholder="--Chọn tất cả--"
                 error={undefined}
@@ -172,17 +211,21 @@ const BrandPage = () => {
             </div>
             <div className="header-actions">
               <div className="button-create">
-                <button onClick={handleAdd}><FaPlus /> Thêm mới</button>
+                <button onClick={handleAdd}>
+                  <FaPlus /> Thêm mới
+                </button>
               </div>
               <div className="button-export">
-                <button onClick={handleSearch}> <FaSearch /> Tìm kiếm</button>
+                <button onClick={handleSearch}>
+                  {" "}
+                  <FaSearch /> Tìm kiếm
+                </button>
               </div>
             </div>
           </div>
         }
       >
         <BaseTable
-
           columns={columns}
           data={currentItems}
           showCheckbox
@@ -217,7 +260,6 @@ const BrandPage = () => {
           onCancel={() => setShowConfirm(false)}
         />
       )}
-
     </div>
   );
 };

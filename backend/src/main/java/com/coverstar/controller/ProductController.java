@@ -5,6 +5,7 @@ import com.coverstar.dto.CreateOrUpdateProduct;
 import com.coverstar.dto.SearchProductDto;
 import com.coverstar.entity.Product;
 import com.coverstar.service.ProductService;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -12,8 +13,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/products")
@@ -67,8 +70,45 @@ public class ProductController {
 //    }
 
     @GetMapping("/search")
-    public ResponseEntity<List<Product>> search(@RequestBody @Valid SearchProductDto searchProductDto) {
+    public ResponseEntity<List<Product>> search(
+            @RequestParam(required = false) Long productTypeId,
+            @RequestParam(required = false) String name,
+            @RequestParam(required = false) String minPrice,
+            @RequestParam(required = false) String maxPrice,
+            @RequestParam(required = false) String status,
+            @RequestParam(required = false) String categoryId,
+            @RequestParam(required = false) String orderBy,
+            @RequestParam(required = false) String priceOrder,
+            @RequestParam(required = false) Integer page,
+            @RequestParam(required = false) Integer size,
+            @RequestParam(required = false) String quantitySold,
+            @RequestParam(required = false) String numberOfVisits,
+            @RequestParam(required = false) String evaluate) {
         try {
+            List<Long> categoryIds = null;
+            if (StringUtils.isNotEmpty(categoryId)) {
+                categoryIds = Arrays.stream(categoryId.split(","))
+                        .map(String::trim)
+                        .map(Long::parseLong).collect(Collectors.toList());
+            }
+            Boolean statusValue = true;
+            if (StringUtils.isNotEmpty(categoryId)) {
+                statusValue = Boolean.valueOf(status);
+            }
+            SearchProductDto searchProductDto = new SearchProductDto();
+            searchProductDto.setProductTypeId(productTypeId);
+            searchProductDto.setName(name);
+            searchProductDto.setMinPrice(minPrice);
+            searchProductDto.setMaxPrice(maxPrice);
+            searchProductDto.setStatus(statusValue);
+            searchProductDto.setCategoryId(categoryIds);
+            searchProductDto.setOrderBy(orderBy);
+            searchProductDto.setPriceOrder(priceOrder);
+            searchProductDto.setPage(page);
+            searchProductDto.setSize(size);
+            searchProductDto.setQuantitySold(quantitySold);
+            searchProductDto.setNumberOfVisits(numberOfVisits);
+            searchProductDto.setEvaluate(evaluate);
             List<Product> products = productService.findByNameAndPriceRange(searchProductDto);
             return ResponseEntity.ok(products);
         } catch (Exception e) {

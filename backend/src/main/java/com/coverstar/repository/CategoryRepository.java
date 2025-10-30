@@ -23,7 +23,6 @@ public interface CategoryRepository extends JpaRepository<Category, Long> {
     List<Category> findAllByConditions(
             @Param("productTypeId") Long productTypeId,
             @Param("status") Boolean status,
-            Pageable pageable,
             @Param("nameValue") String nameValue
     );
 

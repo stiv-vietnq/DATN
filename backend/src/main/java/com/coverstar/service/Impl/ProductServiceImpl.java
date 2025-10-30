@@ -14,6 +14,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Lazy;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -161,12 +162,12 @@ public class ProductServiceImpl implements ProductService {
             if (imageFiles != null && !imageFiles.isEmpty()) {
                 Set<Image> images = new HashSet<>();
                 for (MultipartFile file : imageFiles) {
-                    String filePath = imageDirectory + "products" + File.separator + product.getId();
+                    String filePath = imageDirectory + "products" + "/" + product.getId();
                     File directory = new File(filePath);
                     if (!directory.exists()) {
                         directory.mkdirs();
                     }
-                    String fullPath = filePath + File.separator + file.getOriginalFilename();
+                    String fullPath = filePath + "/" + file.getOriginalFilename();
                     file.transferTo(new File(fullPath));
 
                     Image image = new Image();
@@ -239,12 +240,12 @@ public class ProductServiceImpl implements ProductService {
     }
 
     private String saveImage(MultipartFile imageFile, Long productDetailId) throws Exception {
-        String filePath = imageDirectory + "productDetail" + File.separator + productDetailId;
+        String filePath = imageDirectory + "productDetail" + "/" + productDetailId;
         File directory = new File(filePath);
         if (!directory.exists()) {
             directory.mkdirs();
         }
-        String fullPath = filePath + File.separator + imageFile.getOriginalFilename();
+        String fullPath = filePath + "/" + imageFile.getOriginalFilename();
         imageFile.transferTo(new File(fullPath));
         return fullPath;
     }
@@ -264,9 +265,11 @@ public class ProductServiceImpl implements ProductService {
                 userVisits.setVisitCount(userVisits.getVisitCount() + 1);
                 userVisitRepository.save(userVisits);
             }
+            String minPrice = searchProductDto.getMinPrice();
+            String maxPrice = searchProductDto.getMaxPrice();
             String nameValue = searchProductDto.getName() != null ? searchProductDto.getName() : StringUtils.EMPTY;
-            BigDecimal minPriceValue = searchProductDto.getMinPrice() != null ? searchProductDto.getMinPrice() : BigDecimal.ZERO;
-            BigDecimal maxPriceValue = searchProductDto.getMaxPrice() != null ? searchProductDto.getMaxPrice() : BigDecimal.valueOf(Double.MAX_VALUE);
+            BigDecimal minPriceValue = StringUtils.isEmpty(minPrice) ? new BigDecimal(minPrice) : BigDecimal.ZERO;
+            BigDecimal maxPriceValue = StringUtils.isEmpty(maxPrice) ? new BigDecimal(maxPrice) : BigDecimal.valueOf(Double.MAX_VALUE);
             Long productTypeId = searchProductDto.getProductTypeId() != null ? searchProductDto.getProductTypeId() : 0L;
             if (searchProductDto.getCategoryId() != null) {
                 List<Category> categories = categoryService.getCategoryByIds(searchProductDto.getCategoryId());
@@ -307,10 +310,11 @@ public class ProductServiceImpl implements ProductService {
             Sort sort = Sort.by(priceSort, dateSort, quantitySort, numberOfVisitsSort);
 
             Pageable pageable = PageRequest.of(searchProductDto.getPage(), searchProductDto.getSize(), sort);
-            return productRepository.findByNameContainingAndPriceBetweenWithDetails(productTypeId, nameValue,
+            Page<Product> products = productRepository.findByNameContainingAndPriceBetweenWithDetails(productTypeId, nameValue,
                     minPriceValue, maxPriceValue, categoryIds
 //                    , shippingMethodIds
                     , status, evaluate, pageable);
+            return products.getContent();
         } catch (Exception e) {
             e.fillInStackTrace();
             throw e;

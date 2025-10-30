@@ -165,7 +165,7 @@ export default function Header() {
                                     {cartItems?.length === 0 ? (
                                         <div className="cart-popup-empty">
                                             <div className="cart-popup-empty-icon">
-                                                <FaShoppingCart size={50} color='#fb8016' />
+                                                <FaShoppingCart size={50} color='#5661f5' />
                                             </div>
                                             <div className="cart-popup-empty-text">
                                                 {t('cart_empty')}

@@ -30,4 +30,6 @@ public class BrandOrCategoryDto implements Serializable {
     @Length(min = 3, max = 512, message = "First name must be between 3 and 512 characters")
     private String description;
 
+    private String directoryPath;
+
 }

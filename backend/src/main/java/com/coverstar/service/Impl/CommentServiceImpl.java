@@ -50,13 +50,13 @@ public class CommentServiceImpl implements CommentService {
             if (imageFiles != null && !imageFiles.isEmpty()) {
                 Set<Image> images = new HashSet<>();
                 for (MultipartFile file : imageFiles) {
-                    String filePath = imageDirectory + "products" + File.separator + product.getId() +
-                            File.separator + "comments" + File.separator + comment.getId();
+                    String filePath = imageDirectory + "products" + "/" + product.getId() +
+                            "/" + "comments" + "/" + comment.getId();
                     File directory = new File(filePath);
                     if (!directory.exists()) {
                         directory.mkdirs();
                     }
-                    String fullPath = filePath + File.separator + file.getOriginalFilename();
+                    String fullPath = filePath + "/" + file.getOriginalFilename();
                     file.transferTo(new File(fullPath));
 
                     Image image = new Image();

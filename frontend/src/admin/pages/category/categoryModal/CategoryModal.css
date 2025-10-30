@@ -36,14 +36,14 @@
     font-size: 20px;
     text-transform: uppercase;
     font-weight: 500;
-    color: #fb8016;
+    color: #5661f5;
 }
 
 .button-close button {
     background: none;
     border: none;
     cursor: pointer;
-    color: #fb8016;
+    color: #5661f5;
 }
 
 .modal-field {

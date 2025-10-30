@@ -13,7 +13,7 @@ public interface ProductTypeRepository extends JpaRepository<ProductType, Long> 
     @Query("SELECT b FROM ProductType b " +
             "WHERE (:name IS NULL OR b.name LIKE CONCAT('%', :name, '%')) " +
             "AND (:status IS NULL OR b.status = :status) " +
-            "ORDER BY b.createdDate DESC")
+            "ORDER BY b.createdDate ASC")
     List<ProductType> findProductTypesByConditions(
             String name,
             Boolean status
@@ -25,4 +25,11 @@ public interface ProductTypeRepository extends JpaRepository<ProductType, Long> 
 
     @Query("SELECT b FROM ProductType b WHERE b.id = :id ")
     ProductType findByIdAndType(Long id);
+
+    @Query("SELECT b FROM ProductType b " +
+            "WHERE (:status IS NULL OR b.status = :status) " +
+            "ORDER BY b.createdDate ASC")
+    List<ProductType> findProductTypesByStatus(
+            Boolean status
+    );
 }

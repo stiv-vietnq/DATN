@@ -13,6 +13,7 @@ import com.coverstar.service.ProductTypeService;
 import com.coverstar.utils.ShopUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -42,6 +43,14 @@ public class CategoryServiceImpl implements CategoryService {
     @Lazy
     @Autowired
     private ProductTypeService productTypeService;
+    @Value("${image.directory}")
+    private String imageDirectory;
+
+    @Value("${server.port}")
+    private String serverPort;
+
+    private final static String IMAGE_BASE_URL = "/images/";
+    private final static String SERVER_PORT = "http://localhost:";
 
     @Override
     public Category createOrUpdate(BrandOrCategoryDto brandOrCategoryDto, MultipartFile imageFiles) throws Exception {
@@ -80,6 +89,8 @@ public class CategoryServiceImpl implements CategoryService {
                 }
                 String fullPath = ShopUtil.handleFileUpload(imageFiles, "categories", category.getId());
                 category.setDirectoryPath(fullPath);
+            } else if (brandOrCategoryDto.getDirectoryPath() != null && !brandOrCategoryDto.getDirectoryPath().isEmpty()) {
+                category.setDirectoryPath(brandOrCategoryDto.getDirectoryPath());
             }
 
             return categoryRepository.save(category);
@@ -111,13 +122,12 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     @Override
-    public List<Category> getAllCategory(Long productTypeId, String name, Boolean status, Integer page, Integer size) {
+    public List<Category> getAllCategory(Long productTypeId, String name, Boolean status) {
         try {
             String nameValue = name != null ? name : StringUtils.EMPTY;
             Long productTypeIdValue = productTypeId != null ? productTypeId : null;
             Boolean statusValue = status != null ? status : null;
-            Pageable pageable = PageRequest.of(page != null ? page : 0, size != null ? size : 10);
-            return categoryRepository.findAllByConditions(productTypeIdValue, statusValue, pageable, nameValue);
+            return categoryRepository.findAllByConditions(productTypeIdValue, statusValue, nameValue);
         } catch (Exception e) {
             e.fillInStackTrace();
             throw e;
@@ -127,9 +137,14 @@ public class CategoryServiceImpl implements CategoryService {
     @Override
     public Category getCategoryById(Long id) throws Exception {
         try {
-            Category category = categoryRepository.getById(id);
-            if (category == null) {
-                throw new Exception(Constants.CATEGORY_NOT_FOUND);
+            Category category = categoryRepository.findById(id).orElse(null);
+            if (category != null) {
+                String relativePath = category.getDirectoryPath();
+
+                if (relativePath != null && relativePath.startsWith(imageDirectory)) {
+                    relativePath = relativePath.replace(imageDirectory, SERVER_PORT + serverPort + IMAGE_BASE_URL);
+                    category.setDirectoryPath(relativePath);
+                }
             }
             return category;
         } catch (Exception e) {
@@ -139,11 +154,11 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     @Override
-    public List<Category> getCategoryByIds(List<Long> id) throws Exception {
+    public List<Category> getCategoryByIds(List<Long> ids) throws Exception {
         try {
             List<Category> categories = new ArrayList<>();
-            for (Long categoryId : id) {
-                Category category = categoryRepository.getById(categoryId);
+            for (Long categoryId : ids) {
+                Category category = categoryRepository.findById(categoryId).orElse(null);
                 if (category == null) {
                     throw new Exception(Constants.CATEGORY_NOT_FOUND);
                 }

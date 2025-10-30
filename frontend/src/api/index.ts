@@ -1,3 +1,4 @@
+// src/api.ts
 import axios from "axios";
 
 const api = axios.create({
@@ -24,7 +25,7 @@ api.interceptors.response.use(
     if (error.response?.status === 401) {
       console.warn("Token expired or unauthorized!");
       localStorage.removeItem("tokenWeb");
-      window.location.href = "/login"; 
+      window.location.href = "/login";
     }
     return Promise.reject(error);
   }

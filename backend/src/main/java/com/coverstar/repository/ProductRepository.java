@@ -1,6 +1,7 @@
 package com.coverstar.repository;
 
 import com.coverstar.entity.Product;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -27,7 +28,7 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
             "AND a.type = 1 " +
             "AND (:status IS NULL OR p.status = :status) " +
             "AND (:evaluate IS NULL OR p.evaluate >= :evaluate)")
-    List<Product> findByNameContainingAndPriceBetweenWithDetails(
+    Page<Product> findByNameContainingAndPriceBetweenWithDetails(
             @Param("productTypeId") Long productTypeId,
             @Param("name") String name,
             @Param("minPrice") BigDecimal minPrice,

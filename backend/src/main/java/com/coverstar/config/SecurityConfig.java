@@ -1,7 +1,5 @@
 package com.coverstar.config;
 
-//import org.apache.catalina.filters.CorsFilter;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.context.annotation.Bean;
@@ -20,6 +18,8 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.filter.CorsFilter;
 
+import java.util.List;
+
 @Configuration
 @EnableAutoConfiguration
 @EnableWebSecurity
@@ -37,7 +37,9 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
-        http.cors().and().csrf().disable()
+        http
+                .cors().disable()
+                .csrf().disable()
                 .authorizeRequests()
                 .antMatchers(
                         "/webjars/**",
@@ -48,7 +50,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                         "/assets/**",
                         "/forgot-password/**",
                         "/vnPay/vnpay-payment",
-                        "dashboards/**",
+                        "/dashboards/**",
                         "/products/search/**",
                         "/unlock-account/**",
                         "/categories/getAllCategory/**",
@@ -56,23 +58,10 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                         "/products/**",
                         "/categories/**",
                         "/discounts/**",
-                        "/purchases/**")
-                .permitAll()
-//                .antMatchers(
-//                        "/productTypes/admin/**",
-//                        "/products/admin/**",
-//                        "/categories/admin/**",
-//                        "/discounts/admin/**",
-//                        "/purchases/admin/**"
-////                        ,
-////                        "/shipping-methods/admin/**"
-//                )
-//                .hasRole("ADMIN")
-                .anyRequest()
-                .authenticated()
-                .and()
-//                .oauth2Login()
-        ;
+                        "/purchases/**",
+                        "/images/**"
+                ).permitAll()
+                .anyRequest().authenticated();
     }
 
     @Bean
@@ -81,21 +70,20 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     }
 
     @Bean
-    public AuthenticationManager authenticationManager(
-            AuthenticationConfiguration configuration) throws Exception {
+    public AuthenticationManager authenticationManager(AuthenticationConfiguration configuration) throws Exception {
         return configuration.getAuthenticationManager();
     }
 
     @Bean
     public CorsFilter corsFilter() {
-        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         CorsConfiguration config = new CorsConfiguration();
         config.setAllowCredentials(true);
-        config.addAllowedOriginPattern("*");
-        config.addAllowedHeader("*");
-        config.addAllowedMethod("*");
+        config.setAllowedOrigins(List.of("http://localhost:3000"));
+        config.setAllowedHeaders(List.of("*"));
+        config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", config);
         return new CorsFilter(source);
     }
-
 }

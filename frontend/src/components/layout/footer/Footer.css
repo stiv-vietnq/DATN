@@ -38,7 +38,7 @@
     margin: 20px 0;
     text-align: left;
     text-transform: uppercase;
-    color: #fb8016;
+    color: #5661f5;
 }
 
 .footer-title-detail {
@@ -49,7 +49,7 @@
     cursor: pointer;
 
     &:hover {
-        color: #fb8016;
+        color: #5661f5;
     }
 }
 
@@ -68,7 +68,7 @@
 
 .footer-title-detail-header {
     font-size: 14px;
-    color: #fb8016;
+    color: #5661f5;
     text-align: left;
     margin-top: 5px;
 }
@@ -159,7 +159,7 @@
 }
 
 .payment-box:hover {
-  border-color: #fb8016;
+  border-color: #5661f5;
   transform: translateY(-2px);
 }
 

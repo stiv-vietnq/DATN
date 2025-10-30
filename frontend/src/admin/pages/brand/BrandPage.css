@@ -1,58 +1,79 @@
 .header-content {
-    display: flex;
-    align-items: center;
-    padding: 1%;
-    width: 100%;
+  display: flex;
+  align-items: center;
+  padding: 1%;
+  width: 100%;
 }
 
 .header-info {
-    width: 80%;
-    display: flex;
-    justify-content: flex-start;
-    /* align-items: center; */
-    gap: 10px;
-    margin-bottom: -28px;
+  width: 80%;
+  display: flex;
+  justify-content: flex-start;
+  gap: 10px;
+  margin-bottom: -28px;
 }
 
 .header-actions {
-    width: 20%;
-    display: flex;
-    justify-content: flex-end;
-    gap: 10px;
+  width: 20%;
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
 }
 
 .button-create button {
-    background-color: #4CAF50;
-    border: none;
-    color: white;
-    padding: 10px 24px;
-    text-align: center;
-    text-decoration: none;
-    display: flex;
-    font-size: 16px;
-    border-radius: 4px;
-    cursor: pointer;
-    gap: 5px;
+  background-color: #4caf50;
+  border: none;
+  color: white;
+  padding: 10px 24px;
+  text-align: center;
+  text-decoration: none;
+  display: flex;
+  font-size: 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  gap: 5px;
 }
 
 .button-export button {
-    background-color: #008CBA;
-    border: none;
-    color: white;
-    padding: 10px 24px;
-    text-align: center;
-    text-decoration: none;
-    display: flex;
-    font-size: 16px;
-    border-radius: 4px;
-    cursor: pointer;
-    gap: 5px;
+  background-color: #008cba;
+  border: none;
+  color: white;
+  padding: 10px 24px;
+  text-align: center;
+  text-decoration: none;
+  display: flex;
+  font-size: 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  gap: 5px;
 }
 
 .button-create button:hover {
-    background-color: #45a049;
+  background-color: #45a049;
 }
 
 .button-export button:hover {
-    background-color: #007bb5;
+  background-color: #007bb5;
+}
+
+.status-label {
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-weight: 500;
+  font-size: 0.9rem;
+  text-align: center;
+  min-width: 110px;
+}
+
+.status-active {
+  background-color: #e6f7e6;
+  color: #2e7d32;
+  border: 1px solid #2e7d32;
+}
+
+.status-inactive {
+  background-color: #fdecea;
+  color: #c62828;
+  border: 1px solid #c62828;
 }

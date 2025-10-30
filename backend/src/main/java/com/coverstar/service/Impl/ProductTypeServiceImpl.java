@@ -13,6 +13,7 @@ import com.coverstar.service.ProductService;
 import com.coverstar.service.ProductTypeService;
 import com.coverstar.utils.ShopUtil;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.multipart.MultipartFile;
@@ -39,8 +40,21 @@ public class ProductTypeServiceImpl implements ProductTypeService {
     @Autowired
     private CategoryService categoryService;
 
+    @Value("${image.directory}")
+    private String imageDirectory;
+
+    @Value("${server.port}")
+    private String serverPort;
+
+    private final static String IMAGE_BASE_URL = "/images/";
+    private final static String SERVER_PORT = "http://localhost:";
+
     @Override
-    public ProductType createOrUpdateProductType(Long id, String name, MultipartFile imageFile, String description) throws Exception {
+    public ProductType createOrUpdateProductType(Long id,
+                                                 String name,
+                                                 MultipartFile imageFile,
+                                                 String description,
+                                                 String directoryPath) throws Exception {
         ProductType productType = new ProductType();
         try {
             boolean isNameExist = id == null
@@ -58,8 +72,8 @@ public class ProductTypeServiceImpl implements ProductTypeService {
             } else {
                 productType.setCreatedDate(new Date());
                 productType.setUpdatedDate(new Date());
+                productType.setStatus(true);
             }
-            productType.setStatus(true);
             productType.setName(name);
             productType.setDescription(description);
             productType = productTypeRepository.save(productType);
@@ -71,8 +85,12 @@ public class ProductTypeServiceImpl implements ProductTypeService {
                         oldFile.delete();
                     }
                 }
+
                 String fullPath = ShopUtil.handleFileUpload(imageFile, "productType", productType.getId());
                 productType.setDirectoryPath(fullPath);
+
+            } else if (directoryPath != null && !directoryPath.isEmpty()) {
+                productType.setDirectoryPath(directoryPath);
             }
             productTypeRepository.save(productType);
         } catch (Exception e) {
@@ -97,7 +115,16 @@ public class ProductTypeServiceImpl implements ProductTypeService {
     @Override
     public ProductType getProductType(Long id) {
         try {
-            return productTypeRepository.findByIdAndType(id);
+            ProductType productType = productTypeRepository.findById(id).orElse(null);
+            if (productType != null) {
+                String relativePath = productType.getDirectoryPath();
+
+                if (relativePath != null && relativePath.startsWith(imageDirectory)) {
+                    relativePath = relativePath.replace(imageDirectory, SERVER_PORT + serverPort + IMAGE_BASE_URL);
+                    productType.setDirectoryPath(relativePath);
+                }
+            }
+            return productType;
         } catch (Exception e) {
             e.fillInStackTrace();
             throw e;
@@ -147,6 +174,16 @@ public class ProductTypeServiceImpl implements ProductTypeService {
             assert productType != null;
             productType.setStatus(status);
             return productTypeRepository.save(productType);
+        } catch (Exception e) {
+            e.fillInStackTrace();
+            throw e;
+        }
+    }
+
+    @Override
+    public List<ProductType> getAllProductTypesByStatus(Boolean status) {
+        try {
+            return productTypeRepository.findProductTypesByStatus(status);
         } catch (Exception e) {
             e.fillInStackTrace();
             throw e;

@@ -17,7 +17,7 @@
 
 .top-search-title {
     font-size: 18px;
-    color: #fb723c;
+    color: #5661f5;
     text-align: start;
     text-transform: uppercase;
     width: 30%;
@@ -29,14 +29,14 @@
 
 .view-all-button {
     font-size: 16px;
-    color: #fb723c;
+    color: #5661f5;
     display: flex;
     justify-content: flex-end;
     align-items: center;
     cursor: pointer;
 
     &:hover {
-        color: red;
+        color: #4551f8;
         gap: 5px;
     }
 }

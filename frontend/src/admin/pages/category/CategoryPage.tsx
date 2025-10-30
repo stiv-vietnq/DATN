@@ -12,6 +12,10 @@ import BaseTable, {
 // import CategoryModal from "./categoryModal/CategoryModal";
 import "./CategoryPage.css";
 import CategoryModal from "./categoryModal/CategoryModal";
+import { getProductTypeByStatus } from "../../../api/brand";
+import StringDropdown from "../../../components/common/dropdown/StringDropdown";
+import { searchCategory } from "../../../api/category";
+import Loading from "../../../components/common/loading/Loading";
 
 export interface CategoryType {
   id: number;
@@ -20,14 +24,24 @@ export interface CategoryType {
   updatedDate: string;
   description: string;
   status: boolean;
-  brand: string;
+  productType?: {
+    id: number;
+    name: string;
+  };
+}
+
+interface Option {
+  label: string;
+  value: string;
 }
 
 const CategoryPage = () => {
+  const [loading, setLoading] = useState(false);
   const [page, setPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(10);
   const [name, setName] = useState("");
-  const [selected, setSelected] = useState<boolean | null>(null);
+  const [selected, setSelected] = useState<string | null>(null);
+  const [selectedBrandId, setSelectedBrandId] = useState<string | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalMode, setModalMode] = useState<"add" | "edit" | "view">("add");
   const [modalCategoryId, setModalCategoryId] = useState<number | null>(null);
@@ -36,74 +50,52 @@ const CategoryPage = () => {
     "delete" | "status" | null
   >(null);
   const [selectedId, setSelectedId] = useState<number | null>(null);
-  const [categories, setCategories] = useState<CategoryType[]>([
-    {
-      id: 1,
-      name: "Danh mục 1",
-      description: "Mô tả danh mục 1",
-      createdDate: "2025-10-01",
-      updatedDate: "2025-10-05",
-      status: true,
-      brand: "Thương hiệu A",
-    },
-    {
-      id: 2,
-      name: "Danh mục 2",
-      description: "Mô tả danh mục 2",
-      createdDate: "2025-09-20",
-      updatedDate: "2025-09-25",
-      status: true,
-      brand: "Thương hiệu B",
-    },
-    {
-      id: 3,
-      name: "Danh mục 3",
-      description: "Mô tả danh mục 3",
-      createdDate: "2025-08-15",
-      updatedDate: "2025-08-20",
-      status: true,
-      brand: "Thương hiệu C",
-    },
-    {
-      id: 4,
-      name: "Danh mục 4",
-      description: "Mô tả danh mục 4",
-      createdDate: "2025-07-12",
-      updatedDate: "2025-07-15",
-      status: true,
-      brand: "Thương hiệu D",
-    },
-    {
-      id: 5,
-      name: "Danh mục 5",
-      description: "Mô tả danh mục 5",
-      createdDate: "2025-07-01",
-      updatedDate: "2025-07-05",
-      status: true,
-      brand: "Thương hiệu E",
-    },
-  ]);
+  const [brandOptions, setBrandOptions] = useState<Option[]>([]);
+  const [categories, setCategories] = useState<CategoryType[]>([]);
   const [totalItems, setTotalItems] = useState(categories?.length);
 
-  //   const handleSearch = () => {
-  //     const params = {
-  //       name: name.trim() || "",
-  //       status: selected !== null ? selected : null,
-  //     };
+  const getAllBrands = () => {
+    getProductTypeByStatus({ status: null })
+      .then((response) => {
+        const data = response?.data || [];
+        console.log("Thương hiệu hoạt động:", data);
 
-  //     searchCategory(params)
-  //       .then((response) => {
-  //         setCategories(response?.data);
-  //         setTotalItems(response?.data.length || 0);
-  //       })
-  //       .catch((error) => {
-  //         console.error("Lỗi khi tìm kiếm danh mục:", error);
-  //         alert("Không thể tìm kiếm danh mục!");
-  //       });
-  //   };
+        const mappedOptions: Option[] = data.map((item: any) => ({
+          label: item.name,
+          value: item.id,
+        }));
+
+        setBrandOptions(mappedOptions);
+      })
+      .catch((error) => {
+        console.error("Lỗi khi lấy thương hiệu:", error);
+      });
+  };
+
+  const handleSearch = () => {
+    setLoading(true);
+    const params = {
+      productTypeId: selectedBrandId,
+      name: name.trim() || "",
+      status: selected !== null ? selected : null,
+    };
+    searchCategory(params)
+      .then((response) => {
+        setCategories(response?.data);
+        setTotalItems(response?.data.length || 0);
+      })
+      .catch((error) => {
+        console.error("Lỗi khi tìm kiếm danh mục:", error);
+        alert("Không thể tìm kiếm danh mục!");
+      })
+      .finally(() => {
+        setLoading(false);
+      });
+  };
 
   useEffect(() => {
-    // handleSearch();
+    getAllBrands();
+    handleSearch();
   }, []);
 
   const start = (page - 1) * itemsPerPage;
@@ -113,11 +105,51 @@ const CategoryPage = () => {
   const columns: BaseColumn<CategoryType>[] = [
     { key: "id", label: "ID", width: "5%" },
     { key: "name", label: "Tên danh mục", width: "15%" },
-    { key: "brand", label: "Thương hiệu", width: "15%" },
-    { key: "createdDate", label: "Ngày tạo", width: "10%" },
-    { key: "updatedDate", label: "Ngày cập nhật", width: "10%" },
-    { key: "description", label: "Mô tả", width: "25%" },
-    { key: "status", label: "Trạng thái", width: "10%" },
+    {
+      key: "productType",
+      label: "Thương hiệu",
+      width: "15%",
+      render: (item: CategoryType) => {
+        return item.productType?.name || "Không xác định";
+      },
+    },
+    {
+      key: "createdDate",
+      label: "Ngày tạo",
+      width: "15%",
+      render: (item: CategoryType) =>
+        item?.createdDate
+          ? new Date(item.createdDate).toLocaleString("vi-VN", {
+              hour12: false,
+            })
+          : "",
+    },
+    {
+      key: "updatedDate",
+      label: "Ngày cập nhật",
+      width: "15%",
+      render: (item: CategoryType) =>
+        item?.updatedDate
+          ? new Date(item.updatedDate).toLocaleString("vi-VN", {
+              hour12: false,
+            })
+          : "",
+    },
+    { key: "description", label: "Mô tả", width: "15%" },
+    {
+      key: "status",
+      label: "Trạng thái",
+      width: "10%",
+      render: (item: CategoryType) => (
+        <span
+          className={`status-label ${
+            item?.status ? "status-active" : "status-inactive"
+          }`}
+        >
+          {item?.status ? "Đang hoạt động" : "Không hoạt động"}
+        </span>
+      ),
+    },
     {
       key: "actions",
       label: "Thao tác",
@@ -169,7 +201,6 @@ const CategoryPage = () => {
 
   const handleDelete = (id: any) => {
     try {
-      //   deleteCategory(id);
       alert("Đã xóa danh mục thành công!");
     } catch (err) {
       alert("Lỗi khi xóa danh mục!");
@@ -186,6 +217,8 @@ const CategoryPage = () => {
     console.log("Cập nhật trạng thái:", id);
   };
 
+  if (loading) return <Loading />;
+
   return (
     <div className="p-4-category">
       <Pagination
@@ -197,35 +230,33 @@ const CategoryPage = () => {
         showPageSizeSelector
         headerContent={
           <div className="header-content-category">
-            <div className="header-info-category">
+            <div
+              className="header-info-category"
+              style={{ marginBottom: "-28px" }}
+            >
               <Input
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 placeholder="Tìm kiếm theo tên danh mục..."
                 style={{ width: "100%" }}
               />
-              <Dropdown
-                value={selected}
-                onChange={setSelected}
-                options={[
-                  { label: "Đang hoạt động", value: true },
-                  { label: "Không hoạt động", value: false },
-                ]}
-                placeholder="--Chọn tất cả--"
+              <StringDropdown
+                value={selectedBrandId}
+                onChange={setSelectedBrandId}
+                options={brandOptions}
+                placeholder="--Chọn thương hiệu--"
                 error={undefined}
               />
-            </div>
-            <div className="header-info-category">
-              <Dropdown
+              <StringDropdown
                 value={selected}
                 onChange={setSelected}
                 options={[
-                  { label: "Đang hoạt động", value: true },
-                  { label: "Không hoạt động", value: false },
+                  { label: "Đang hoạt động", value: "true" },
+                  { label: "Không hoạt động", value: "false" },
                 ]}
-                placeholder="--Chọn tất cả--"
+                placeholder="--Chọn trạng thái hoạt động--"
                 error={undefined}
-                style={{ width: "50%" }}
+                style={{ width: "100%" }}
               />
             </div>
             <div className="header-actions-category">
@@ -235,9 +266,7 @@ const CategoryPage = () => {
                 </button>
               </div>
               <div className="button-export-category">
-                <button
-                // onClick={handleSearch}
-                >
+                <button onClick={handleSearch}>
                   <FaSearch /> Tìm kiếm
                 </button>
               </div>

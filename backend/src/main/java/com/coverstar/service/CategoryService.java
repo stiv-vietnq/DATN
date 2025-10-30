@@ -11,7 +11,7 @@ public interface CategoryService {
 
     void delete(Long id) throws Exception;
 
-    List<Category> getAllCategory(Long productTypeId, String name, Boolean status, Integer page, Integer size);
+    List<Category> getAllCategory(Long productTypeId, String name, Boolean status);
 
     Category getCategoryById(Long id) throws Exception;
 

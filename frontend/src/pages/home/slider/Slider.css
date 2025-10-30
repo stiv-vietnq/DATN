@@ -150,11 +150,12 @@
 }
 
 .slider-title-item:hover {
-  background-color: #f2f2f2;
+  background-color: #4550f7;
+  color: white;
 }
 
 .slider-title-item-active {
-  background-color: #f97316;
+  background-color: #5661f5;
   color: white;
-  border-color: #f97316;
+  border-color: #5661f5;
 }

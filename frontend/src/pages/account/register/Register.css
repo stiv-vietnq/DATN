@@ -36,7 +36,7 @@
 
 .register-title {
     font-size: 20px;
-    color: #fb8016;
+    color: #5661f5;
     margin-bottom: 20px;
     font-weight: bold;
 }
@@ -57,7 +57,7 @@
 }
 
 .login-link {
-    color: #fb8016;
+    color: #5661f5;
     cursor: pointer;
 
     &:hover {
