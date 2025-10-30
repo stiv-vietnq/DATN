@@ -1,7 +1,7 @@
 import { Input } from "@mui/material";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { FaBars, FaChevronRight, FaFilter, FaPuzzlePiece } from "react-icons/fa6";
+import { FaArrowDownWideShort, FaArrowUpShortWide, FaBars, FaChevronRight, FaFilter, FaPuzzlePiece } from "react-icons/fa6";
 import Loading from "../../components/common/loading/Loading";
 import "./Products.css";
 import RatingFilter from "./ratingFilter/RatingFilter";
@@ -12,6 +12,7 @@ const productTypes = [
   { id: 2, name: "Samsung" },
   { id: 3, name: "Xiaomi" }
 ];
+type SortFieldKey = "createdDate" | "price" | "quantity" | "views";
 
 export default function Products() {
   const { t } = useTranslation();
@@ -20,22 +21,27 @@ export default function Products() {
   const [activeIndexType, setActiveIndexType] = useState<number | null>(null);
   const [selectedIds, setSelectedIds] = useState<number[]>([]);
   const [showAllBrands, setShowAllBrands] = useState(false);
-  const [selectedSorts, setSelectedSorts] = useState<{ [key: string]: string }>({
-    createdDate: "",
-    priceOrder: "",
-    quantitySold: "",
-    numberOfVisits: "",
+  const [sortOrders, setSortOrders] = useState<Record<SortFieldKey, "asc" | "desc">>({
+    createdDate: "asc",
+    price: "asc",
+    quantity: "asc",
+    views: "asc",
   });
-  const [showAllSorts, setShowAllSorts] = useState(false);
+  const [showAll, setShowAll] = useState(false);
 
+  const sortFields: { key: SortFieldKey; label: string }[] = [
+    { key: "createdDate", label: "Ngày tạo" },
+    { key: "price", label: "Giá" },
+    { key: "quantity", label: "Số lượng" },
+    { key: "views", label: "Số lượng truy cập" },
+  ];
 
-  const handleSortChange = (id: string, direction: string) => {
-    setSelectedSorts((prev) => ({
+  const toggleSort = (fieldKey: SortFieldKey) => {
+    setSortOrders((prev) => ({
       ...prev,
-      [id]: direction,
+      [fieldKey]: prev[fieldKey] === "asc" ? "desc" : "asc",
     }));
   };
-
   const handleCheckboxChange = (id: number) => {
     setSelectedIds((prev) =>
       prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id]
@@ -48,7 +54,9 @@ export default function Products() {
 
   const visibleCompanies = showAllBrands
     ? phoneCompanies
-    : phoneCompanies.slice(0, 5);
+    : phoneCompanies?.slice(0, 5);
+
+  const visibleFields = showAll ? sortFields : sortFields.slice(0, 1);
 
   if (loading) return <Loading />;
 
@@ -159,52 +167,42 @@ export default function Products() {
             <div className="phone-company-search-list-sort">
               <div>{t("sort_by")}</div>
 
-              <div className="phone-company-search-list-sort-checkbox">
-                {[
-                  { id: "createdDate", label: "Ngày tạo" },
-                  { id: "priceOrder", label: "Giá" },
-                  { id: "quantitySold", label: "Số lượng bán" },
-                  { id: "numberOfVisits", label: "Lượt truy cập" },
-                ]
-                  .slice(0, showAllSorts ? 4 : 1)
-                  .map((item) => (
-                    <div key={item.id} className="phone-company-search-list-sort-checkbox-data">
-                      <div className="phone-company-search-list-sort-checkbox-item-title">
-                        {item.label}
-                      </div>
-                      <div className="phone-company-search-list-sort-checkbox-item-radio">
-                        <label>
-                          <input
-                            type="radio"
-                            name={item.id}
-                            checked={selectedSorts[item.id] === "ASC"}
-                            onChange={() => handleSortChange(item.id, "ASC")}
-                          />{" "}
-                          Tăng
-                        </label>
-
-                        <label style={{ marginLeft: "8px" }}>
-                          <input
-                            type="radio"
-                            name={item.id}
-                            checked={selectedSorts[item.id] === "DESC"}
-                            onChange={() => handleSortChange(item.id, "DESC")}
-                          />{" "}
-                          Giảm
-                        </label>
+              <div className="phone-company-search-list-sort-options">
+                {visibleFields.map(({ key, label }) => (
+                  <div
+                    key={key}
+                    className="phone-company-search-list-sort-options-item"
+                    style={{ display: "flex", alignItems: "center", marginBottom: "10px" }}
+                  >
+                    <div className="phone-company-search-list-sort-options-title" style={{ width: "150px" }}>
+                      {label}
+                    </div>
+                    <div className="phone-company-search-list-sort-options-filter">
+                      <div
+                        className="sort-icon-option"
+                        style={{ display: "flex", gap: "10px", alignItems: "center", cursor: "pointer" }}
+                        onClick={() => toggleSort(key)}
+                      >
+                        {sortOrders[key] === "asc" ? (
+                          <FaArrowDownWideShort style={{ marginRight: "5px", color: "#ff6b6b" }} />
+                        ) : (
+                          <FaArrowUpShortWide style={{ marginRight: "5px", color: "#007bff" }} />
+                        )}
                       </div>
                     </div>
-                  ))}
+                  </div>
+                ))}
 
-                <div
-                  className="phone-company-toggle"
-                  onClick={() => setShowAllSorts((prev) => !prev)}
-                  style={{ cursor: "pointer", marginTop: "8px", color: "#007bff" }}
-                >
-                  {showAllSorts ? t("hide") : t("show_more")}
+                <div style={{ marginTop: "10px", cursor: "pointer", color: "#007bff", fontSize: '13px' }} onClick={() => setShowAll(!showAll)}>
+                  {showAll ? t("hide") : t("show_more")}
                 </div>
               </div>
+            </div>
+          </div>
 
+          <div className="products-search-button">
+            <div className="phone-company-search-list-price-button">
+              <button className="btn-apply-filters">{t("reset_all")}</button>
             </div>
           </div>
         </div>

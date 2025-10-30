@@ -94,8 +94,8 @@
 }
 
 .btn-apply-filters {
-  background-color: #ff5e00c5;
-  color: #fff;
+  background-color: #57ddf5;
+  color: #2e2e2e;
   border: none;
   padding: 8px 12px;
   border-radius: 4px;
@@ -105,7 +105,7 @@
 }
 
 .btn-apply-filters:hover {
-  background-color: #e65500c5;
+  background-color: #38c7ed;
 }
 
 .btn-apply-filters:focus {
@@ -135,17 +135,18 @@
   padding-top: 30px;
 }
 
-.phone-company-search-list-sort-checkbox {
-  display: grid;
+.phone-company-search-list-sort-options {
+  padding: 5px 10px;
 }
 
-.phone-company-search-list-sort-checkbox-data {
-  text-align: left;
-  padding: 0 10px;
+.phone-company-search-list-sort-options-title {
+  font-size: 13px;
+  margin-right: 10px;
+  color: #555;
+  width: 70%;
 }
 
-.phone-company-search-list-sort-checkbox-item-radio {
-  display: flex;
-  align-items: center;
-  cursor: pointer;
+.phone-company-search-list-sort-options-filter {
+  width: 30%;
+  text-align: right;
 }

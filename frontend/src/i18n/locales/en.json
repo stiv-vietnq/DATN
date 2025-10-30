@@ -110,5 +110,6 @@
   "rating": "And up",
   "show_more": "Show More",
   "hide": "Hide Less",
-  "sort_by": "Sort By"
+  "sort_by": "Sort By",
+  "reset_all": "Reset All"
 }
