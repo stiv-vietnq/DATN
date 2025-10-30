@@ -13,6 +13,14 @@ const productTypes = [
   { id: 3, name: "Xiaomi" }
 ];
 type SortFieldKey = "createdDate" | "price" | "quantity" | "views";
+const allProducts = Array.from({ length: 19 }, (_, i) => ({
+  id: i + 1,
+  name: `Điện thoại iphone 16 promax ${i + 1}`,
+  price: `${(i + 1) * 10000}đ`,
+  image: `https://shopdunk.com/images/thumbs/0012145_iphone-11-pro-256gb.jpeg`,
+  discount: i % 3 === 0 ? 10 : undefined,
+  sold: (i + 1) * 5,
+}));
 
 export default function Products() {
   const { t } = useTranslation();
@@ -28,6 +36,19 @@ export default function Products() {
     views: "asc",
   });
   const [showAll, setShowAll] = useState(false);
+  const itemsPerPage = 50;
+  const [currentPage, setCurrentPage] = useState(1);
+
+  const totalPages = Math.ceil(allProducts.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const currentProducts = allProducts.slice(startIndex, startIndex + itemsPerPage);
+
+  const handlePageChange = (page: number) => {
+    if (page >= 1 && page <= totalPages) {
+      setCurrentPage(page);
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+  };
 
   const sortFields: { key: SortFieldKey; label: string }[] = [
     { key: "createdDate", label: "Ngày tạo" },
@@ -208,7 +229,48 @@ export default function Products() {
         </div>
 
         {/* --- Phần danh sách sản phẩm --- */}
-        <div className="products-data-list">vietnq</div>
+        <div className="products-container-list">
+          <div className="products-data-list">
+            {currentProducts.map((product) => (
+              <div className="product-card" key={product.id}>
+                {product.discount && (
+                  <div className="discount-badge">-{product.discount}%</div>
+                )}
+
+                <img src={product.image} alt={product.name} />
+
+                <div className="product-info">
+                  <div className="product-name">{product.name}</div>
+                  <div className="product-rating-buy">
+                    <div className="product-price">{product.price}</div>
+                  </div>
+                  <div className="product-meta"><span>Đã bán 801</span><span>⭐ 4.6</span></div>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Phân trang */}
+          <div className="pagination">
+            <button onClick={() => handlePageChange(currentPage - 1)} disabled={currentPage === 1}>
+              &laquo;
+            </button>
+
+            {Array.from({ length: totalPages }, (_, i) => (
+              <button
+                key={i + 1}
+                className={currentPage === i + 1 ? "active" : ""}
+                onClick={() => handlePageChange(i + 1)}
+              >
+                {i + 1}
+              </button>
+            ))}
+
+            <button onClick={() => handlePageChange(currentPage + 1)} disabled={currentPage === totalPages}>
+              &raquo;
+            </button>
+          </div>
+        </div>
       </div >
     </div >
   );

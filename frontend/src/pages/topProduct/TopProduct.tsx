@@ -22,14 +22,15 @@ export default function TopProduct() {
 
   const [categories, setCategories] = useState<Category[]>([
     { id: 1, name: "Quạt Mini Cầm Tay" },
-    { id: 2, name: "Áo Thun" },
-    { id: 3, name: "Áo Ngực Không Dây" },
-    { id: 4, name: "Bao Cao Su" },
-    { id: 5, name: "Áo Lót Nữ Không Gọng" },
-    { id: 6, name: "Dép Đi Trong Nhà" },
-    { id: 7, name: "Áo Khoác" },
-    { id: 8, name: "Túi Xách" },
-    { id: 9, name: "Giày Dép" },
+    { id: 2, name: "Quạt Mini Cầm Tay" },
+    { id: 3, name: "Quạt Mini Cầm Tay" },
+    { id: 4, name: "Quạt Mini Cầm Tay" },
+    { id: 5, name: "Quạt Mini Cầm Tay" },
+    { id: 6, name: "Áo Thun" },
+    { id: 7, name: "Dép Đi Trong Nhà" },
+    { id: 8, name: "Áo Khoác" },
+    { id: 9, name: "Túi Xách" },
+    { id: 10, name: "Giày Dép" },
   ]);
 
   const mainCategories = categories.slice(0, 6);

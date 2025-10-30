@@ -2,18 +2,17 @@ import { FaChevronLeft, FaChevronRight } from 'react-icons/fa6';
 import './TopSearch.css';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
-import logo from '../../../assets/quickbuyshop.png';
 import { useState } from 'react';
 
 const products = [
-    { id: 1, name: "Điện Thoại Apple", sold: "6k+", img: logo },
-    { id: 2, name: "Đầm Ren", sold: "2k+", img: logo },
-    { id: 3, name: "Áo Babydoll Nữ Tay Bèo", sold: "71k+", img: logo },
-    { id: 4, name: "Gấu Bông Vịt", sold: "6k+", img: logo },
-    { id: 5, name: "Thú Nhồi Bông", sold: "4k+", img: logo },
-    { id: 6, name: "Váy Đi Biển", sold: "3k+", img: logo },
-    { id: 7, name: "Váy Đi Biển", sold: "3k+", img: logo },
-    { id: 8, name: "Váy Đi Biển", sold: "3k+", img: logo },
+    { id: 1, name: "Điện Thoại Apple", sold: "6k+", img: 'https://shopdunk.com/images/thumbs/0012145_iphone-11-pro-256gb.jpeg' },
+    { id: 2, name: "Đầm Ren", sold: "2k+", img: 'https://shopdunk.com/images/thumbs/0012145_iphone-11-pro-256gb.jpeg' },
+    { id: 3, name: "Áo Babydoll Nữ Tay Bèo", sold: "71k+", img: 'https://shopdunk.com/images/thumbs/0012145_iphone-11-pro-256gb.jpeg' },
+    { id: 4, name: "Gấu Bông Vịt", sold: "6k+", img: 'https://shopdunk.com/images/thumbs/0012145_iphone-11-pro-256gb.jpeg' },
+    { id: 5, name: "Thú Nhồi Bông", sold: "4k+", img: 'https://shopdunk.com/images/thumbs/0012145_iphone-11-pro-256gb.jpeg' },
+    { id: 6, name: "Váy Đi Biển", sold: "3k+", img: 'https://shopdunk.com/images/thumbs/0012145_iphone-11-pro-256gb.jpeg' },
+    { id: 7, name: "Váy Đi Biển", sold: "3k+", img: 'https://shopdunk.com/images/thumbs/0012145_iphone-11-pro-256gb.jpeg' },
+    { id: 8, name: "Váy Đi Biển", sold: "3k+", img: 'https://shopdunk.com/images/thumbs/0012145_iphone-11-pro-256gb.jpeg' },
 ];
 
 export default function TopSearch() {
