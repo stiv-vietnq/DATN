@@ -269,17 +269,19 @@ public class ProductServiceImpl implements ProductService {
             BigDecimal maxPriceValue = searchProductDto.getMaxPrice() != null ? searchProductDto.getMaxPrice() : BigDecimal.valueOf(Double.MAX_VALUE);
             Long productTypeId = searchProductDto.getProductTypeId() != null ? searchProductDto.getProductTypeId() : 0L;
             if (searchProductDto.getCategoryId() != null) {
-                Category category = categoryService.getCategoryById(searchProductDto.getCategoryId());
-                long numberOfVisits;
-                if (category.getNumberOfVisits() == null) {
-                    numberOfVisits = 1L;
-                } else {
-                    numberOfVisits = category.getNumberOfVisits() + 1;
+                List<Category> categories = categoryService.getCategoryByIds(searchProductDto.getCategoryId());
+                for (Category category : categories) {
+                    long numberOfVisits;
+                    if (category.getNumberOfVisits() == null) {
+                        numberOfVisits = 1L;
+                    } else {
+                        numberOfVisits = category.getNumberOfVisits() + 1;
+                    }
+                    category.setNumberOfVisits(numberOfVisits);
+                    categoryRepository.save(category);
                 }
-                category.setNumberOfVisits(numberOfVisits);
-                categoryRepository.save(category);
             }
-            Long categoryId = searchProductDto.getCategoryId() != null ? searchProductDto.getCategoryId() : 0L;
+            List<Long> categoryIds = searchProductDto.getCategoryId() != null ? searchProductDto.getCategoryId() : null;
 //            List<Long> shippingMethodIds = searchProductDto.getShippingMethodIds().stream()
 //                    .map(Long::parseLong)
 //                    .collect(Collectors.toList());
@@ -306,7 +308,7 @@ public class ProductServiceImpl implements ProductService {
 
             Pageable pageable = PageRequest.of(searchProductDto.getPage(), searchProductDto.getSize(), sort);
             return productRepository.findByNameContainingAndPriceBetweenWithDetails(productTypeId, nameValue,
-                    minPriceValue, maxPriceValue, categoryId
+                    minPriceValue, maxPriceValue, categoryIds
 //                    , shippingMethodIds
                     , status, evaluate, pageable);
         } catch (Exception e) {

@@ -21,6 +21,7 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -131,6 +132,24 @@ public class CategoryServiceImpl implements CategoryService {
                 throw new Exception(Constants.CATEGORY_NOT_FOUND);
             }
             return category;
+        } catch (Exception e) {
+            e.fillInStackTrace();
+            throw e;
+        }
+    }
+
+    @Override
+    public List<Category> getCategoryByIds(List<Long> id) throws Exception {
+        try {
+            List<Category> categories = new ArrayList<>();
+            for (Long categoryId : id) {
+                Category category = categoryRepository.getById(categoryId);
+                if (category == null) {
+                    throw new Exception(Constants.CATEGORY_NOT_FOUND);
+                }
+                categories.add(category);
+            }
+            return categories;
         } catch (Exception e) {
             e.fillInStackTrace();
             throw e;

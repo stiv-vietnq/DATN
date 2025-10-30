@@ -76,3 +76,76 @@
 .phone-company-search-item-name {
   flex: 1;
 }
+
+.phone-company-search-list-price {
+  text-align: left;
+  padding-top: 10px;
+}
+
+.phone-company-search-list-price-input {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  margin-top: 10px;
+}
+
+.phone-company-search-list-price-button {
+  margin-top: 20px;
+}
+
+.btn-apply-filters {
+  background-color: #ff5e00c5;
+  color: #fff;
+  border: none;
+  padding: 8px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  width: 100%;
+}
+
+.btn-apply-filters:hover {
+  background-color: #e65500c5;
+}
+
+.btn-apply-filters:focus {
+  outline: none;
+}
+
+.phone-company-search-list-evaluate {
+  text-align: left;
+  padding-top: 30px;
+}
+
+.phone-company-toggle {
+  color: #007bff;
+  font-size: 13px;
+  cursor: pointer;
+  margin-top: 6px;
+  width: fit-content;
+  padding: 6px 10px;
+}
+
+.phone-company-toggle:hover {
+  text-decoration: underline;
+}
+
+.phone-company-search-list-sort {
+  text-align: left;
+  padding-top: 30px;
+}
+
+.phone-company-search-list-sort-checkbox {
+  display: grid;
+}
+
+.phone-company-search-list-sort-checkbox-data {
+  text-align: left;
+  padding: 0 10px;
+}
+
+.phone-company-search-list-sort-checkbox-item-radio {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+}

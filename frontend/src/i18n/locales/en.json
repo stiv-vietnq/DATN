@@ -98,5 +98,17 @@
     "enter_phone_number": "Enter phone number...",
     "enter_comment": "Enter comment...",
     "submit_comment": "Submit Comment"
-  }
+  },
+  "all_phone_brands": "All Phone Brands",
+  "product_types": "Product Types",
+  "search_filters": "Search Filters",
+  "from": "From",
+  "to": "To",
+  "price_range": "Price Range",
+  "apply_filters": "Apply Filters",
+  "evaluate": "Evaluate",
+  "rating": "And up",
+  "show_more": "Show More",
+  "hide": "Hide Less",
+  "sort_by": "Sort By"
 }

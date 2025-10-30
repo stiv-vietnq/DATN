@@ -98,5 +98,17 @@
     "enter_phone_number": "Nhập số điện thoại...",
     "enter_comment": "Nhập bình luận...",
     "submit_comment": "Gửi bình luận"
-  }
+  },
+  "all_phone_brands": "Tất cả hãng điện thoại",
+  "product_types": "Loại sản phẩm",
+  "search_filters": "Bộ lọc tìm kiếm",
+  "from": "Từ",
+  "to": "Đến",
+  "price_range": "Khoảng giá",
+  "apply_filters": "Áp dụng bộ lọc",
+  "evaluate": "Đánh giá",
+  "rating": "Trở lên",
+  "show_more": "Xem thêm",
+  "hide": "Ẩn bớt",
+  "sort_by": "Sắp xếp theo"
 }

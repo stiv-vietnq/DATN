@@ -1,6 +1,7 @@
 package com.coverstar.config;
 
 //import org.apache.catalina.filters.CorsFilter;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.context.annotation.Bean;
@@ -50,18 +51,23 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                         "dashboards/**",
                         "/products/search/**",
                         "/unlock-account/**",
-                        "/categories/getAllCategory/**")
+                        "/categories/getAllCategory/**",
+                        "/productTypes/**",
+                        "/products/**",
+                        "/categories/**",
+                        "/discounts/**",
+                        "/purchases/**")
                 .permitAll()
-                .antMatchers(
-                        "/productTypes/admin/**",
-                        "/products/admin/**",
-                        "/categories/admin/**",
-                        "/discounts/admin/**",
-                        "/purchases/admin/**"
-//                        ,
-//                        "/shipping-methods/admin/**"
-                )
-                .hasRole("ADMIN")
+//                .antMatchers(
+//                        "/productTypes/admin/**",
+//                        "/products/admin/**",
+//                        "/categories/admin/**",
+//                        "/discounts/admin/**",
+//                        "/purchases/admin/**"
+////                        ,
+////                        "/shipping-methods/admin/**"
+//                )
+//                .hasRole("ADMIN")
                 .anyRequest()
                 .authenticated()
                 .and()
