@@ -18,3 +18,11 @@ export const searchCategory = (params: {
 }) => {
   return api.get("/categories/getAllCategory", { params });
 };
+
+export const getCategorysByProductTypeId = (params: {
+  productTypeId?: string | null;
+  status?: string | null;
+}) => {
+  debugger
+  return api.get(`/categories/getCategorysByProductTypeId`, { params });
+};

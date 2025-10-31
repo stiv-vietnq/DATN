@@ -16,28 +16,25 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
 
     @Query("SELECT DISTINCT p " +
             "FROM Product p " +
-            "INNER JOIN Image a ON p.id = a.productId " +
-            "INNER JOIN ProductDetail pd ON p.id = pd.productId " +
-//            "INNER JOIN p.shippingMethods sm " +
-            "INNER JOIN p.productType pt " +
+            "LEFT JOIN FETCH Image a ON p.id = a.productId AND a.type = 1 " +
+            "LEFT JOIN FETCH ProductDetail pd ON p.id = pd.productId " +
+            "LEFT JOIN FETCH p.productType pt " +
             "WHERE (:productTypeId IS NULL OR pt.id = :productTypeId) " +
             "AND (:name IS NULL OR LOWER(p.productName) LIKE LOWER(CONCAT('%', :name, '%'))) " +
             "AND p.price BETWEEN :minPrice AND :maxPrice " +
-            "AND (COALESCE(:categoryIds, NULL) IS NULL OR p.categoryId IN :categoryIds) " +
-//            "AND (COALESCE(:shippingMethodIds, NULL) IS NULL OR sm.id IN :shippingMethodIds) " +
-            "AND a.type = 1 " +
+            "AND (:categoryIds IS NULL OR p.categoryId IN :categoryIds) " +
             "AND (:status IS NULL OR p.status = :status) " +
             "AND (:evaluate IS NULL OR p.evaluate >= :evaluate)")
-    Page<Product> findByNameContainingAndPriceBetweenWithDetails(
+    List<Product> findAllWithDetails(
             @Param("productTypeId") Long productTypeId,
             @Param("name") String name,
             @Param("minPrice") BigDecimal minPrice,
             @Param("maxPrice") BigDecimal maxPrice,
             @Param("categoryIds") List<Long> categoryIds,
-//            @Param("shippingMethodIds") List<Long> shippingMethodIds,
             @Param("status") Boolean status,
-            @Param("evaluate") Float evaluate,
-            Pageable pageable);
+            @Param("evaluate") Float evaluate
+    );
+
 
 
     @Query("SELECT p " +

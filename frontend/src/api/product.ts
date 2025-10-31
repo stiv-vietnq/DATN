@@ -1,30 +1,26 @@
 import api from "./index";
 
 export const ProductSearch = (data: {
-  //   productTypeId?: number;
-  //   name?: string;
-  //   minPrice?: string;
-  //   maxPrice?: string;
-  //   status?: boolean;
-  //   categoryId?: number[];
-  //   orderBy?: string;
-  //   priceOrder?: string;
-  //   page?: number;
-  //   size?: number;
-  //   quantitySold?: string;
-  //   numberOfVisits?: string;
-  //   evaluate?: string;
-  productTypeId: 1;
-  name: "Điện thoại";
-  minPrice: "1000000";
-  maxPrice: "5000000";
-  status: "true";
-  categoryId: "";
-  orderBy: "price";
-  priceOrder: "asc";
-  page: 1;
-  size: 10;
-  quantitySold: "desc";
-  numberOfVisits: "asc";
-  evaluate: "5";
+    productTypeId?: string | null;
+    name?: string;
+    minPrice?: string;
+    maxPrice?: string;
+    status?: string | null;
+    categoryId?: string | null;
+    orderBy?: string;
+    priceOrder?: string;
+    page?: number;
+    size?: number;
+    quantitySold?: string | null;
+    numberOfVisits?: string | null;
+    evaluate?: string | null;
 }) => api.get("/products/search", { params: data });
+
+
+export const ProductCreateOrUpdate = (data: FormData) => {
+    return api.post("/products/admin/createOrUpdate", data, {
+        headers: {
+            "Content-Type": "multipart/form-data",
+        },
+    });
+};

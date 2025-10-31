@@ -101,10 +101,20 @@ public class CategoryController {
         }
     }
 
-    @PostMapping("/getCategorysByProductTypeId")
-    public ResponseEntity<?> getCategorysByProductTypeId(@RequestParam("productTypeId") Long productTypeId) {
+    @GetMapping("/getCategorysByProductTypeId")
+    public ResponseEntity<?> getCategorysByProductTypeId(@RequestParam(value = "productTypeId", required = false) String productTypeId,
+                                                         @RequestParam(value = "status", required = false) String status) {
         try {
-            return ResponseEntity.ok(categoryService.getAllCategory(productTypeId, null, true));
+            Long productTypeIdLong = null;
+            if (StringUtils.isNotEmpty(productTypeId)) {
+                productTypeIdLong = Long.parseLong(productTypeId);
+            }
+
+            Boolean statusBool = null;
+            if (StringUtils.isNotEmpty(status)) {
+                statusBool = Boolean.parseBoolean(status);
+            }
+            return ResponseEntity.ok(categoryService.getAllCategory(productTypeIdLong, null, statusBool));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Constants.ERROR);
         }

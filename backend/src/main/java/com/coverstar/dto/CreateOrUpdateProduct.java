@@ -15,18 +15,18 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 public class CreateOrUpdateProduct implements Serializable {
-    private Long id;
+    private String id;
     private String productName;
-    private Long productTypeId;
+    private String productTypeId;
     private String size;
-    private BigDecimal price;
-    private Float percentageReduction;
+    private String price;
+    private String percentageReduction;
     private String description;
     private String imageIdsToRemove;
     private String listProductDetailIdRemove;
 //    private List<String> shippingMethodIds;
-    private Long categoryId;
-    private Boolean status;
+    private String categoryId;
+    private String status;
     private List<MultipartFile> images;
     private List<ProductDetailDTO> productDetailDTOS;
 }

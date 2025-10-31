@@ -10,6 +10,10 @@ import Dropdown from "../../../components/common/dropdown/Dropdown";
 import "./ProductPage.css";
 import StringDropdown from "../../../components/common/dropdown/StringDropdown";
 import ProductModal from "./productModal/ProductModal";
+import { ProductSearch } from "../../../api/product";
+import { getProductTypeByStatus } from "../../../api/brand";
+import { getCategorysByProductTypeId } from "../../../api/category";
+import Loading from "../../../components/common/loading/Loading";
 
 // Dữ liệu product
 interface Product {
@@ -27,75 +31,110 @@ interface Product {
     numberOfVisits: number;
 }
 
+interface Option {
+    label: string;
+    value: string;
+}
+
+
 const ProductPage = () => {
+    const [loading, setLoading] = useState(false);
     const [page, setPage] = useState(1);
     const [itemsPerPage, setItemsPerPage] = useState(10);
     const [name, setName] = useState("");
-    const [selectedBrand, setSelectedBrand] = useState<string | null>(null);
-    const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [modalMode, setModalMode] = useState<"add" | "edit" | "view">("add");
     const [modalProductId, setModalProductId] = useState<number | null>(null);
     const [showConfirm, setShowConfirm] = useState(false);
     const [confirmAction, setConfirmAction] = useState<"delete" | "status" | null>(null);
     const [selectedId, setSelectedId] = useState<number | null>(null);
-    const [selected, setSelected] = useState<boolean | null>(null);
+    const [selected, setSelected] = useState<string | null>(null);
     const [minPrice, setMinPrice] = useState("");
     const [maxPrice, setMaxPrice] = useState("");
     const [selectedQuantitySold, setSelectedQuantitySold] = useState<string | null>(null);
     const [selectedNumberOfVisits, setSelectedNumberOfVisits] = useState<string | null>(null);
-
-    const [products, setProducts] = useState<Product[]>([
-        {
-            id: 1,
-            productName: "Áo Thun Nam",
-            categoryName: "Thời Trang Nam",
-            brandName: "Brand A",
-            price: 250000,
-            description: "Áo thun cotton cao cấp",
-            status: true,
-            createdDate: "2025-10-01",
-            updatedDate: "2025-10-05",
-            quantitySold: 120,
-            percentageReduction: 10,
-            numberOfVisits: 500,
-        },
-        {
-            id: 2,
-            productName: "Áo Sơ Mi Nữ",
-            categoryName: "Thời Trang Nữ",
-            brandName: "Brand B",
-            price: 320000,
-            description: "Áo sơ mi công sở thanh lịch",
-            status: true,
-            createdDate: "2025-09-20",
-            updatedDate: "2025-09-25",
-            quantitySold: 85,
-            percentageReduction: 5,
-            numberOfVisits: 320,
-        },
-        {
-            id: 3,
-            productName: "Quần Jean",
-            categoryName: "Trang Phục Unisex",
-            brandName: "Brand C",
-            price: 450000,
-            description: "Quần jean co giãn bền đẹp",
-            status: false,
-            createdDate: "2025-08-15",
-            updatedDate: "2025-08-20",
-            quantitySold: 45,
-            percentageReduction: 15,
-            numberOfVisits: 210,
-        },
-    ]);
-
+    const [products, setProducts] = useState<Product[]>([]);
     const [totalItems, setTotalItems] = useState(products.length);
+    const [brandOptions, setBrandOptions] = useState<Option[]>([]);
+    const [categoryOptions, setCategoryOptions] = useState<Option[]>([]);
+    const [selectedBrandId, setSelectedBrandId] = useState<string | null>(null);
+    const [selectedCategoryId, setSelectedCategoryId] = useState<string | null>(null);
 
     // Phân trang
     const start = (page - 1) * itemsPerPage;
     const end = start + itemsPerPage;
     const currentItems = products.slice(start, end);
+
+    useEffect(() => {
+        getAllBrands();
+        handleSearchProducts();
+    }, [page, itemsPerPage]);
+
+    const handleSearchProducts = () => {
+        setLoading(true);
+        ProductSearch({
+            productTypeId: selectedBrandId,
+            name: name,
+            minPrice: minPrice,
+            maxPrice: maxPrice,
+            status: selected,
+            categoryId: selectedCategoryId,
+            orderBy: "asc",
+            priceOrder: "asc",
+            page: 1,
+            size: 10,
+            quantitySold: selectedQuantitySold,
+            numberOfVisits: selectedNumberOfVisits,
+            evaluate: null,
+        }).then((response) => {
+            const data = response?.data || [];
+            setProducts(data);
+            setTotalItems(data.length);
+        }).catch((error) => {
+            console.error("Lỗi khi tìm kiếm sản phẩm:", error);
+        }).finally(() => {
+            setLoading(false);
+        });
+    };
+
+    const getAllBrands = () => {
+        setLoading(true);
+        getProductTypeByStatus({ status: null })
+            .then((response) => {
+                const data = response?.data || [];
+                console.log("Thương hiệu hoạt động:", data);
+
+                const mappedOptions: Option[] = data.map((item: any) => ({
+                    label: item.name,
+                    value: item.id,
+                }));
+
+                setBrandOptions(mappedOptions);
+            })
+            .catch((error) => {
+                console.error("Lỗi khi lấy thương hiệu:", error);
+            })
+            .finally(() => setLoading(false));
+    };
+
+    const fetchCategoriesByProductTypeId = (value: string | null) => {
+        getCategorysByProductTypeId({
+            productTypeId: value,
+            status: null,
+        })
+            .then((response) => {
+                const data = response?.data || [];
+                const mappedOptions: Option[] = data.map((item: any) => ({
+                    label: item.name,
+                    value: item.id,
+                }));
+
+                setCategoryOptions(mappedOptions);
+            })
+            .catch((error) => {
+                console.error("Lỗi khi lấy danh mục:", error);
+            })
+    };
 
     // Columns table
     const columns: BaseColumn<Product>[] = [
@@ -182,9 +221,7 @@ const ProductPage = () => {
 
     const handleCloseModal = () => setIsModalOpen(false);
 
-    const handleSearch = () => {
-        // Giả sử fetchProducts là hàm lấy dữ liệu từ API với các tham số lọc
-    };
+    if (loading) return <Loading />;
 
     return (
         <div className="p-4">
@@ -206,32 +243,34 @@ const ProductPage = () => {
                                     style={{ width: "100%" }}
                                 />
                                 <StringDropdown
-                                    value={selectedBrand}
-                                    onChange={setSelectedBrand}
-                                    options={[
-                                        { label: "Brand A", value: "Brand A" },
-                                        { label: "Brand B", value: "Brand B" },
-                                        { label: "Brand C", value: "Brand C" },
-                                    ]}
-                                    placeholder="-- Chọn thương hiệu --"
+                                    value={selectedBrandId}
+                                    onChange={(value: string | null) => {
+                                        setSelectedBrandId(value);
+                                        if (value) {
+                                            fetchCategoriesByProductTypeId(value);
+                                        } else {
+                                            setSelectedCategoryId(null);
+                                            setCategoryOptions([]);
+                                        }
+                                    }}
+                                    options={brandOptions}
+                                    placeholder="--Chọn thương hiệu--"
+                                    error={undefined}
                                 />
                                 <StringDropdown
-                                    value={selectedCategory}
-                                    onChange={setSelectedCategory}
-                                    options={[
-                                        { label: "Thời Trang Nam", value: "Thời Trang Nam" },
-                                        { label: "Thời Trang Nữ", value: "Thời Trang Nữ" },
-                                        { label: "Trang Phục Unisex", value: "Trang Phục Unisex" },
-                                    ]}
-                                    placeholder="-- Chọn danh mục --"
+                                    value={selectedCategoryId}
+                                    onChange={setSelectedCategoryId}
+                                    options={categoryOptions}
+                                    placeholder="--Chọn danh mục--"
+                                    error={undefined}
                                 />
 
-                                <Dropdown
+                                <StringDropdown
                                     value={selected}
                                     onChange={setSelected}
                                     options={[
-                                        { label: "Đang hoạt động", value: true },
-                                        { label: "Không hoạt động", value: false },
+                                        { label: "Đang hoạt động", value: "true" },
+                                        { label: "Không hoạt động", value: "false" },
                                     ]}
                                     placeholder="-- Chọn trạng thái hoạt động --"
                                     error={undefined}
@@ -244,12 +283,14 @@ const ProductPage = () => {
                                         onChange={(e) => setMinPrice(e.target.value)}
                                         placeholder="Giá tối thiểu..."
                                         style={{ width: "100%" }}
+                                        type="number"
                                     />
                                     <Input
                                         value={maxPrice}
                                         onChange={(e) => setMaxPrice(e.target.value)}
                                         placeholder="Giá tối đa..."
                                         style={{ width: "100%" }}
+                                        type="number"
                                     />
                                 </div>
                                 <div style={{ display: "flex", gap: "10px", width: "50%" }}>
@@ -283,7 +324,7 @@ const ProductPage = () => {
                                 </button>
                             </div>
                             <div className="button-search-product">
-                                <button onClick={handleSearch}>
+                                <button onClick={handleSearchProducts}>
                                     <FaSearch /> Tìm kiếm
                                 </button>
                             </div>

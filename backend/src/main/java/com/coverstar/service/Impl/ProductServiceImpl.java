@@ -14,12 +14,9 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Lazy;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
+import org.springframework.util.MultiValueMap;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
@@ -124,14 +121,9 @@ public class ProductServiceImpl implements ProductService {
 //            product.setSize(size);
 //            product.setPrice(price);
 //            product.setPercentageReduction(percentageReduction);
-//            product.setBrandId(brandId);
 //            product.setCategoryId(categoryId);
 //            product.setStatus(status);
 //
-//            List<ShippingMethod> shippingMethods = shippingMethodRepository.findAllById(
-//                    shippingMethodIds.stream().map(Long::parseLong).collect(Collectors.toList())
-//            );
-//            product.setShippingMethods(new HashSet<>(shippingMethods));
 //            product.setDescription(description);
 //            if (StringUtils.isNotEmpty(imageIdsToRemove)) {
 //                List<Long> imageIdsToRemoveDT = Arrays.stream(imageIdsToRemove.split(","))
@@ -250,10 +242,10 @@ public class ProductServiceImpl implements ProductService {
         return fullPath;
     }
 
-
     @Override
     public List<Product> findByNameAndPriceRange(SearchProductDto searchProductDto) throws Exception {
         try {
+            // --- Update userVisits ---
             UserVisits userVisits = userVisitRepository.findByVisitDate(new Date(), 3);
             if (userVisits == null) {
                 userVisits = new UserVisits();
@@ -265,61 +257,79 @@ public class ProductServiceImpl implements ProductService {
                 userVisits.setVisitCount(userVisits.getVisitCount() + 1);
                 userVisitRepository.save(userVisits);
             }
+
+            BigDecimal SQLSERVER_MAX_DECIMAL = new BigDecimal("9999999999999999.99");
             String minPrice = searchProductDto.getMinPrice();
             String maxPrice = searchProductDto.getMaxPrice();
             String nameValue = searchProductDto.getName() != null ? searchProductDto.getName() : StringUtils.EMPTY;
-            BigDecimal minPriceValue = StringUtils.isEmpty(minPrice) ? new BigDecimal(minPrice) : BigDecimal.ZERO;
-            BigDecimal maxPriceValue = StringUtils.isEmpty(maxPrice) ? new BigDecimal(maxPrice) : BigDecimal.valueOf(Double.MAX_VALUE);
-            Long productTypeId = searchProductDto.getProductTypeId() != null ? searchProductDto.getProductTypeId() : 0L;
-            if (searchProductDto.getCategoryId() != null) {
-                List<Category> categories = categoryService.getCategoryByIds(searchProductDto.getCategoryId());
-                for (Category category : categories) {
-                    long numberOfVisits;
-                    if (category.getNumberOfVisits() == null) {
-                        numberOfVisits = 1L;
-                    } else {
-                        numberOfVisits = category.getNumberOfVisits() + 1;
-                    }
-                    category.setNumberOfVisits(numberOfVisits);
-                    categoryRepository.save(category);
-                }
-            }
+            BigDecimal minPriceValue = StringUtils.isNotEmpty(minPrice) ? new BigDecimal(minPrice) : BigDecimal.ZERO;
+            BigDecimal maxPriceValue = StringUtils.isNotEmpty(maxPrice) ? new BigDecimal(maxPrice) : SQLSERVER_MAX_DECIMAL;
+            Long productTypeId = searchProductDto.getProductTypeId() != null ? searchProductDto.getProductTypeId() : null;
             List<Long> categoryIds = searchProductDto.getCategoryId() != null ? searchProductDto.getCategoryId() : null;
-//            List<Long> shippingMethodIds = searchProductDto.getShippingMethodIds().stream()
-//                    .map(Long::parseLong)
-//                    .collect(Collectors.toList());
             Boolean status = searchProductDto.getStatus() != null ? searchProductDto.getStatus() : null;
-            String orderBy = searchProductDto.getOrderBy() != null ? searchProductDto.getOrderBy() : Constants.DESC;
-            String priceOrder = searchProductDto.getPriceOrder() != null ? searchProductDto.getPriceOrder() : Constants.DESC;
-            String quantitySold = searchProductDto.getQuantitySold() != null ? searchProductDto.getQuantitySold() : Constants.DESC;
-            String numberOfVisits = searchProductDto.getNumberOfVisits() != null ? searchProductDto.getNumberOfVisits() : Constants.DESC;
             Float evaluate = searchProductDto.getEvaluate() != null ? Float.valueOf(searchProductDto.getEvaluate()) : null;
 
-            Sort.Order priceSort = Constants.ASC.equalsIgnoreCase(priceOrder) ?
-                    Sort.Order.asc(Constants.PRICE) : Sort.Order.desc(Constants.PRICE);
+            List<Product> products = productRepository.findAllWithDetails(
+                    productTypeId, nameValue, minPriceValue, maxPriceValue,
+                    categoryIds, status, evaluate
+            );
 
-            Sort.Order dateSort = Constants.ASC.equalsIgnoreCase(orderBy) ?
-                    Sort.Order.asc(Constants.CREATED_DATE) : Sort.Order.desc(Constants.CREATED_DATE);
+            List<Product> distinctProducts = products.stream()
+                    .collect(Collectors.toMap(Product::getId, p -> p, (p1, p2) -> p1))
+                    .values().stream()
+                    .collect(Collectors.toList());
 
-            Sort.Order quantitySort = Constants.ASC.equalsIgnoreCase(quantitySold) ?
-                    Sort.Order.asc(Constants.QUANTITY_SOLD) : Sort.Order.desc(Constants.QUANTITY_SOLD);
+            Comparator<Product> comparator = Comparator
+                    .comparing(Product::getPrice)
+                    .thenComparing(Product::getCreatedDate)
+                    .thenComparing(Product::getQuantitySold)
+                    .thenComparing(Product::getNumberOfVisits);
 
-            Sort.Order numberOfVisitsSort = Constants.ASC.equalsIgnoreCase(numberOfVisits) ?
-                    Sort.Order.asc(Constants.NUMBER_OF_VISITS) : Sort.Order.desc(Constants.NUMBER_OF_VISITS);
+            if (Constants.DESC.equalsIgnoreCase(searchProductDto.getPriceOrder())) {
+                comparator = comparator.reversed();
+            }
 
-            Sort sort = Sort.by(priceSort, dateSort, quantitySort, numberOfVisitsSort);
+            // Price
+            if (searchProductDto.getPriceOrder() != null) {
+                comparator = Constants.ASC.equalsIgnoreCase(searchProductDto.getPriceOrder()) ?
+                        Comparator.comparing(Product::getPrice) :
+                        Comparator.comparing(Product::getPrice).reversed();
+            }
 
-            Pageable pageable = PageRequest.of(searchProductDto.getPage(), searchProductDto.getSize(), sort);
-            Page<Product> products = productRepository.findByNameContainingAndPriceBetweenWithDetails(productTypeId, nameValue,
-                    minPriceValue, maxPriceValue, categoryIds
-//                    , shippingMethodIds
-                    , status, evaluate, pageable);
-            return products.getContent();
+            // CreatedDate
+            if (searchProductDto.getOrderBy() != null) {
+                Comparator<Product> dateComparator = Constants.ASC.equalsIgnoreCase(searchProductDto.getOrderBy()) ?
+                        Comparator.comparing(Product::getCreatedDate) :
+                        Comparator.comparing(Product::getCreatedDate).reversed();
+                comparator = comparator.thenComparing(dateComparator);
+            }
+
+            // QuantitySold
+            if (searchProductDto.getQuantitySold() != null) {
+                Comparator<Product> quantityComparator = Constants.ASC.equalsIgnoreCase(searchProductDto.getQuantitySold()) ?
+                        Comparator.comparing(Product::getQuantitySold) :
+                        Comparator.comparing(Product::getQuantitySold).reversed();
+                comparator = comparator.thenComparing(quantityComparator);
+            }
+
+            // NumberOfVisits
+            if (searchProductDto.getNumberOfVisits() != null) {
+                Comparator<Product> visitsComparator = Constants.ASC.equalsIgnoreCase(searchProductDto.getNumberOfVisits()) ?
+                        Comparator.comparing(Product::getNumberOfVisits) :
+                        Comparator.comparing(Product::getNumberOfVisits).reversed();
+                comparator = comparator.thenComparing(visitsComparator);
+            }
+
+            distinctProducts.sort(comparator);
+
+            return distinctProducts;
+
         } catch (Exception e) {
             e.fillInStackTrace();
             throw e;
         }
     }
+
 
     @Override
     public Product getProductById(Long id) {
@@ -414,8 +424,8 @@ public class ProductServiceImpl implements ProductService {
     public Product createOrUpdate(CreateOrUpdateProduct productDto) throws Exception {
         try {
             Product product = new Product();
-            if ( productDto != null && productDto.getId() != null) {
-                product = productRepository.getProductById(productDto.getId());
+            if (productDto != null && productDto.getId() != null) {
+                product = productRepository.getProductById(Long.valueOf(productDto.getId()));
                 product.setUpdatedDate(new Date());
             } else {
                 if (!FileUtils.isValidFileList(productDto.getImages())) {
@@ -426,16 +436,18 @@ public class ProductServiceImpl implements ProductService {
                 product.setStatus(true);
             }
             product.setProductName(productDto.getProductName());
-            ProductType productType = productTypeService.getProductType(productDto.getProductTypeId());
+            ProductType productType = productTypeService.getProductType(Long.valueOf(productDto.getProductTypeId()));
             if (productType == null) {
                 throw new Exception(Constants.PRODUCT_TYPE_NOT_FOUND);
             }
+            BigDecimal price = StringUtils.isNotEmpty(productDto.getPrice()) ? new BigDecimal(productDto.getPrice()) : BigDecimal.ZERO;
+            Float percentageReduction = productDto.getPercentageReduction() != null ? Float.valueOf(productDto.getPercentageReduction()) : 0f;
             product.setProductType(productType);
             product.setSize(productDto.getSize());
-            product.setPrice(productDto.getPrice());
-            product.setPercentageReduction(productDto.getPercentageReduction());
-            product.setCategoryId(productDto.getCategoryId());
-            product.setStatus(productDto.getStatus());
+            product.setPrice(price);
+            product.setPercentageReduction(percentageReduction);
+            product.setCategoryId(Long.valueOf(productDto.getCategoryId()));
+            product.setStatus(Boolean.valueOf(productDto.getStatus()));
 
 //            List<ShippingMethod> shippingMethods = shippingMethodRepository.findAllById(
 //                    productDto.getShippingMethodIds().stream().map(Long::parseLong).collect(Collectors.toList())

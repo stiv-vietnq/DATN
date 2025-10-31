@@ -8,11 +8,20 @@ import MultiImageUpload from "../../../../components/common/multiImageUpload/Mul
 import Textarea from "../../../../components/common/textarea/Textarea";
 import ProductDetailItem, { ProductDetail } from "./productDetailItem/ProductDetailItem";
 import "./ProductModal.css";
+import { ProductCreateOrUpdate } from "../../../../api/product";
+import { getCategorysByProductTypeId } from "../../../../api/category";
+import { getProductTypeByStatus } from "../../../../api/brand";
 
 interface ProductModalProps {
     productId?: number | null | string;
     onClose: () => void;
     mode: "add" | "edit" | "view";
+}
+
+
+interface Option {
+    label: string;
+    value: string;
 }
 
 const ProductModal: React.FC<ProductModalProps> = ({
@@ -32,8 +41,13 @@ const ProductModal: React.FC<ProductModalProps> = ({
     const [listProductDetailIdRemove, setListProductDetailIdRemove] = useState<number[]>([]);
     const [files, setFiles] = useState<File[]>([]);
     const [productDetails, setProductDetails] = useState<ProductDetail[]>([]);
+    const [brandOptions, setBrandOptions] = useState<Option[]>([]);
+    const [categoryOptions, setCategoryOptions] = useState<Option[]>([]);
+    const [selectedBrandId, setSelectedBrandId] = useState<string | null>(null);
+    const [selectedCategoryId, setSelectedCategoryId] = useState<string | null>(null);''
 
     useEffect(() => {
+        getAllBrands();
         if ((mode === "edit" || mode === "view") && productId) {
             setName("Áo sơ mi nam");
             setDescription("Áo sơ mi cotton cao cấp");
@@ -57,41 +71,93 @@ const ProductModal: React.FC<ProductModalProps> = ({
         }
     }, [productId, mode]);
 
+    const getAllBrands = () => {
+        setLoading(true);
+        getProductTypeByStatus({ status: null })
+            .then((response) => {
+                const data = response?.data || [];
+                console.log("Thương hiệu hoạt động:", data);
+
+                const mappedOptions: Option[] = data.map((item: any) => ({
+                    label: item.name,
+                    value: item.id,
+                }));
+
+                setBrandOptions(mappedOptions);
+            })
+            .catch((error) => {
+                console.error("Lỗi khi lấy thương hiệu:", error);
+            })
+            .finally(() => setLoading(false));
+    };
+
+    const fetchCategoriesByProductTypeId = (value: string | null) => {
+        getCategorysByProductTypeId({
+            productTypeId: value,
+            status: null,
+        })
+            .then((response) => {
+                const data = response?.data || [];
+                const mappedOptions: Option[] = data.map((item: any) => ({
+                    label: item.name,
+                    value: item.id,
+                }));
+
+                setCategoryOptions(mappedOptions);
+            })
+            .catch((error) => {
+                console.error("Lỗi khi lấy danh mục:", error);
+            })
+    };
+
     const handleSubmit = async () => {
-        if (!name.trim()) {
-            alert("Vui lòng nhập tên sản phẩm!");
-            return;
-        }
-
-        if (mode === "add" && files.length === 0) {
-            alert("Vui lòng chọn ít nhất một ảnh sản phẩm!");
-            return;
-        }
-
         const formData = new FormData();
-        formData.append("name", name);
-        formData.append("description", description);
-        files.forEach((file) => formData.append("files", file));
-        formData.append("deletedImageIds", JSON.stringify(imageIdsToRemove));
         if (mode === "edit" && productId) {
             formData.append("id", productId.toString());
+        }
+        formData.append("productName", name);
+        formData.append("description", description);
+        if (selectedBrandId)
+            formData.append("productTypeId", selectedBrandId);
+        formData.append("size", "1505");
+        if (price) formData.append("price", price);
+        if (percentageReduction) formData.append("percentageReduction", percentageReduction);
+        if (selectedCategoryId)
+            formData.append("categoryId", selectedCategoryId);
+        if (status !== null && status !== undefined)
+            formData.append("status", "true");
+        files.forEach((file) => formData.append("images", file));
+        if (imageIdsToRemove.length > 0) {
+            formData.append("imageIdsToRemove", JSON.stringify(imageIdsToRemove));
         }
         productDetails.forEach((detail, index) => {
             formData.append(`productDetailDTOS[${index}].name`, detail.name);
             formData.append(`productDetailDTOS[${index}].quantity`, detail.quantity.toString());
             formData.append(`productDetailDTOS[${index}].price`, detail.price.toString());
-            formData.append(`productDetailDTOS[${index}].percentageReduction`, detail.percentageReduction.toString());
+            if (detail.percentageReduction !== null && detail.percentageReduction !== undefined) {
+                formData.append(`productDetailDTOS[${index}].percentageReduction`, detail.percentageReduction.toString());
+            }
             formData.append(`productDetailDTOS[${index}].description`, detail.description);
             formData.append(`productDetailDTOS[${index}].type`, detail.type.toString());
             if (detail.imageFile) {
                 formData.append(`productDetailDTOS[${index}].imageFile`, detail.imageFile);
             }
         });
-        formData.append("listProductDetailIdRemove", JSON.stringify(listProductDetailIdRemove));
 
-        console.log("📦 Gửi dữ liệu formData:", Object.fromEntries(formData));
-        alert(mode === "add" ? "Thêm mới thành công!" : "Cập nhật thành công!");
-        onClose();
+        if (listProductDetailIdRemove.length > 0) {
+            formData.append("listProductDetailIdRemove", JSON.stringify(listProductDetailIdRemove));
+        }
+
+        ProductCreateOrUpdate(formData)
+            .then((response) => {
+                console.log("Success:", response.data);
+                alert(mode === "add" ? "Thêm mới thành công!" : "Cập nhật thành công!");
+                onClose();
+            })
+            .catch((error) => {
+                console.error("Error:", error);
+                alert("Đã có lỗi xảy ra. Vui lòng thử lại.");
+            });
     };
 
     const handleAddProductDetail = () => {
@@ -161,15 +227,19 @@ const ProductModal: React.FC<ProductModalProps> = ({
                         <div className="modal-field">
                             <div className="modal-label-name">Thương hiệu sản phẩm:</div>
                             <StringDropdown
-                                value={selectedBrand}
-                                onChange={setSelectedBrand}
-                                options={[
-                                    { label: "Thời Trang Nam", value: "Thời Trang Nam" },
-                                    { label: "Thời Trang Nữ", value: "Thời Trang Nữ" },
-                                    { label: "Trang Phục Unisex", value: "Trang Phục Unisex" },
-                                ]}
-                                placeholder="-- Chọn thương hiệu --"
-                                disabled={mode === "view"}
+                                value={selectedBrandId}
+                                onChange={(value: string | null) => {
+                                    setSelectedBrandId(value);
+                                    if (value) {
+                                        fetchCategoriesByProductTypeId(value);
+                                    } else {
+                                        setSelectedCategoryId(null);
+                                        setCategoryOptions([]);
+                                    }
+                                }}
+                                options={brandOptions}
+                                placeholder="--Chọn thương hiệu--"
+                                error={undefined}
                             />
                         </div>
                     </div>
@@ -178,14 +248,11 @@ const ProductModal: React.FC<ProductModalProps> = ({
                         <div className="modal-field" style={{ marginBottom: "-20px" }}>
                             <div className="modal-label-name">Danh mục sản phẩm:</div>
                             <StringDropdown
-                                value={selectedCategory}
-                                onChange={setSelectedCategory}
-                                options={[
-                                    { label: "Áo Nam", value: "Áo Nam" },
-                                    { label: "Áo Nữ", value: "Áo Nữ" },
-                                ]}
-                                placeholder="-- Chọn danh mục --"
-                                disabled={mode === "view"}
+                                value={selectedCategoryId}
+                                onChange={setSelectedCategoryId}
+                                options={categoryOptions}
+                                placeholder="--Chọn danh mục--"
+                                error={undefined}
                             />
                         </div>
 

@@ -91,9 +91,13 @@ public class ProductController {
                         .map(String::trim)
                         .map(Long::parseLong).collect(Collectors.toList());
             }
-            Boolean statusValue = true;
-            if (StringUtils.isNotEmpty(categoryId)) {
-                statusValue = Boolean.valueOf(status);
+            Boolean statusValue = null;
+            if (StringUtils.isNotEmpty(status)) {
+                if ("true".equalsIgnoreCase(status)) {
+                    statusValue = true;
+                } else if ("false".equalsIgnoreCase(status)) {
+                    statusValue = false;
+                }
             }
             SearchProductDto searchProductDto = new SearchProductDto();
             searchProductDto.setProductTypeId(productTypeId);
