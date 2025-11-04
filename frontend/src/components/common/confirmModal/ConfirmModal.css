@@ -13,7 +13,6 @@
 
 .confirm-modal {
   background: white;
-  padding: 24px;
   border-radius: 10px;
   width: 400px;
   max-width: 90%;
@@ -22,22 +21,27 @@
 }
 
 .confirm-title {
-  margin-bottom: 10px;
   font-size: 20px;
   font-weight: 600;
   color: #222;
+  padding: 0 10px 10px 10px;
+  border-bottom: 1px solid #eee;
+  text-align: left;
 }
 
 .confirm-message {
   margin-bottom: 20px;
   color: #555;
   font-size: 16px;
+  text-align: left;
+  padding: 0 10px;
 }
 
 .confirm-actions {
   display: flex;
   justify-content: flex-end;
   gap: 10px;
+  padding: 10px;
 }
 
 .btn-green {
@@ -64,4 +68,17 @@
 
 .btn-secondary:hover {
   background-color: #bbb;
+}
+
+.btn-red {
+  background-color: #dc3545;
+  color: white;
+  padding: 8px 14px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.btn-red:hover {
+  background-color: #c82333;
 }

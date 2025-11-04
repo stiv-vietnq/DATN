@@ -9,12 +9,13 @@ import Loading from "../../../../components/common/loading/Loading";
 
 interface BrandModalProps {
   brandId?: number | null | string;
-  onClose: () => void;
+  onClose: (shouldReload?: boolean) => void;
   mode: "add" | "edit" | "view";
 }
 
 const BrandModal: React.FC<BrandModalProps> = ({ brandId, onClose, mode }) => {
   const [name, setName] = useState("");
+  const [code, setCode] = useState("");
   const [description, setDescription] = useState("");
   const [file, setFile] = useState<File | null>(null);
   const [preview, setPreview] = useState<string>("");
@@ -27,7 +28,7 @@ const BrandModal: React.FC<BrandModalProps> = ({ brandId, onClose, mode }) => {
           const data = response?.data;
           setName(data?.name);
           setDescription(data?.description || "");
-          console.log(data);
+          setCode(data?.code || "");
           if (data?.directoryPath) setPreview(data?.directoryPath);
         })
         .catch((error) => {
@@ -36,6 +37,16 @@ const BrandModal: React.FC<BrandModalProps> = ({ brandId, onClose, mode }) => {
         });
     }
   }, [brandId, mode]);
+
+  const generateBrandCode = (name: string) => {
+    if (!name) return "";
+    const normalized = name
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .replace(/[^a-zA-Z0-9]/g, "")
+      .toUpperCase();
+    return normalized.substring(0, 3);
+  };
 
   useEffect(() => {
     if (file) {
@@ -57,6 +68,7 @@ const BrandModal: React.FC<BrandModalProps> = ({ brandId, onClose, mode }) => {
     }
 
     const formData = new FormData();
+    formData.append("code", code);
     formData.append("name", name);
     formData.append("description", description);
     if (file) {
@@ -69,12 +81,7 @@ const BrandModal: React.FC<BrandModalProps> = ({ brandId, onClose, mode }) => {
     try {
       setLoading(true);
       await createOrUpdateBrand(formData);
-      alert(
-        mode === "add"
-          ? "Thêm thương hiệu thành công!"
-          : "Cập nhật thương hiệu thành công!"
-      );
-      onClose();
+      onClose(true);
     } catch (error: any) {
       if (error.response?.status === 409) {
         alert("Tên thương hiệu đã tồn tại!");
@@ -97,21 +104,39 @@ const BrandModal: React.FC<BrandModalProps> = ({ brandId, onClose, mode }) => {
             {mode === "view" && "Xem thương hiệu"}
           </div>
           <div className="button-close">
-            <button onClick={onClose}>
+            <button onClick={() => onClose(false)}>
               <FaX />
             </button>
           </div>
         </div>
         <div className="modal-body">
-          <div className="modal-field">
-            <div className="modal-label-name">Tên thương hiệu:</div>
-            <Input
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              placeholder="Tìm kiếm theo tên thương hiệu....."
-              style={{ width: "100%" }}
-              disabled={mode === "view"}
-            />
+          <div style={{ display: "flex", gap: "10px" }}>
+            <div className="modal-field">
+              <div className="modal-label-name">Mã thương hiệu:</div>
+              <Input
+                value={code}
+                onChange={() => {}}
+                placeholder="Mã thương hiệu"
+                style={{ width: "100%", cursor: "not-allowed" }}
+                disabled
+              />
+            </div>
+            <div className="modal-field">
+              <div className="modal-label-name">Tên thương hiệu:</div>
+              <Input
+                value={name}
+                onChange={(e) => {
+                  const value = e.target.value;
+                  setName(value);
+                  if (mode === "add") {
+                    setCode(generateBrandCode(value));
+                  }
+                }}
+                placeholder="Nhập tên thương hiệu....."
+                style={{ width: "100%" }}
+                disabled={mode === "view"}
+              />
+            </div>
           </div>
 
           <div className="modal-field" style={{ marginBottom: "28px" }}>
@@ -139,7 +164,7 @@ const BrandModal: React.FC<BrandModalProps> = ({ brandId, onClose, mode }) => {
               {mode === "add" ? "Thêm mới" : "Lưu"}
             </button>
           )}
-          <button onClick={onClose} className="btn-secondary">
+          <button onClick={() => onClose(false)} className="btn-secondary">
             Đóng
           </button>
         </div>

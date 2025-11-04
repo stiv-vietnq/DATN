@@ -39,6 +39,7 @@ public class Constants {
     public static final String ERROR_STATUS_UPDATE = "Cannot update status because the order is already completed or canceled.";
     public static final String PRODUCT_TYPE_NOT_FOUND = "Product Type not found";
     public static final String PRODUCT_DETAIL_NOT_FOUND = "ProductDetail not found";
+    public static final String DUPLICATE_CATEGORY = "Category name already exists";
 
 
     public static final class Number {

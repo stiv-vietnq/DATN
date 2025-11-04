@@ -13,7 +13,7 @@ import java.math.BigDecimal;
 @NoArgsConstructor
 @AllArgsConstructor
 public class PurchaseDto implements Serializable {
-    private Long productId;
+    private String productId;
     private Long productDetailId;
     private Long addressId;
     private Long userId;

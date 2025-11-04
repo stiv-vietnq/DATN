@@ -12,7 +12,7 @@ import java.io.Serializable;
 @AllArgsConstructor
 @NoArgsConstructor
 public class CommentDto implements Serializable {
-    private Long productId;
+    private String productId;
     private Long userId;
     private String description;
     private Integer evaluate;

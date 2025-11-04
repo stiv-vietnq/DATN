@@ -20,8 +20,8 @@ export interface ProductDetail {
     price: string;
     percentageReduction: string;
     description: string;
-    type: number | "";
-    imageFile: File | string | null;
+    type: number | null;
+    directoryPath: File | string | null;
 }
 
 const ProductDetailItem: React.FC<ProductDetailItemProps> = ({
@@ -32,20 +32,20 @@ const ProductDetailItem: React.FC<ProductDetailItemProps> = ({
     disabled = false,
 }) => {
     const [preview, setPreview] = useState<string | null>(
-        typeof detail.imageFile === "string" ? detail.imageFile : null
+        typeof detail.directoryPath === "string" ? detail.directoryPath : null
     );
 
     useEffect(() => {
-        if (detail.imageFile && detail.imageFile instanceof File) {
+        if (detail.directoryPath && detail.directoryPath instanceof File) {
             const reader = new FileReader();
             reader.onload = () => setPreview(reader.result as string);
-            reader.readAsDataURL(detail.imageFile);
-        } else if (typeof detail.imageFile === "string") {
-            setPreview(detail.imageFile);
+            reader.readAsDataURL(detail.directoryPath);
+        } else if (typeof detail.directoryPath === "string") {
+            setPreview(detail.directoryPath);
         } else {
             setPreview(null);
         }
-    }, [detail.imageFile]);
+    }, [detail.directoryPath]);
 
     return (
         <div className="modal-field-product-detail-list">
@@ -137,7 +137,7 @@ const ProductDetailItem: React.FC<ProductDetailItemProps> = ({
                 <div className="modal-field">
                     <div className="modal-label-name">Ảnh sản phẩm chi tiết:</div>
                     <ImageUpload
-                        onChange={(file) => onChange(index, "imageFile", file)}
+                        onChange={(file) => onChange(index, "directoryPath", file)}
                         initialPreview={preview || undefined}
                         disabled={disabled}
                     />

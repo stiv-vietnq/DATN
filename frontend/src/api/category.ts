@@ -23,6 +23,5 @@ export const getCategorysByProductTypeId = (params: {
   productTypeId?: string | null;
   status?: string | null;
 }) => {
-  debugger
   return api.get(`/categories/getCategorysByProductTypeId`, { params });
 };

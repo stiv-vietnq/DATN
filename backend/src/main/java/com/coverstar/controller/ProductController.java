@@ -25,50 +25,6 @@ public class ProductController {
     @Autowired
     private ProductService productService;
 
-//    @PostMapping("/admin/createOrUpdateProduct")
-//    public ResponseEntity<?> createOrUpdateProduct(@RequestParam(value = "id", required = false) Long id,
-//                                                   @RequestParam("productName") String productName,
-//                                                   @RequestParam("productTypeId") Long productTypeId,
-//                                                   @RequestParam("size") String size,
-//                                                   @RequestParam("price") BigDecimal price,
-//                                                   @RequestParam("percentageReduction") Float percentageReduction,
-//                                                   @RequestParam(value = "description", required = false) String description,
-//                                                   @RequestParam("file") List<MultipartFile> imageFiles,
-//                                                   @RequestParam(value = "imageIdsToRemove", required = false) String imageIdsToRemove,
-//                                                   @RequestParam MultiValueMap<String, String> productDetailsParams,
-//                                                   @RequestParam(value = "productDetailsFiles", required = false) List<MultipartFile> productDetailsFiles,
-//                                                   @RequestParam(value = "listProductDetailIdRemove", required = false) String listProductDetailIdRemove,
-//                                                   @RequestParam("shippingMethodIds") List<String> shippingMethodIds,
-//                                                   @RequestParam("brandId") Long brandId,
-//                                                   @RequestParam("categoryId") Long categoryId,
-//                                                   @RequestParam("status") Boolean status) {
-//        try {
-//            Product product = productService.saveOrUpdateProduct(
-//                    id,
-//                    productName,
-//                    productTypeId,
-//                    size,
-//                    price,
-//                    percentageReduction,
-//                    description,
-//                    imageFiles,
-//                    imageIdsToRemove,
-//                    productDetailsParams,
-//                    productDetailsFiles,
-//                    listProductDetailIdRemove,
-//                    shippingMethodIds,
-//                    brandId,
-//                    categoryId,
-//                    status);
-//            return ResponseEntity.ok(product);
-//        } catch (Exception e) {
-//            if (Objects.equals(e.getMessage(), "ProductDetail not found")) {
-//                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("ProductDetail not found");
-//            }
-//            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Constants.ERROR);
-//        }
-//    }
-
     @GetMapping("/search")
     public ResponseEntity<List<Product>> search(
             @RequestParam(required = false) Long productTypeId,
@@ -121,7 +77,7 @@ public class ProductController {
     }
 
     @GetMapping("/getProduct/{id}")
-    public ResponseEntity<?> getProduct(@PathVariable Long id) {
+    public ResponseEntity<?> getProduct(@PathVariable String id) {
         try {
             Product product = productService.getProductById(id);
             return ResponseEntity.ok(product);
@@ -131,7 +87,7 @@ public class ProductController {
     }
 
     @PostMapping("/admin/deleteProduct/{id}")
-    public ResponseEntity<?> deleteProduct(@PathVariable Long id) {
+    public ResponseEntity<?> deleteProduct(@PathVariable String id) {
         try {
             productService.deleteProductById(id);
             return ResponseEntity.ok(HttpStatus.OK);
@@ -144,7 +100,7 @@ public class ProductController {
     }
 
     @PostMapping("/admin/updateStatus")
-    public ResponseEntity<?> updateStatus(@RequestParam("id") Long id,
+    public ResponseEntity<?> updateStatus(@RequestParam("id") String id,
                                           @RequestParam("type") Boolean type) {
         try {
             Product product = productService.updateStatus(id, type);

@@ -77,7 +77,7 @@
   "personal_info": "Hồ sơ",
   "change_password": "Đổi mật khẩu",
   "profile_address": "Địa chỉ",
-  "top_search": "Tìm kiếm hàng đầu",
+  "top_search": "Danh mục",
   "view_all": "Xem tất cả",
   "home": {
     "product":{
@@ -112,5 +112,6 @@
   "hide": "Ẩn bớt",
   "sort_by": "Sắp xếp theo",
   "reset_all": "Đặt lại tất cả",
-  "sold": "Đã bán:"
+  "sold": "Đã bán:",
+  "product_sold": "Đã bán"
 }

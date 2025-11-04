@@ -9,6 +9,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.Pattern;
 import java.io.Serializable;
 
 @Getter
@@ -18,6 +19,11 @@ import java.io.Serializable;
 public class BrandOrCategoryDto implements Serializable {
     private Long id;
 
+    @NotBlank(message = "Code is required")
+    @Length(min = 3, max = 50, message = "Code must be between 3 and 50 characters")
+    @Pattern(regexp = "^[a-zA-Z0-9]+$", message = "Code must contain only letters and numbers")
+    private String code;
+    
     @NotBlank(message = "ProductTypeId is required")
     @Min(value = 1, message = "ProductTypeId must be a positive number")
     private Long productTypeId;
@@ -25,6 +31,7 @@ public class BrandOrCategoryDto implements Serializable {
     @NotBlank(message = "Name is required")
     @Length(min = 3, max = 100, message = "First name must be between 3 and 100 characters")
     private String name;
+
     private Boolean status;
 
     @Length(min = 3, max = 512, message = "First name must be between 3 and 512 characters")

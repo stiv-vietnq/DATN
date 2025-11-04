@@ -51,6 +51,7 @@ public class ProductTypeServiceImpl implements ProductTypeService {
 
     @Override
     public ProductType createOrUpdateProductType(Long id,
+                                                 String code,
                                                  String name,
                                                  MultipartFile imageFile,
                                                  String description,
@@ -70,6 +71,7 @@ public class ProductTypeServiceImpl implements ProductTypeService {
                 assert productType != null;
                 productType.setUpdatedDate(new Date());
             } else {
+                productType.setCode(code);
                 productType.setCreatedDate(new Date());
                 productType.setUpdatedDate(new Date());
                 productType.setStatus(true);
@@ -183,7 +185,18 @@ public class ProductTypeServiceImpl implements ProductTypeService {
     @Override
     public List<ProductType> getAllProductTypesByStatus(Boolean status) {
         try {
-            return productTypeRepository.findProductTypesByStatus(status);
+            List<ProductType> productTypes = productTypeRepository.findProductTypesByStatus(status);
+            if (!CollectionUtils.isEmpty(productTypes)) {
+                for (ProductType productType : productTypes) {
+                    String relativePath = productType.getDirectoryPath();
+
+                    if (relativePath != null && relativePath.startsWith(imageDirectory)) {
+                        relativePath = relativePath.replace(imageDirectory, SERVER_PORT + serverPort + IMAGE_BASE_URL);
+                        productType.setDirectoryPath(relativePath);
+                    }
+                }
+            }
+            return productTypes;
         } catch (Exception e) {
             e.fillInStackTrace();
             throw e;

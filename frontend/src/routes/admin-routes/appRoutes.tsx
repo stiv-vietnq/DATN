@@ -22,7 +22,7 @@ const appRoutes: RouteType[] = [
     element: <DashboardPageLayout />,
     state: "dashboard",
     sidebarProps: {
-      displayText: "Dashboard",
+      displayText: "Thống kê",
       icon: <FaMobileScreen />,
     },
     child: [
@@ -62,7 +62,7 @@ const appRoutes: RouteType[] = [
     element: <BrandPage />,
     state: "brands",
     sidebarProps: {
-      displayText: "Brands",
+      displayText: "Quản lý nhãn hàng",
       icon: <FaTrademark />,
     },
   },
@@ -71,7 +71,7 @@ const appRoutes: RouteType[] = [
     element: <CategoryPage />,
     state: "categories",
     sidebarProps: {
-      displayText: "Categories",
+      displayText: "Quản lý loại sản phẩm",
       icon: <FaList />,
     },
   },
@@ -80,7 +80,7 @@ const appRoutes: RouteType[] = [
     element: <ProductPage />,
     state: "products",
     sidebarProps: {
-      displayText: "Products",
+      displayText: "Quản lý sản phẩm",
       icon: <FaBoxesStacked />,
     },
   },
@@ -89,7 +89,7 @@ const appRoutes: RouteType[] = [
     element: <BrandPage />,
     state: "purchases",
     sidebarProps: {
-      displayText: "Purchases",
+      displayText: "Quản lý đơn hàng",
       icon: <FaCartShopping />,
     },
   },
@@ -98,7 +98,7 @@ const appRoutes: RouteType[] = [
     element: <BrandPage />,
     state: "users",
     sidebarProps: {
-      displayText: "Users",
+      displayText: "Quản lý người dùng",
       icon: <FaUser />,
     },
   },

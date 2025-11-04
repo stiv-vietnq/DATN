@@ -77,7 +77,7 @@
   "personal_info": "Profile",
   "change_password": "Change Password",
   "profile_address": "Address",
-  "top_search": "Top Search",
+  "top_search": "Brands",
   "view_all": "View All",
   "home": {
     "product": {
@@ -112,5 +112,6 @@
   "hide": "Hide Less",
   "sort_by": "Sort By",
   "reset_all": "Reset All",
-  "sold": "Sold:"
+  "sold": "Sold:",
+  "product_sold": "Sold"
 }

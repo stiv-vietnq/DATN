@@ -1,6 +1,9 @@
-import { useMemo, useState } from 'react';
-import { useTranslation } from 'react-i18next';
-import './TopProduct.css';
+import { useEffect, useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
+import "./TopProduct.css";
+import { getProductTypeByStatus } from "../../api/brand";
+import { ProductSearch } from "../../api/product";
+import Loading from "../../components/common/loading/Loading";
 
 interface Category {
   id: number;
@@ -9,92 +12,135 @@ interface Category {
 
 interface Product {
   id: number;
-  name: string;
+  productName: string;
   price: number;
-  sold: number;
+  quantitySold: number;
   rating: number;
-  image: string;
+  images: { directoryPath: string }[];
   topRank?: number;
 }
 
 export default function TopProduct() {
   const { t } = useTranslation();
+  const [products, setProducts] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [brands, setBrands] = useState<BrandData[]>([]);
 
-  const [categories, setCategories] = useState<Category[]>([
-    { id: 1, name: "Quạt Mini Cầm Tay" },
-    { id: 2, name: "Quạt Mini Cầm Tay" },
-    { id: 3, name: "Quạt Mini Cầm Tay" },
-    { id: 4, name: "Quạt Mini Cầm Tay" },
-    { id: 5, name: "Quạt Mini Cầm Tay" },
-    { id: 6, name: "Áo Thun" },
-    { id: 7, name: "Dép Đi Trong Nhà" },
-    { id: 8, name: "Áo Khoác" },
-    { id: 9, name: "Túi Xách" },
-    { id: 10, name: "Giày Dép" },
-  ]);
+  useEffect(() => {
+    getAllBrands();
+    handleSearchProducts();
+  }, []);
 
-  const mainCategories = categories.slice(0, 6);
-  const moreCategories = categories.slice(6);
+  const getAllBrands = () => {
+    getProductTypeByStatus({ status: null })
+      .then((response) => {
+        const data = response?.data || [];
+        const mappedOptions: BrandData[] = data.map((item: any) => ({
+          id: item?.id,
+          name: item?.name,
+        }));
+        setBrands(mappedOptions);
+      })
+      .catch((error) => {
+        console.error("Lỗi khi lấy thương hiệu:", error);
+      });
+  };
 
-  const [activeId, setActiveId] = useState<number | null>(mainCategories[0].id);
+  useEffect(() => {
+    if (brands.length > 0 && activeId === null) {
+      setActiveId(brands[0].id);
+    }
+  }, [brands]);
+
+  const mainCategories = brands?.slice(0, 6);
+  const moreCategories = brands?.slice(6);
+
+  interface BrandData {
+    id: number;
+    name: string;
+  }
+
+  const [activeId, setActiveId] = useState<number | null>(null);
   const [showMore, setShowMore] = useState(false);
+  const [brandId, setBrandId] = useState<string | null>(null);
 
   const handleClickMore = () => {
     setShowMore(!showMore);
   };
 
-  const handleSelect = (selected: Category, index: number) => {
-    const newCategories = [...categories];
+  const handleSelect = (selected: BrandData, index: number) => {
+    const newCategories = [...brands];
 
     if (index >= 6) {
       const [selectedItem] = newCategories.splice(index, 1);
 
       newCategories.unshift(selectedItem);
 
-      setCategories(newCategories);
-      setActiveId(selectedItem.id);
+      setBrands(newCategories);
+      setActiveId(selectedItem?.id);
+      setBrandId(selectedItem?.id.toString());
     } else {
-      setActiveId(selected.id);
+      setActiveId(selected?.id);
+      setBrandId(selected?.id.toString());
     }
-
+    handleSearchProducts();
     setShowMore(false);
-    console.log("Chọn danh mục:", selected.id, selected.name);
   };
 
-  const productList: Product[] = [
-    { id: 1, name: "Tủ Đầu Giường Có Ngăn Khóa", price: 104999, sold: 1007, rating: 4.8, image: "https://cdn.24h.com.vn/upload/3-2021/images/2021-09-15/1-1631647537-638-width650height520.jpg" },
-    { id: 2, name: "Tủ Đầu Giường Gỗ MDF", price: 105000, sold: 801, rating: 4.6, image: "https://cdn.24h.com.vn/upload/3-2021/images/2021-09-15/1-1631647537-638-width650height520.jpg" },
-    { id: 3, name: "Tủ Đầu Giường Có Khóa An Toàn", price: 125000, sold: 352, rating: 4.9, image: "https://cdn.24h.com.vn/upload/3-2021/images/2021-09-15/1-1631647537-638-width650height520.jpg"},
-    { id: 4, name: "Kệ Đầu Giường Tab Gỗ", price: 159000, sold: 251, rating: 4.7, image: "https://cdn.24h.com.vn/upload/3-2021/images/2021-09-15/1-1631647537-638-width650height520.jpg" },
-    { id: 5, name: "Tủ Tab Gỗ Nhiều Kiểu Dáng", price: 109000, sold: 229, rating: 4.5, image: "https://cdn.24h.com.vn/upload/3-2021/images/2021-09-15/1-1631647537-638-width650height520.jpg" },
-    { id: 6, name: "Kệ Gỗ Đa Năng Phòng Khách", price: 205000, sold: 130, rating: 4.8, image: "https://cdn.24h.com.vn/upload/3-2021/images/2021-09-15/1-1631647537-638-width650height520.jpg" },
-  ];
-  
+  const handleSearchProducts = () => {
+    setLoading(true);
+    ProductSearch({
+      productTypeId: brandId,
+      name: null,
+      minPrice: null,
+      maxPrice: null,
+      status: null,
+      categoryId: null,
+      orderBy: null,
+      priceOrder: null,
+      page: null,
+      size: null,
+      quantitySold: null,
+      numberOfVisits: null,
+      evaluate: null,
+    })
+      .then((response) => {
+        const data = response?.data || [];
+        setProducts(data);
+      })
+      .catch((error) => {
+        console.error("Lỗi khi tìm kiếm sản phẩm:", error);
+      })
+      .finally(() => {
+        setLoading(false);
+      });
+  };
+
   const topRanked = useMemo(() => {
-    return (
-      [...productList]
-        .sort((a, b) => b.sold - a.sold)
-        .slice(0, 30) 
-        .map((p, index) => ({
-          ...p,
-          rank: index + 1,
-        }))
-    );
-  }, [productList]);
+    return [...products]
+      .sort((a, b) => b.quantitySold - a.quantitySold)
+      .slice(0, 30)
+      .map((p, index) => ({
+        ...p,
+        rank: index + 1,
+      }));
+  }, [products]);
+
+  if (loading) return <Loading />;
 
   return (
     <div className="main-content">
-      <div className='top-product-container'>
-        <div className='top-product-title'>
-          {t('top_search')}
-        </div>
+      <div className="top-product-container">
+        <div className="top-product-title">{t("top_search")}</div>
 
         <div className="top-product-list">
           <div className="top-product-header">
             {mainCategories.map((item, index) => (
               <div
                 key={item.id}
-                className={`top-product-item ${activeId === item.id ? "active" : ""}`}
+                className={`top-product-item ${
+                  activeId === item.id ? "active" : ""
+                }`}
                 onClick={() => handleSelect(item, index)}
               >
                 {item.name}
@@ -127,16 +173,22 @@ export default function TopProduct() {
         </div>
 
         <div className="product-grid">
-          {topRanked.map((p) => (
-            <div key={p.id} className="product-card">
-              {p.rank && <div className={`top-rank rank-${p.rank}`}>TOP {p.rank}</div>}
-              <img src={p.image} alt={p.name} className="product-img" />
+          {topRanked?.map((p) => (
+            <div key={p?.id} className="product-card">
+              {p?.rank && (
+                <div className={`top-rank rank-${p?.rank}`}>TOP {p?.rank}</div>
+              )}
+              <img
+                src={p?.images?.[0]?.directoryPath}
+                alt={p?.productName}
+                className="product-img"
+              />
               <div className="product-info">
-                <p className="product-name">{p.name}</p>
-                <p className="product-price">{p.price.toLocaleString()}₫</p>
+                <p className="product-name">{p?.productName}</p>
+                <p className="product-price">{p?.price.toLocaleString()}₫</p>
                 <div className="product-meta">
-                  <span>Đã bán {p.sold}</span>
-                  <span>⭐ {p.rating}</span>
+                  <span>Đã bán {p?.quantitySold}</span>
+                  <span>⭐ {p?.rating}</span>
                 </div>
               </div>
             </div>

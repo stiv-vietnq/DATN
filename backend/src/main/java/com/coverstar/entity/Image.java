@@ -21,7 +21,7 @@ public class Image {
     private Long id;
 
     @Column(name = "product_id")
-    private Long productId;
+    private String productId;
 
     @Column(name = "comment_id")
     private Long commentId;

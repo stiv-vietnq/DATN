@@ -25,7 +25,7 @@ public class ProductDetail implements Serializable {
     private Long id;
 
     @Column(name = "product_id", nullable = false)
-    private Long productId;
+    private String productId;
 
     @Column(name = "name", nullable = false)
     private String name;

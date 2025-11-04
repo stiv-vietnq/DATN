@@ -21,6 +21,9 @@ public class Category {
     @Column(name = "name", nullable = false)
     private String name;
 
+    @Column(unique = true, nullable = false)
+    private String code;
+
     @ManyToOne
     @JoinColumn(name = "productType_id", nullable = false)
     private ProductType productType;

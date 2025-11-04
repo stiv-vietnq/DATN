@@ -8,111 +8,66 @@ interface SliderProps {
 
 export default function Slider({ children }: SliderProps) {
   const [activeIndex, setActiveIndex] = useState(0);
-  const [slideDone, setSlideDone] = useState(true);
-  const [timeID, setTimeID] = useState<NodeJS.Timeout | null>(null);
-  const [directionForward, setDirectionForward] = useState(true);
+  const [timer, setTimer] = useState<NodeJS.Timeout | null>(null);
+  const totalSlides = children.length;
 
+  // Tự động chuyển slide
   useEffect(() => {
-    if (slideDone) {
-      setSlideDone(false);
-      setTimeID(
-        setTimeout(() => {
-          autoSlide();
-          setSlideDone(true);
-        }, 3000)
-      );
-    }
+    const id = setInterval(() => {
+      setActiveIndex((prev) => (prev + 1) % totalSlides);
+    }, 3000);
+    setTimer(id);
+    return () => clearInterval(id);
+  }, [totalSlides]);
 
-    return () => {
-      if (timeID) clearTimeout(timeID);
-    };
-  }, [slideDone, activeIndex, directionForward]);
-
-  const autoSlide = () => {
-    if (directionForward) {
-      if (activeIndex >= children.length - 1) {
-        setDirectionForward(false);
-        setActiveIndex(activeIndex - 1);
-      } else {
-        setActiveIndex(activeIndex + 1);
-      }
-    } else {
-      if (activeIndex <= 0) {
-        setDirectionForward(true);
-        setActiveIndex(activeIndex + 1);
-      } else {
-        setActiveIndex(activeIndex - 1);
-      }
-    }
+  // Chuyển ảnh thủ công
+  const handlePrev = () => {
+    setActiveIndex((prev) => (prev - 1 + totalSlides) % totalSlides);
   };
 
-  const slideNext = () => {
-    if (activeIndex >= children.length - 1) {
-      setDirectionForward(false);
-      setActiveIndex(activeIndex - 1);
-    } else {
-      setActiveIndex(activeIndex + 1);
-    }
+  const handleNext = () => {
+    setActiveIndex((prev) => (prev + 1) % totalSlides);
   };
 
-  const slidePrev = () => {
-    if (activeIndex <= 0) {
-      setDirectionForward(true);
-      setActiveIndex(activeIndex + 1);
-    } else {
-      setActiveIndex(activeIndex - 1);
-    }
+  // Dừng tự động khi hover
+  const pause = () => {
+    if (timer) clearInterval(timer);
   };
 
-  const AutoPlayStop = () => {
-    if (timeID !== null) {
-      clearTimeout(timeID);
-      setSlideDone(false);
-    }
-  };
-
-  const AutoPlayStart = () => {
-    if (!slideDone) {
-      setSlideDone(true);
-    }
+  const resume = () => {
+    const id = setInterval(() => {
+      setActiveIndex((prev) => (prev + 1) % totalSlides);
+    }, 3000);
+    setTimer(id);
   };
 
   return (
     <div className="slider">
       <div
         className="container__slider"
-        onMouseEnter={AutoPlayStop}
-        onMouseLeave={AutoPlayStart}
+        onMouseEnter={pause}
+        onMouseLeave={resume}
       >
-        {children.map((item, index) => (
-          <div
-            className={"slider__item slider__item-active-" + (activeIndex + 1)}
-            key={index}
-          >
-            {item}
-          </div>
-        ))}
-
-        <button
-          className="slider__btn-prev"
-          onClick={(e) => {
-            e.preventDefault();
-            slidePrev();
-          }}
+        <div
+          className="slider__track"
+          style={{ transform: `translateX(-${activeIndex * 100}%)` }}
         >
+          {children.map((item, i) => (
+            <div className="slider__item" key={i}>
+              {item}
+            </div>
+          ))}
+        </div>
+
+        <button className="slider__btn-prev" onClick={handlePrev}>
           <FaChevronLeft />
         </button>
-        <button
-          className="slider__btn-next"
-          onClick={(e) => {
-            e.preventDefault();
-            slideNext();
-          }}
-        >
+        <button className="slider__btn-next" onClick={handleNext}>
           <FaChevronRight />
         </button>
       </div>
 
+      {/* ----- Tên thương hiệu (hoặc "tên của t" 😄) ----- */}
       <div className="container__slider__titles">
         {children.map((child, index) => {
           if (!isValidElement(child)) return null;
@@ -126,10 +81,7 @@ export default function Slider({ children }: SliderProps) {
                   ? "slider-title-item slider-title-item-active"
                   : "slider-title-item"
               }
-              onClick={(e) => {
-                e.preventDefault();
-                setActiveIndex(index);
-              }}
+              onClick={() => setActiveIndex(index)}
             >
               {title}
             </div>
@@ -137,19 +89,17 @@ export default function Slider({ children }: SliderProps) {
         })}
       </div>
 
+      {/* ----- Các dot nhỏ ----- */}
       <div className="container__slider__links">
-        {children.map((_, index) => (
+        {children.map((_, i) => (
           <button
-            key={index}
+            key={i}
             className={
-              activeIndex === index
+              activeIndex === i
                 ? "container__slider__links-small container__slider__links-small-active"
                 : "container__slider__links-small"
             }
-            onClick={(e) => {
-              e.preventDefault();
-              setActiveIndex(index);
-            }}
+            onClick={() => setActiveIndex(i)}
           ></button>
         ))}
       </div>

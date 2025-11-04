@@ -21,7 +21,7 @@ public class CommentController {
     private CommentService commentService;
 
     @PostMapping("/createComment")
-    public ResponseEntity<?> createComment(@RequestParam("productId") Long productId,
+    public ResponseEntity<?> createComment(@RequestParam("productId") String productId,
                                            @RequestParam("userId") Long userId,
                                            @RequestParam("description") String description,
                                            @RequestParam("evaluate") Integer evaluate,

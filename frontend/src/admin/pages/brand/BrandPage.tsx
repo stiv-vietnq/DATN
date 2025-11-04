@@ -17,6 +17,7 @@ import Loading from "../../../components/common/loading/Loading";
 interface ProductType {
   id: number;
   name: string;
+  code: string;
   createdDate: string;
   updatedDate: string;
   description: string;
@@ -54,7 +55,6 @@ const BrandPage = () => {
       })
       .catch((error) => {
         console.error("Lỗi khi tìm kiếm loại sản phẩm:", error);
-        alert("Không thể tìm kiếm loại sản phẩm!");
       })
       .finally(() => {
         setLoading(false);
@@ -72,10 +72,11 @@ const BrandPage = () => {
   const columns: BaseColumn<ProductType>[] = [
     { key: "id", label: "ID", width: "5%" },
     { key: "name", label: "Tên thương hiệu", width: "10%" },
+    { key: "code", label: "Mã thương hiệu", width: "10%" },
     {
       key: "createdDate",
       label: "Ngày tạo",
-      width: "15%",
+      width: "10%",
       render: (item: ProductType) =>
         item?.createdDate
           ? new Date(item.createdDate).toLocaleString("vi-VN", {
@@ -86,7 +87,7 @@ const BrandPage = () => {
     {
       key: "updatedDate",
       label: "Ngày cập nhật",
-      width: "15%",
+      width: "10%",
       render: (item: ProductType) =>
         item?.updatedDate
           ? new Date(item.updatedDate).toLocaleString("vi-VN", {
@@ -138,7 +139,6 @@ const BrandPage = () => {
     setIsModalOpen(true);
     setModalMode("add");
     setModalBrandId(null);
-    handleSearch();
   };
 
   const handleView = (id: any) => {
@@ -162,16 +162,18 @@ const BrandPage = () => {
   const handleDelete = (id: any) => {
     try {
       deleteBrand(id);
-      alert("Đã cập nhật trạng thái thành công!");
     } catch (err) {
-      alert("Lỗi khi cập nhật trạng thái!");
     } finally {
       setShowConfirm(false);
     }
   };
 
-  const handleCloseModal = () => {
+  const handleCloseModal = (shouldReload?: boolean) => {
     setIsModalOpen(false);
+
+    if (shouldReload) {
+      handleSearch();
+    }
   };
 
   const handleUpdateStatus = (id: any) => {
@@ -250,7 +252,7 @@ const BrandPage = () => {
           message={
             confirmAction === "delete"
               ? "Bạn có chắc chắn muốn xóa thương hiệu này không?"
-              : "Bạn có chắc chắn muốn thay đổi trạng thái thương hiệu này?"
+              : "Bạn có chắc chắn muốn thay đổi trạng thái thương hiệu này không?"
           }
           onConfirm={() =>
             confirmAction === "delete"
@@ -258,6 +260,7 @@ const BrandPage = () => {
               : handleUpdateStatus(selectedId)
           }
           onCancel={() => setShowConfirm(false)}
+          type="delete"
         />
       )}
     </div>

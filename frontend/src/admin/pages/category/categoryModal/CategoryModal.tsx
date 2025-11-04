@@ -5,7 +5,6 @@ import {
   createOrUpdateCategory,
   getCategoryById,
 } from "../../../../api/category";
-import Dropdown from "../../../../components/common/dropdown/Dropdown";
 import StringDropdown from "../../../../components/common/dropdown/StringDropdown";
 import ImageUpload from "../../../../components/common/imageUpload/ImageUpload";
 import Input from "../../../../components/common/input/Input";
@@ -15,7 +14,7 @@ import "./CategoryModal.css";
 
 interface CategoryModalProps {
   categoryId?: number | null | string;
-  onClose: () => void;
+  onClose: (shouldReload?: boolean) => void;
   mode: "add" | "edit" | "view";
 }
 
@@ -30,6 +29,7 @@ const CategoryModal: React.FC<CategoryModalProps> = ({
   mode,
 }) => {
   const [name, setName] = useState("");
+  const [code, setCode] = useState("");
   const [description, setDescription] = useState("");
   const [file, setFile] = useState<File | null>(null);
   const [preview, setPreview] = useState<string>("");
@@ -101,6 +101,7 @@ const CategoryModal: React.FC<CategoryModalProps> = ({
 
     const formData = new FormData();
     formData.append("name", name);
+    formData.append("code", code);
     formData.append("description", description);
     formData.append("status", selected === null ? "" : String(selected));
     if (file) {
@@ -115,12 +116,7 @@ const CategoryModal: React.FC<CategoryModalProps> = ({
     try {
       setLoading(true);
       await createOrUpdateCategory(formData);
-      alert(
-        mode === "add"
-          ? "Thêm danh mục thành công!"
-          : "Cập nhật danh mục thành công!"
-      );
-      onClose();
+      onClose(true);
     } catch (error: any) {
       if (error.response?.status === 409) {
         alert("Tên danh mục đã tồn tại!");
@@ -131,6 +127,17 @@ const CategoryModal: React.FC<CategoryModalProps> = ({
       setLoading(false);
     }
   };
+
+  const generateBrandCode = (name: string) => {
+    if (!name) return "";
+    const normalized = name
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .replace(/[^a-zA-Z0-9]/g, "")
+      .toUpperCase();
+    return normalized.substring(0, 50);
+  };
+
   if (loading) return <Loading />;
 
   return (
@@ -143,21 +150,40 @@ const CategoryModal: React.FC<CategoryModalProps> = ({
             {mode === "view" && "Xem danh mục"}
           </div>
           <div className="button-close">
-            <button onClick={onClose}>
+            <button onClick={() => onClose(false)}>
               <FaX />
             </button>
           </div>
         </div>
+
         <div className="modal-body">
-          <div className="modal-field">
-            <div className="modal-label-name">Tên danh mục:</div>
-            <Input
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              placeholder="Tìm kiếm theo tên danh mục....."
-              style={{ width: "100%" }}
-              disabled={mode === "view"}
-            />
+          <div style={{ display: "flex", gap: "10px" }}>
+            <div className="modal-field">
+              <div className="modal-label-name">Mã danh mục:</div>
+              <Input
+                value={code}
+                onChange={(e) => setCode(e.target.value)}
+                placeholder="Mã danh mục"
+                style={{ width: "100%" }}
+                disabled
+              />
+            </div>
+            <div className="modal-field">
+              <div className="modal-label-name">Tên danh mục:</div>
+              <Input
+                value={name}
+                onChange={(e) => {
+                  const value = e.target.value;
+                  setName(value);
+                  if (mode === "add") {
+                    setCode(generateBrandCode(value));
+                  }
+                }}
+                placeholder="Nhập tên danh mục....."
+                style={{ width: "100%" }}
+                disabled={mode === "view"}
+              />
+            </div>
           </div>
 
           <div className="modal-field">
@@ -213,7 +239,7 @@ const CategoryModal: React.FC<CategoryModalProps> = ({
               {mode === "add" ? "Thêm mới" : "Lưu"}
             </button>
           )}
-          <button onClick={onClose} className="btn-secondary">
+          <button onClick={() => onClose(false)} className="btn-secondary">
             Đóng
           </button>
         </div>

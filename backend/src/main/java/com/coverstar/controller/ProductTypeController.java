@@ -22,6 +22,7 @@ public class ProductTypeController {
 
     @PostMapping("/admin/createOrUpdateProductType")
     public ResponseEntity<?> createOrUpdateProductType(@RequestParam(value = "id", required = false) String id,
+                                                       @RequestParam("code") String code,
                                                        @RequestParam("name") String name,
                                                        @RequestParam(value = "file", required = false) MultipartFile imageFiles,
                                                        @RequestParam("description") String description,
@@ -31,7 +32,7 @@ public class ProductTypeController {
             if (StringUtils.isNotEmpty(id)) {
                 longId = Long.parseLong(id);
             }
-            ProductType productType = productTypeService.createOrUpdateProductType(longId, name, imageFiles, description, directoryPath);
+            ProductType productType = productTypeService.createOrUpdateProductType(longId, code, name, imageFiles, description, directoryPath);
             return ResponseEntity.ok(productType);
         } catch (Exception e) {
             if (e.getMessage().equals(Constants.DUPLICATE_PRODUCT_TYPE)) {

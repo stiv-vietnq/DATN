@@ -2,15 +2,15 @@ import api from "./index";
 
 export const ProductSearch = (data: {
     productTypeId?: string | null;
-    name?: string;
-    minPrice?: string;
-    maxPrice?: string;
+    name?: string | null;
+    minPrice?: string | null;
+    maxPrice?: string | null;
     status?: string | null;
     categoryId?: string | null;
-    orderBy?: string;
-    priceOrder?: string;
-    page?: number;
-    size?: number;
+    orderBy?: string | null;
+    priceOrder?: string | null;
+    page?: number | null;
+    size?: number | null;
     quantitySold?: string | null;
     numberOfVisits?: string | null;
     evaluate?: string | null;
@@ -24,3 +24,11 @@ export const ProductCreateOrUpdate = (data: FormData) => {
         },
     });
 };
+
+export const GetProductById = (productId?: number | null | string) => {
+    return api.get(`/products/getProduct/${productId}`);
+};
+
+export const DeleteProductById = (productId: number) => {
+    return api.post(`/products/admin/deleteProduct/${productId}`);
+}

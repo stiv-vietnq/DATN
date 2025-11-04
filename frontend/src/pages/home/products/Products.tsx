@@ -1,94 +1,118 @@
-import Button from '../../../components/common/button/Button';
-import './Products.css';
-import { useTranslation } from 'react-i18next';
-import { useNavigate } from 'react-router-dom';
+import { useEffect, useState } from "react";
+import { ProductSearch } from "../../../api/product";
+import Button from "../../../components/common/button/Button";
+import "./Products.css";
+import { useTranslation } from "react-i18next";
+import { useNavigate } from "react-router-dom";
+
+interface Product {
+  id: number;
+  productName: string;
+  price: number;
+  quantitySold: number;
+  images: { directoryPath: string }[];
+  percentageReduction?: string;
+}
 
 export default function Products() {
-    const { t } = useTranslation();
-    const navigate = useNavigate();
-    const products = [
-        {
-            id: 1,
-            name: 'Product 1',
-            img: 'https://shopdunk.com/images/thumbs/0012145_iphone-11-pro-256gb.jpeg',
-            price: '$10.00'
-        },
-        {
-            id: 2,
-            name: 'Product 2',
-            img: 'https://shopdunk.com/images/thumbs/0012145_iphone-11-pro-256gb.jpeg',
-            price: '$10.00'
-        },
-        {
-            id: 3,
-            name: 'Product 3',
-            img: 'https://shopdunk.com/images/thumbs/0012145_iphone-11-pro-256gb.jpeg',
-            price: '$10.00'
-        },
-        {
-            id: 4,
-            name: 'Product 4',
-            img: 'https://shopdunk.com/images/thumbs/0012145_iphone-11-pro-256gb.jpeg',
-            price: '$10.00'
-        },
-        {
-            id: 5,
-            name: 'Product 5',
-            img: 'https://shopdunk.com/images/thumbs/0012145_iphone-11-pro-256gb.jpeg',
-            price: '$10.00'
-        },
-        {
-            id: 5,
-            name: 'Product 5',
-            img: 'https://shopdunk.com/images/thumbs/0012145_iphone-11-pro-256gb.jpeg',
-            price: '$10.00'
-        },
-        {
-            id: 6,
-            name: 'Product 6',
-            img: 'https://shopdunk.com/images/thumbs/0012145_iphone-11-pro-256gb.jpeg',
-            price: '$10.00'
-        },
-        {
-            id: 7,
-            name: 'Product 7',
-            img: 'https://shopdunk.com/images/thumbs/0012145_iphone-11-pro-256gb.jpeg',
-            price: '$10.00'
-        },
-        {
-            id: 8,
-            name: 'Product 8',
-            img: 'https://shopdunk.com/images/thumbs/0012145_iphone-11-pro-256gb.jpeg',
-            price: '$10.00'
-        }
-    ];
+  const { t } = useTranslation();
+  const navigate = useNavigate();
+  const [loading, setLoading] = useState(false);
+  const [products, setProducts] = useState<Product[]>([]);
 
-    const handleViewProductDetail = (id: number) => {
-        navigate(`/product-detail/${id}`);
-    };
+  useEffect(() => {
+    handleSearchProducts();
+  }, []);
 
-    const handleViewAllProducts = () => {
-        navigate('/products');
-    };
+  const handleSearchProducts = () => {
+    setLoading(true);
+    ProductSearch({
+      productTypeId: null,
+      name: null,
+      minPrice: null,
+      maxPrice: null,
+      status: null,
+      categoryId: null,
+      orderBy: null,
+      priceOrder: null,
+      page: null,
+      size: null,
+      quantitySold: null,
+      numberOfVisits: null,
+      evaluate: null,
+    })
+      .then((response) => {
+        const data = response?.data || [];
+        setProducts(data);
+      })
+      .catch((error) => {
+        console.error("Lỗi khi tìm kiếm sản phẩm:", error);
+      })
+      .finally(() => {
+        setLoading(false);
+      });
+  };
 
-    return (
-        <div className="product-content">
-            <div className='product-title'>
-                {t('home.product.title')}
+  const handleViewProductDetail = (id: number) => {
+    navigate(`/product-detail/${id}`);
+  };
+
+  const handleViewAllProducts = () => {
+    navigate("/products");
+  };
+
+  function formatSold(value?: number): string {
+    if (value === undefined || value === null) return "0";
+    if (value < 1000) return value.toString();
+    if (value < 1_000_000)
+      return (value / 1000).toFixed(1).replace(/\.0$/, "") + "k";
+    return (value / 1_000_000).toFixed(1).replace(/\.0$/, "") + "M";
+  }
+
+  return (
+    <div className="product-content">
+      <div className="product-title">{t("home.product.title")}</div>
+      <div className="product-data">
+        {products?.slice(0, 48).map((item) => (
+          <div
+            key={item?.id}
+            className="product-card"
+            onClick={() => handleViewProductDetail(item?.id)}
+          >
+            <div className="discount-badge-product">
+              -{item?.percentageReduction}%
             </div>
-            <div className='product-data'>
-                {products?.slice(0, 48).map((item) => (
-                    <div key={item?.id} className="product-card" onClick={() => handleViewProductDetail(item?.id)}>
-                        <img src={item?.img} alt={item?.name} className="product-img" />
-                        <div className="product-name">{item?.name}</div>
-                    </div>
-                ))}
+            <img
+              src={item?.images?.[0]?.directoryPath}
+              alt={item?.productName}
+              className="product-img"
+            />
+            <div>
+              <div className="product-name-product">{item?.productName}</div>
+              <div className="product-quantity-price">
+                <div className="product-price-product">
+                  {item?.price}
+                  <span className="currency-symbol">đ</span>
+                </div>
+
+                <div className="product-quantity-sold">
+                  {t("product_sold")} {formatSold(item?.quantitySold)}
+                </div>
+              </div>
             </div>
-            <div className='product-view-all'>
-                <Button width="15%" variant="login-often" onClick={handleViewAllProducts} disabled={products?.length < 1}>
-                    {t("home.product.view_all")}
-                </Button>
-            </div>
-        </div>
-    );
+          </div>
+        ))}
+      </div>
+      <div className="product-view-all">
+        <Button
+          width="15%"
+          variant="login-often"
+          onClick={handleViewAllProducts}
+          disabled={products?.length < 48}
+        >
+          {t("home.product.view_all")}
+        </Button>
+      </div>
+    </div>
+  );
 }

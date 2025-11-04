@@ -26,6 +26,7 @@ public class CategoryController {
     @PostMapping("/admin/createOrUpdate")
     public ResponseEntity<?> createOrUpdate(@RequestParam(value = "id", required = false) Long id,
                                             @RequestParam("productTypeId") String productTypeId,
+                                            @RequestParam("code") String code,
                                             @RequestParam("name") String name,
                                             @RequestParam("status") String status,
                                             @RequestParam("description") String description,
@@ -38,7 +39,7 @@ public class CategoryController {
             }
             Boolean statusBool = Boolean.parseBoolean(status);
             Category category = categoryService.createOrUpdate(
-                    new BrandOrCategoryDto(id, productTypeIdLong, name, statusBool, description, directoryPath), imageFiles);
+                    new BrandOrCategoryDto(id, code, productTypeIdLong, name, statusBool, description, directoryPath), imageFiles);
             return ResponseEntity.ok(category);
         } catch (Exception e) {
 

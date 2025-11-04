@@ -16,7 +16,7 @@ import java.util.List;
 public class CartDto implements Serializable {
     private static final long serialVersionUID = 1L;
     private Long id;
-    private Long productId;
+    private String productId;
     private Long userId;
     private Long quantity;
     private BigDecimal total;

@@ -16,7 +16,7 @@ public interface CommentRepository extends JpaRepository<Comment, Long> {
             "WHERE c.productId = :id " +
             "AND i.type = 2 " +
             "ORDER BY c.id ASC")
-    Set<Comment> findCommentById(Long id);
+    Set<Comment> findCommentById(String id);
 
     @Query("SELECT c " +
             "FROM Comment c " +

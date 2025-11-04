@@ -20,6 +20,7 @@ import Loading from "../../../components/common/loading/Loading";
 export interface CategoryType {
   id: number;
   name: string;
+  code: string;
   createdDate: string;
   updatedDate: string;
   description: string;
@@ -105,6 +106,7 @@ const CategoryPage = () => {
   const columns: BaseColumn<CategoryType>[] = [
     { key: "id", label: "ID", width: "5%" },
     { key: "name", label: "Tên danh mục", width: "15%" },
+    { key: "code", label: "Mã danh mục", width: "5%" },
     {
       key: "productType",
       label: "Thương hiệu",
@@ -308,6 +310,7 @@ const CategoryPage = () => {
               : handleUpdateStatus(selectedId)
           }
           onCancel={() => setShowConfirm(false)}
+          type="delete"
         />
       )}
     </div>

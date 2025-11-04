@@ -153,7 +153,7 @@
 
 .products-data-list {
   display: grid;
-  grid-template-columns: repeat(5, 1fr);
+  grid-template-columns: repeat(4, 1fr);
   gap: 10px;
   padding: 10px;
 }
@@ -243,4 +243,25 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
+}
+
+.phone-company-search-list-sort-options-item {
+  display: flex;
+  justify-content: space-between; /* label trái, icon phải */
+  align-items: center;
+  padding: 8px 0;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.phone-company-search-list-sort-options-title {
+  font-size: 14px;
+  font-weight: 500;
+  color: #333;
+}
+
+.phone-company-search-list-sort-options-filter {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
 }

@@ -8,6 +8,7 @@ import java.util.List;
 
 public interface ProductTypeService {
     ProductType createOrUpdateProductType(Long id,
+                                          String code,
                                           String name,
                                           MultipartFile imageFiles,
                                           String description,

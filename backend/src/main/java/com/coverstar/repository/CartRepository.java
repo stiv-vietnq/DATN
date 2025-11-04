@@ -18,5 +18,5 @@ public interface CartRepository extends JpaRepository<Cart, Long> {
             " ORDER BY a.createdDate ASC ")
     List<Cart> findAllByUserIdOrderByCreatedDate(Long userId, String name, boolean status);
 
-    Cart findByProductIdAndUserIdAndColorAndSize(Long productId, Long userId, String color, Integer size);
+    Cart findByProductIdAndUserIdAndColorAndSize(String productId, Long userId, String color, Integer size);
 }
