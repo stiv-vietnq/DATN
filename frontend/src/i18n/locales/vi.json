@@ -113,5 +113,22 @@
   "sort_by": "Sắp xếp theo",
   "reset_all": "Đặt lại tất cả",
   "sold": "Đã bán:",
-  "product_sold": "Đã bán"
+  "product_sold": "Đã bán",
+  "purchase":"Mua hàng",
+  "info":"Thông tin",
+  "buy":"Đặt hàng",
+  "complete":"Hoàn tất",
+  "customer_info": "Thông tin khách hàng",
+  "name_placeholder": "Họ và tên",
+  "phone_placeholder": "Số điện thoại",
+  "email_placeholder": "Email",
+  "address_placeholder": "Địa chỉ",
+  "description_placeholder": "Mô tả",
+  "next_1": "Tiếp tục",
+  "cod_payment": "Thanh toán khi nhận hàng",
+  "vnpay_payment": "Thanh toán qua VNPAY",
+  "momo_payment": "Thanh toán qua Momo",
+  "paypal_payment": "Thanh toán qua Paypal",
+  "back": "Quay lại",
+  "pay": "Thanh toán"
 }

@@ -17,6 +17,7 @@ import CartLayout from "../components/layout/CartLayout";
 import { renderRoutes } from "./RenderRoutes";
 import appRoutes from "./admin-routes/appRoutes";
 import MainLayout from "../components/layoutAdmin/layout/MainLayout";
+import Purchases from "../pages/purchase/Purchases";
 
 export default function AppRouter() {
   return (
@@ -35,6 +36,7 @@ export default function AppRouter() {
 
       <Route element={<CartLayout />}>
         <Route path="/cart" element={<Cart />} />
+        <Route path="/purchases" element={<Purchases />} />
       </Route>
 
       <Route element={<AuthLayout />}>

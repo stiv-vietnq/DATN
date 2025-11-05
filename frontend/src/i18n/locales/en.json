@@ -113,5 +113,22 @@
   "sort_by": "Sort By",
   "reset_all": "Reset All",
   "sold": "Sold:",
-  "product_sold": "Sold"
+  "product_sold": "Sold",
+  "purchase": "Purchase",
+  "info": "Information",
+  "buy": "Order",
+  "complete": "Complete",
+  "customer_info": "Customer Information",
+  "name_placeholder": "Full Name",
+  "phone_placeholder": "Phone Number",
+  "email_placeholder": "Email",
+  "address_placeholder": "Address",
+  "description_placeholder": "Description",
+  "next_1": "Next",
+  "cod_payment": "Cash on Delivery",
+  "vnpay_payment": "VNPay Payment",
+  "momo_payment": "MoMo Payment",
+  "paypal_payment": "PayPal Payment",
+  "back": "Back",
+  "pay": "Pay"
 }

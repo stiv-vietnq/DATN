@@ -6,9 +6,16 @@ import { useLocation, useNavigate } from "react-router-dom";
 export default function Header() {
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const location = useLocation();
 
   const handleLogoClick = () => {
     navigate("/home");
+  };
+
+  const getTitle = () => {
+    if (location.pathname.startsWith("/cart")) return t("cart");
+    if (location.pathname.startsWith("/purchases")) return t("purchase");
+    return "";
   };
 
   return (
@@ -18,7 +25,7 @@ export default function Header() {
           <div className="navbar-logo" onClick={handleLogoClick}>
             <img src={logo} alt="Logo" className="logo-image" />
           </div>
-          <div className="navbar-title">Giỏ hàng</div>
+          <div className="navbar-title">{getTitle()}</div>
         </div>
       </div>
     </header>
