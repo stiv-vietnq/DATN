@@ -158,7 +158,7 @@ public class AccountServiceImpl implements AccountService {
         Account account = accountRepository.findById(id).orElse(null);
         return account;
     }
-
+    @Override
     public void verifyCode(VerifyCodeDto verifyCodeDto) {
         try {
             UserVisits userVisits = userVisitRepository.findByVisitDate(new Date(), 1);
@@ -173,8 +173,8 @@ public class AccountServiceImpl implements AccountService {
                 userVisitRepository.save(userVisits);
             }
             String token = verifyCodeDto.getToken();
-            VerifyAccount verifyAccount = verifyAccountDao.findByToken(token).get();
-            Account account = verifyAccount.getAccount();
+            Optional<VerifyAccount> verifyAccount = verifyAccountDao.findByToken(token);
+            Account account = verifyAccount.get().getAccount();
             account.setActive(true);
             account.setCountLock(0);
             account.setLocked(false);

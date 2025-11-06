@@ -41,7 +41,7 @@ public class Account implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "USERNAME", length = 100, unique = true)
+    @Column(name = "USERNAME", length = 50, unique = true)
     private String username;
 
     @Column(name = "EMAIL", length = 100, unique = true)

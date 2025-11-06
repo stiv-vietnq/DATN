@@ -8,6 +8,7 @@ import {
   FaChevronLeft,
   FaChevronRight,
   FaPaperPlane,
+  FaRegStar,
   FaXmark,
 } from "react-icons/fa6";
 import { useTranslation } from "react-i18next";
@@ -16,6 +17,9 @@ import Input from "../../../components/common/input/Input";
 import CommentAvatar from "./commentAvatar/CommentAvatar";
 import { GetProductById } from "../../../api/product";
 import { useParams } from "react-router-dom";
+import { FaPaperclip, FaStar } from "react-icons/fa";
+import { createComment } from "../../../api/comment";
+import Loading from "../../../components/common/loading/Loading";
 
 interface ProductDetailType {
   id: number;
@@ -43,15 +47,24 @@ interface Product {
   categoryId?: string;
   images?: { id: number; productId: number; directoryPath: string }[];
   productDetails?: ProductDetailType[];
-  comments?: { id: number; name: string; content: string; date: string }[];
+  comments?: CommentType[];
+  evaluate?: number;
+}
+
+interface CommentType {
+  id: number;
+  fullName: string;
+  description: string;
+  evaluate: number;
+  createdDate: string;
+  images?: { id: number; commentId: number; directoryPath: string }[];
 }
 
 export default function ProductDetail() {
+  const [loading, setLoading] = useState<boolean>(false);
   const { t } = useTranslation();
   const { id } = useParams<{ id: string }>();
   const [productData, setProductData] = useState<Product | null>(null);
-
-  // ✅ Tách riêng state cho ảnh và chi tiết
   const [selectedImage, setSelectedImage] = useState<string>("");
   const [selectedImageId, setSelectedImageId] = useState<number | null>(null);
   const [selectedDetail, setSelectedDetail] =
@@ -61,18 +74,26 @@ export default function ProductDetail() {
   const [showModal, setShowModal] = useState<boolean>(false);
 
   // Comment
-  const [name, setName] = useState<string>("");
-  const [email, setEmail] = useState<string>("");
-  const [comment, setComment] = useState<string>("");
-  const [phoneNumber, setPhoneNumber] = useState<string>("");
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [phoneNumber, setPhoneNumber] = useState("");
+  const [comment, setComment] = useState("");
+  const [rating, setRating] = useState(0);
+  const [files, setFiles] = useState<File[]>([]);
+
+  // 🔹 Hàm chọn file
+  const handleFileChange = (e) => {
+    setFiles([...e.target.files]);
+  };
 
   useEffect(() => {
     if (id) {
-      getById(Number(id));
+      getById(String(id));
     }
   }, [id]);
 
-  const getById = (productId: number) => {
+  const getById = (productId: string) => {
+    setLoading(true);
     GetProductById(productId)
       .then((response) => {
         const data = response?.data;
@@ -80,10 +101,12 @@ export default function ProductDetail() {
       })
       .catch((error) => {
         console.error(error);
+      })
+      .finally(() => {
+        setLoading(false);
       });
   };
 
-  // ✅ Khi productData thay đổi -> chọn mặc định
   useEffect(() => {
     if (productData) {
       if (productData.productDetails && productData.productDetails.length > 0) {
@@ -122,6 +145,43 @@ export default function ProductDetail() {
     { label: "Sản phẩm", path: "/products" },
     { label: productData?.productName || "" },
   ];
+
+  const handleSubmitComment = () => {
+    const formData = new FormData();
+    formData.append("productId", id || "");
+    formData.append("fullName", name);
+    formData.append("username", localStorage.getItem("username") || "");
+    formData.append("email", email);
+    formData.append("phoneNumber", phoneNumber);
+    formData.append("description", comment);
+    formData.append("evaluate", rating.toString());
+
+    files.forEach((file) => {
+      formData.append("files", file);
+    });
+
+    console.log(formData);
+
+    createComment(formData)
+      .then(() => {
+        setName("");
+        setEmail("");
+        setPhoneNumber("");
+        setComment("");
+        setRating(0);
+        setFiles([]);
+        getById(String(id));
+      })
+      .catch((error) => {
+        console.error("Lỗi khi gửi bình luận:", error);
+      });
+  };
+
+  const handleRemoveFile = (index: number) => {
+    setFiles((prevFiles) => prevFiles.filter((_, i) => i !== index));
+  };
+
+  if (loading) return <Loading />;
 
   return (
     <div className="main-content" style={{ paddingBottom: "40px" }}>
@@ -169,21 +229,32 @@ export default function ProductDetail() {
             <div className="product-right">
               {/* Giá */}
               <div className="product-price">
-                {selectedDetail?.percentageReduction && (
+                {selectedDetail?.percentageReduction &&
+                selectedDetail.percentageReduction > 0 ? (
+                  <>
+                    {/* Giá sau khi giảm */}
+                    <span className="current">
+                      {(
+                        selectedDetail.price *
+                        (1 - selectedDetail.percentageReduction / 100)
+                      ).toLocaleString()}{" "}
+                      ₫
+                    </span>
+
+                    {/* Giá gốc */}
+                    <span className="old">
+                      {selectedDetail.price.toLocaleString()} ₫
+                    </span>
+                  </>
+                ) : (
+                  // Không có giảm giá → chỉ hiển thị giá thường
                   <span className="current">
-                    {(
-                      selectedDetail.price /
-                      (1 + selectedDetail.percentageReduction / 100)
-                    ).toLocaleString()}{" "}
+                    {selectedDetail
+                      ? selectedDetail.price.toLocaleString()
+                      : productData?.price.toLocaleString()}{" "}
                     ₫
                   </span>
                 )}
-                <span className="old">
-                  {selectedDetail
-                    ? selectedDetail.price.toLocaleString()
-                    : productData?.price.toLocaleString()}{" "}
-                  ₫
-                </span>
               </div>
 
               {/* Chọn chi tiết sản phẩm */}
@@ -211,6 +282,17 @@ export default function ProductDetail() {
                 <p className="option-title">{t("product-description")}</p>
                 <div className="product-description">
                   {selectedDetail?.description || productData?.description}
+                </div>
+              </div>
+
+              <div className="product-description-main">
+                <div className="option-title">{t("comment.rating")}: </div>
+                <div className="vote-number">
+                  {productData?.evaluate || 0}
+                  <FaRegStar
+                    className="star small"
+                    style={{ color: "#f8b400" }}
+                  />
                 </div>
               </div>
 
@@ -263,33 +345,130 @@ export default function ProductDetail() {
               placeholder={t("comment.enter_comment")}
             />
           </div>
+          <div className="comment-vote-upload">
+            <div className="comment-section rating-section">
+              <span className="rating-label">{t("comment.your_rating")}</span>
+              <div className="rating-stars">
+                {[1, 2, 3, 4, 5].map((star) =>
+                  star <= rating ? (
+                    <FaStar
+                      key={star}
+                      className="star active"
+                      onClick={() => setRating(star)}
+                    />
+                  ) : (
+                    <FaRegStar
+                      key={star}
+                      className="star"
+                      onClick={() => setRating(star)}
+                    />
+                  )
+                )}
+              </div>
+            </div>
+
+            <div className="file-upload">
+              <label htmlFor="fileInput" className="upload-label">
+                <FaPaperclip /> Chọn tệp đính kèm
+              </label>
+              <input
+                id="fileInput"
+                type="file"
+                multiple
+                onChange={handleFileChange}
+                style={{ display: "none" }}
+              />
+              <div className="file-list">
+                {files?.map((file, index) => (
+                  <div key={index} className="file-item">
+                    <span className="file-name" title={file.name}>
+                      {file.name.length > 15
+                        ? file.name.substring(0, 15) + "..."
+                        : file.name}
+                    </span>
+                    <button
+                      className="file-remove-btn"
+                      onClick={() => handleRemoveFile(index)}
+                    >
+                      ×
+                    </button>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
 
           <div className="comment-section-action">
-            <button className="btn-submit-comment">
+            <button
+              className="btn-submit-comment"
+              onClick={handleSubmitComment}
+            >
               <FaPaperPlane />
               <div>{t("comment.submit_comment")}</div>
             </button>
           </div>
 
-          {/* Bình luận mẫu */}
-          <div className="comment-section-data">
-            <div className="comment-data-avatar">
-              <CommentAvatar avatarUrl={""} />
-            </div>
-            <div className="comment-data-content">
-              <div className="comment-username-date">
-                <span className="comment-username">Nguyen Van A</span>
-                <span className="comment-date">01/01/2024</span>
+          {productData?.comments?.map((comment) => (
+            <div className="comment-section-data">
+              <div className="comment-data-avatar">
+                <CommentAvatar avatarUrl={""} />
               </div>
-              <div className="comment-text">
-                Sản phẩm rất tuyệt vời! Màu đẹp, hiệu năng tốt.
+              <div key={comment.id} className="comment-data-content">
+                {/* --- Tên và ngày --- */}
+                <div className="comment-username-date">
+                  <span className="comment-username">{comment.fullName}</span>
+                  <span className="comment-date">
+                    {new Date(comment.createdDate).toLocaleDateString("vi-VN")}
+                  </span>
+                </div>
+
+                <div className="comment-rating-display-section">
+                  <div className="comment-content">Đánh giá: </div>
+                  <div className="comment-rating-display">
+                    {[1, 2, 3, 4, 5].map((star) =>
+                      star <= comment.evaluate ? (
+                        <FaStar key={star} className="star small filled" />
+                      ) : (
+                        <FaRegStar key={star} className="star small" />
+                      )
+                    )}
+                  </div>
+                </div>
+
+                {/* --- Nội dung bình luận --- */}
+                <div className="comment-content">
+                  <div style={{ width: "50%" }}>
+                    <div className="comment-text-label">
+                      Nội dung bình luận:
+                    </div>
+                    <textarea
+                      className="comment-textarea"
+                      value={comment.description}
+                      readOnly
+                    />
+                  </div>
+                  {/* --- Ảnh đính kèm --- */}
+                  <div style={{ width: "50%" }}>
+                    {comment.images && comment.images.length > 0 && (
+                      <div className="comment-images">
+                        {comment.images.map((img, index) => (
+                          <img
+                            key={index}
+                            src={img.directoryPath}
+                            alt={`comment-${comment.id}-${index}`}
+                            className="comment-image"
+                          />
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                </div>
               </div>
             </div>
-          </div>
+          ))}
         </div>
       </div>
 
-      {/* MODAL IMAGE VIEWER */}
       {showModal && (
         <div
           className="image-modal-overlay"

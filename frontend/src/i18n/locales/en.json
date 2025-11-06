@@ -97,7 +97,8 @@
     "enter_email": "Enter email...",
     "enter_phone_number": "Enter phone number...",
     "enter_comment": "Enter comment...",
-    "submit_comment": "Submit Comment"
+    "submit_comment": "Submit Comment",
+    "your_rating": "Your Rating:"
   },
   "all_phone_brands": "All Phone Brands",
   "product_types": "Product Types",

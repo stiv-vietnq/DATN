@@ -7,6 +7,7 @@ import com.coverstar.entity.Product;
 import com.coverstar.repository.CommentRepository;
 import com.coverstar.repository.ProductRepository;
 import com.coverstar.service.CommentService;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -15,7 +16,6 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.File;
 import java.util.Date;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 @Service
@@ -32,24 +32,27 @@ public class CommentServiceImpl implements CommentService {
     private String imageDirectory;
 
     @Override
-    public Comment createComment(CommentDto commentDto, List<MultipartFile> imageFiles) throws Exception {
+    public Comment createComment(CommentDto commentDto) throws Exception {
         try {
             Product product = productRepository.getProductById(commentDto.getProductId());
-            Float evaluate = getEvaluate(commentDto, product);
-            product.setEvaluate(evaluate);
-            productRepository.save(product);
-
             Comment comment = new Comment();
             comment.setProductId(commentDto.getProductId());
-            comment.setUserId(commentDto.getUserId());
+            comment.setFullName(commentDto.getFullName());
+            comment.setUsername(commentDto.getUsername());
+            comment.setEmail(commentDto.getEmail());
+            comment.setPhoneNumber(commentDto.getPhoneNumber());
             comment.setDescription(commentDto.getDescription());
             comment.setCreatedDate(new Date());
-            comment.setEvaluate(commentDto.getEvaluate());
+            int evaluateProduct = 0;
+            if (StringUtils.isNotEmpty(commentDto.getEvaluate())) {
+                evaluateProduct = Integer.parseInt(commentDto.getEvaluate());
+            }
+            comment.setEvaluate(evaluateProduct);
             comment = commentRepository.save(comment);
 
-            if (imageFiles != null && !imageFiles.isEmpty()) {
+            if (commentDto.getImageFiles() != null && !commentDto.getImageFiles().isEmpty()) {
                 Set<Image> images = new HashSet<>();
-                for (MultipartFile file : imageFiles) {
+                for (MultipartFile file : commentDto.getImageFiles()) {
                     String filePath = imageDirectory + "products" + "/" + product.getId() +
                             "/" + "comments" + "/" + comment.getId();
                     File directory = new File(filePath);
@@ -95,20 +98,5 @@ public class CommentServiceImpl implements CommentService {
             e.fillInStackTrace();
             throw e;
         }
-    }
-
-    private static Float getEvaluate(CommentDto commentDto, Product product) {
-        float productEvaluate = product.getEvaluate() != null ? product.getEvaluate() : 0f;
-        int commentEvaluate = commentDto.getEvaluateProduct() != null ? commentDto.getEvaluateProduct() : 0;
-        if (productEvaluate == 0f && commentEvaluate == 0) {
-            return 0f;
-        }
-        if (commentEvaluate == 0) {
-            return productEvaluate;
-        }
-        if (productEvaluate == 0f) {
-            return (float) commentEvaluate;
-        }
-        return (productEvaluate + commentEvaluate) / 2;
     }
 }

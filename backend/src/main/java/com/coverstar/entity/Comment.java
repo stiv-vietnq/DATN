@@ -30,8 +30,17 @@ public class Comment {
     @Column(name = "product_id", nullable = false)
     private String productId;
 
-    @Column(name = "user_id", nullable = false)
-    private Long userId;
+    @Column(name = "full_name", nullable = false)
+    private String fullName;
+
+    @Column(name = "username", nullable = false)
+    private String username;
+
+    @Column(name = "email", nullable = false)
+    private String email;
+
+    @Column(name = "phone_number", nullable = false)
+    private String phoneNumber;
 
     @Column(name = "created_date", nullable = false)
     @Temporal(TemporalType.TIMESTAMP)

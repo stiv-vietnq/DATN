@@ -30,8 +30,7 @@ public class VerifyAccount {
 	private Long id;
 
 	@Lob
-	@Column(name = "token", columnDefinition = "text", unique = true)
-	@org.hibernate.annotations.Type(type = "org.hibernate.type.TextType")
+	@Column(name = "token", unique = true, length = 20)
 	private String token;
 
 	@Column

@@ -153,11 +153,10 @@
 
 .username {
     font-size: 18px;
-    color: white;
     cursor: pointer;
 
     &:hover {
-        color: #ccc;
+        color: #5661f5;
     }
 }
 

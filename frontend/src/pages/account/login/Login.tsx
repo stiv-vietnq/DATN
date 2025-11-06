@@ -24,14 +24,20 @@ export default function Login() {
         login({ usernameOrEmail: usernameOrEmail, password: pw })
 
             .then((response) => {
-                debugger
                 setLoading(false);
                 const token = response.data?.token;
+                const username = response.data?.username;
+                const role = response.data?.role;
+                const firstName = response.data?.firstName;
+                const lastName = response.data?.lastName;
 
                 if (token) {
                     localStorage.setItem("tokenWeb", token);
-                    alert("Đăng nhập thành công!");
-                    navigate("/");
+                    localStorage.setItem("username", username);
+                    localStorage.setItem("role", role);
+                    localStorage.setItem("firstName", firstName);
+                    localStorage.setItem("lastName", lastName);
+                    navigate("/home");
                 } else {
                     alert("Không nhận được token từ server!");
                 }

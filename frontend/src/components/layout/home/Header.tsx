@@ -15,7 +15,8 @@ export default function Header() {
 
     const { t, i18n } = useTranslation();
     const [loading, setLoading] = useState(false);
-    const token = '';
+    const token = localStorage.getItem("tokenWeb");
+    const fullname = localStorage.getItem("firstName") + " " + localStorage.getItem("lastName");
     const navigate = useNavigate();
     const [cartItems, setCartItems] = useState([
         { id: 1, name: 'Product 1Product 1Product 1Product 1Product 1Product 1Product 1', img: logo, price: 1000 },
@@ -114,7 +115,7 @@ export default function Header() {
                                                 />
                                             </div>
                                             <div className="username">
-                                                vietnq
+                                                {fullname}
                                             </div>
 
                                             <ul className="user-popup">

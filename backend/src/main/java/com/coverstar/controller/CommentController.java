@@ -22,18 +22,20 @@ public class CommentController {
 
     @PostMapping("/createComment")
     public ResponseEntity<?> createComment(@RequestParam("productId") String productId,
-                                           @RequestParam("userId") Long userId,
-                                           @RequestParam("description") String description,
-                                           @RequestParam("evaluate") Integer evaluate,
-                                           @RequestParam("evaluateProduct") Integer evaluateProduct,
-                                           @RequestParam("file") List<MultipartFile> imageFiles) {
-        if (Objects.isNull(productId) || Objects.isNull(userId) || Objects.isNull(description) ||
-                Objects.isNull(evaluate) || Objects.isNull(evaluateProduct) || Objects.isNull(imageFiles)) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("One or more required fields are null");
-        }
+                                           @RequestParam("fullName") String fullName,
+                                           @RequestParam("username") String username,
+                                           @RequestParam("email") String email,
+                                           @RequestParam("phoneNumber") String phoneNumber,
+                                           @RequestParam(name = "description", required = false) String description,
+                                           @RequestParam("evaluate") String evaluate,
+                                           @RequestParam(name = "files", required = false) List<MultipartFile> imageFiles) {
+//        if (Objects.isNull(productId) || Objects.isNull(fullName) || Objects.isNull(email) || Objects.isNull(phoneNumber) ||
+//                Objects.isNull(evaluate)) {
+//            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("One or more required fields are null");
+//        }
         try {
-            CommentDto commentDto = new CommentDto(productId, userId, description, evaluate, evaluateProduct);
-            Comment comment = commentService.createComment(commentDto, imageFiles);
+            CommentDto commentDto = new CommentDto(productId, username, fullName, email, phoneNumber, description, evaluate, imageFiles);
+            Comment comment = commentService.createComment(commentDto);
             return ResponseEntity.ok(comment);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Constants.ERROR);
