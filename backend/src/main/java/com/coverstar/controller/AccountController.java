@@ -1,20 +1,30 @@
 package com.coverstar.controller;
 
 import com.coverstar.constant.Constants;
-import com.coverstar.dto.*;
+import com.coverstar.dto.AccountCreateDto;
+import com.coverstar.dto.AccountDto;
+import com.coverstar.dto.AccountUpdateDto;
+import com.coverstar.dto.ChangeEmailDto;
+import com.coverstar.dto.ChangePasswordDto;
+import com.coverstar.dto.LoginDto;
+import com.coverstar.dto.VerifyCodeDto;
 import com.coverstar.entity.Account;
 import com.coverstar.service.AccountService;
 import org.apache.commons.lang3.StringUtils;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.repository.query.Param;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.BadCredentialsException;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.ConstraintViolation;
@@ -167,9 +177,13 @@ public class AccountController {
     }
 
     @GetMapping("/admin/getAll")
-    public ResponseEntity<?> getAllAccount() {
+    public ResponseEntity<?> getAllAccount(@RequestParam(required = false) String username,
+                                           @RequestParam(required = false) String fromDate,
+                                           @RequestParam(required = false) String toDate,
+                                           @RequestParam(required = false) String isActive,
+                                           @RequestParam(required = false) String isLocked) {
         try {
-            List<Account> accounts = accountService.getAllAccount();
+            List<Account> accounts = accountService.getAllAccount(username, fromDate, toDate, isActive, isLocked);
             return ResponseEntity.ok(accounts);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Constants.ERROR_GET_ALL_ACCOUNT);
@@ -177,13 +191,14 @@ public class AccountController {
     }
 
     @PostMapping("/admin/lock-account/{usernameOrEmail}")
-    public ResponseEntity<?> lockAccount(@PathVariable String usernameOrEmail) {
+    public ResponseEntity<?> lockAccount(@PathVariable String usernameOrEmail,
+                                         @RequestBody Map<String, String> body) {
         try {
             if (StringUtils.isBlank(usernameOrEmail)) {
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Constants.USERNAME_EMAIL_REQUIRED);
             }
 
-            accountService.lockAccount(usernameOrEmail);
+            accountService.lockAccount(usernameOrEmail, body);
             return ResponseEntity.ok(HttpStatus.OK);
         } catch (Exception e) {
 

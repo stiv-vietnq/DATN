@@ -27,9 +27,13 @@ public interface AccountService {
 
 	void unlockAccount(String usernameOrEmail);
 
-	List<Account> getAllAccount();
+	List<Account> getAllAccount(String username,
+								String fromDate,
+								String toDate,
+								String isActive,
+								String isLocked);
 
-	void lockAccount(String usernameOrEmail);
+	void lockAccount(String usernameOrEmail, Map<String, String> body);
 
 	List<Account> findByUsernameChat(String username);
 

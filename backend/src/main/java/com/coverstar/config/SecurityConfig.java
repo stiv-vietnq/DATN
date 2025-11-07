@@ -60,6 +60,9 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                         "/discounts/**",
                         "/purchases/**",
                         "/comments/**",
+                        "/admin/**",
+                        "/address/**",
+                        "/locations/**",
                         "/images/**"
                 ).permitAll()
                 .anyRequest().authenticated();

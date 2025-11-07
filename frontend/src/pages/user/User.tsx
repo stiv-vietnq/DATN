@@ -18,23 +18,41 @@ const User = () => {
             setOpenMenu(null);
         } else {
             setOpenMenu(menuName);
-
-            // 👇 Khi click lần đầu vào "profile", tự điều hướng đến /user/profile
             if (menuName === "profile" && !location.pathname.includes("profile")) {
                 navigate("/user/profile");
+            }
+
+            if (menuName === "purchases" && !location.pathname.includes("purchases")) {
+                navigate("/user/purchases");
+            }
+
+            if (menuName === "address" && !location.pathname.includes("address")) {
+                navigate("/user/address");
+            }
+
+            if (menuName === "password" && !location.pathname.includes("password")) {
+                navigate("/user/password");
             }
         }
     };
 
-    // Khi chuyển route khác thì tự đóng menu
     useEffect(() => {
         setOpenMenu(null);
     }, [location.pathname]);
 
-    // Giữ mở menu khi đang ở /user/profile/*
     useEffect(() => {
-        if (location.pathname.includes("/user/profile")) {
+        const path = location.pathname;
+
+        if (
+            path.includes("/user/profile") ||
+            path.includes("/user/address") ||
+            path.includes("/user/password")
+        ) {
             setOpenMenu("profile");
+        } else if (path.includes("/user/purchases")) {
+            setOpenMenu("purchases");
+        } else {
+            setOpenMenu(null);
         }
     }, [location.pathname]);
 
@@ -81,7 +99,8 @@ const User = () => {
                                         </NavLink>
 
                                         <NavLink
-                                            to="/user/profile/password"
+                                            to="/user/password"
+                                            end
                                             className={({ isActive }) =>
                                                 `user-submenu-link ${isActive ? "active" : ""}`
                                             }
@@ -90,7 +109,8 @@ const User = () => {
                                         </NavLink>
 
                                         <NavLink
-                                            to="/user/profile/address"
+                                            to="/user/address"
+                                            end
                                             className={({ isActive }) =>
                                                 `user-submenu-link ${isActive ? "active" : ""}`
                                             }

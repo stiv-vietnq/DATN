@@ -15,4 +15,7 @@ public interface AddressRepository extends JpaRepository<Address, Long> {
 
     @Query("SELECT a FROM Address a WHERE a.userId = :userId AND a.defaultValue = :isDefault")
     Address findByUserIdAndDefault(Long userId, Integer isDefault);
+
+    @Query("SELECT a FROM Address a WHERE a.userId = :userId AND a.id <> :id")
+    List<Address> findByUserIdAndIdNot(Long userId, Long id);
 }

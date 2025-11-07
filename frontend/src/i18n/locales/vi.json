@@ -131,5 +131,7 @@
   "momo_payment": "Thanh toán qua Momo",
   "paypal_payment": "Thanh toán qua Paypal",
   "back": "Quay lại",
-  "pay": "Thanh toán"
+  "pay": "Thanh toán",
+  "my_address": "Địa chỉ của tôi",
+  "add_new_address": "Thêm địa chỉ mới"
 }

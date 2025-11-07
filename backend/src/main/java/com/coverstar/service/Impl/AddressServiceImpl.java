@@ -82,16 +82,26 @@ public class AddressServiceImpl implements AddressService {
     @Override
     public Address updateDefaultAddress(Long id, Integer isDefault) {
         try {
-            Address address = addressRepository.findById(id).orElse(null);
-            assert address != null;
+            Address address = addressRepository.findById(id)
+                    .orElseThrow(() -> new RuntimeException("Address not found"));
+
+            if (isDefault == 1) {
+                List<Address> otherAddresses = addressRepository
+                        .findByUserIdAndIdNot(address.getUserId(), id);
+
+                otherAddresses.forEach(a -> a.setDefaultValue(0));
+                addressRepository.saveAll(otherAddresses);
+            }
+
             address.setDefaultValue(isDefault);
-            addressRepository.save(address);
-            return address;
+            return addressRepository.save(address);
+
         } catch (Exception e) {
-            e.fillInStackTrace();
+            e.printStackTrace();
             throw e;
         }
     }
+
 
     @Override
     public Address getAddressByUserIdAndIsDefault(Long userId) {

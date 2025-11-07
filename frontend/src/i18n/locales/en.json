@@ -131,5 +131,7 @@
   "momo_payment": "MoMo Payment",
   "paypal_payment": "PayPal Payment",
   "back": "Back",
-  "pay": "Pay"
+  "pay": "Pay",
+  "my_address": "My Address",
+  "add_new_address": "Add New Address"
 }

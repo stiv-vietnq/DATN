@@ -5,6 +5,7 @@ import com.coverstar.component.mail.MailService;
 import com.coverstar.constant.Constants;
 import com.coverstar.entity.UserVisits;
 import com.coverstar.repository.UserVisitRepository;
+import com.coverstar.utils.DateUtill;
 import com.coverstar.utils.RandomUtil;
 import com.coverstar.dao.account.AccountDao;
 import com.coverstar.dao.verify_account.VerifyAccountDao;
@@ -19,6 +20,7 @@ import com.coverstar.utils.ShopUtil;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -316,15 +318,56 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
-    public List<Account> getAllAccount() {
-        return accountRepository.findAll();
+    public List<Account> getAllAccount(String username,
+                                       String fromDate,
+                                       String toDate,
+                                       String isActive,
+                                       String isLocked) {
+        Boolean isActiveBl = null;
+        if (StringUtils.isEmpty(isActive)) {
+            isActiveBl = null;
+        } else if ("true".equalsIgnoreCase(isActive)) {
+            isActiveBl = true;
+        } else if ("false".equalsIgnoreCase(isActive)) {
+            isActiveBl = false;
+        }
+        Boolean isLockedBl = null;
+        if (StringUtils.isEmpty(isLocked)) {
+            isLockedBl = null;
+        } else if ("true".equalsIgnoreCase(isLocked)) {
+            isLockedBl = true;
+        } else if ("false".equalsIgnoreCase(isLocked)) {
+            isLockedBl = false;
+        }
+        LocalDateTime fromDateStr = null;
+        if (StringUtils.isNotEmpty(fromDate)) {
+            fromDateStr =  DateUtill.toStartOfDay(fromDate);
+        }
+        LocalDateTime toDateStr = null;
+        if (StringUtils.isNotEmpty(toDate)) {
+            toDateStr = DateUtill.toEndOfDay(toDate);
+        }
+
+        List<Account> accounts = accountRepository.findAllByConditions(
+                StringUtils.isEmpty(username) ? null : username,
+                fromDateStr,
+                toDateStr,
+                isActiveBl,
+                isLockedBl
+        );
+        return accounts;
     }
 
     @Override
-    public void lockAccount(String usernameOrEmail) {
+    public void lockAccount(String usernameOrEmail, Map<String, String> body) {
         try {
+            String isLocked = body.get("isLocked");
             Account account = getEmailOrUser(usernameOrEmail);
-            account.setLocked(true);
+            if ("false".equals(isLocked)) {
+                account.setLocked(false);
+            } else {
+                account.setLocked(true);
+            }
             accountDao.update(account);
         } catch (Exception e) {
             e.fillInStackTrace();

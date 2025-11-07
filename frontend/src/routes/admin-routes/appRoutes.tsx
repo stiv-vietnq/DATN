@@ -15,6 +15,7 @@ import DefaultPage from "../../admin/pages/dashboard/DefaultPage";
 import SaasPage from "../../admin/pages/dashboard/SaasPage";
 import ProductPage from "../../admin/pages/product/ProductPage";
 import { RouteType } from "./config";
+import UserPage from "../../admin/pages/user/UserPage";
 
 const appRoutes: RouteType[] = [
   {
@@ -95,7 +96,7 @@ const appRoutes: RouteType[] = [
   },
   {
     path: "users",
-    element: <BrandPage />,
+    element: <UserPage />,
     state: "users",
     sidebarProps: {
       displayText: "Quản lý người dùng",

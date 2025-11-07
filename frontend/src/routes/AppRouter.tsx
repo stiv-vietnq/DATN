@@ -1,23 +1,24 @@
 import { Route, Routes } from "react-router-dom";
 import AuthLayout from "../components/layout/AuthLayout";
+import CartLayout from "../components/layout/CartLayout";
 import Layout from "../components/layout/Layout";
+import MainLayout from "../components/layoutAdmin/layout/MainLayout";
 import ForgotPassword from "../pages/account/forgotPassword/ForgotPassword";
 import Login from "../pages/account/login/Login";
 import Register from "../pages/account/register/Register";
 import Verify from "../pages/account/verify/Verify";
+import Cart from "../pages/cart/Cart";
 import Home from "../pages/home/Home";
 import Products from "../pages/products/Products";
 import ProductDetail from "../pages/products/productDetail/productDetail";
+import Purchases from "../pages/purchase/Purchases";
 import TopProduct from "../pages/topProduct/TopProduct";
 import User from "../pages/user/User";
 import Profile from "../pages/user/profile/Profile";
 import Purchase from "../pages/user/purchase/Purchase";
-import Cart from "../pages/cart/Cart";
-import CartLayout from "../components/layout/CartLayout";
 import { renderRoutes } from "./RenderRoutes";
 import appRoutes from "./admin-routes/appRoutes";
-import MainLayout from "../components/layoutAdmin/layout/MainLayout";
-import Purchases from "../pages/purchase/Purchases";
+import Address from "../pages/user/address/Address";
 
 export default function AppRouter() {
   return (
@@ -30,6 +31,7 @@ export default function AppRouter() {
         <Route path="/top-products" element={<TopProduct />} />
         <Route path="/user" element={<User />}>
           <Route path="profile" element={<Profile />} />
+          <Route path="address" element={<Address />} />
           <Route path="purchases" element={<Purchase />} />
         </Route>
       </Route>

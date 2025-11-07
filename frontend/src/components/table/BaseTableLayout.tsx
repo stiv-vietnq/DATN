@@ -86,15 +86,16 @@ function BaseTable<T extends { id: number }>({
                 key={String(col.key)}
                 style={{
                   width: col.width,
-                  borderBottom: "1px solid #eee",
+                  border: "1px solid #ccc",
                   padding: "8px",
+                  textAlign: "center",
                 }}
               >
                 {col.key === "actions"
                   ? col.render?.(item)
                   : col.render
-                  ? col.render(item)
-                  : (item[col.key] as React.ReactNode)}
+                    ? col.render(item)
+                    : (item[col.key] as React.ReactNode)}
               </td>
             ))}
           </tr>

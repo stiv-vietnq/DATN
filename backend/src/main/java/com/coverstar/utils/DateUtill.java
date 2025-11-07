@@ -1,6 +1,8 @@
 package com.coverstar.utils;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
@@ -35,5 +37,15 @@ public class DateUtill {
      */
     public static Date parseDate(String dateString) {
         return parseDate(dateString, DEFAULT_DATE_FORMAT);
+    }
+
+    public static LocalDateTime toStartOfDay(String date) {
+        return (date == null || date.isEmpty()) ? null :
+                LocalDate.parse(date).atStartOfDay(); // 00:00:00.000
+    }
+
+    public static LocalDateTime toEndOfDay(String date) {
+        return (date == null || date.isEmpty()) ? null :
+                LocalDate.parse(date).atTime(LocalTime.MAX); // 23:59:59.999
     }
 }
