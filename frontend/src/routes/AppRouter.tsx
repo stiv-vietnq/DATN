@@ -19,6 +19,7 @@ import Purchase from "../pages/user/purchase/Purchase";
 import { renderRoutes } from "./RenderRoutes";
 import appRoutes from "./admin-routes/appRoutes";
 import Address from "../pages/user/address/Address";
+import ChangePassword from "../pages/user/change-password/ChangePassword";
 
 export default function AppRouter() {
   return (
@@ -33,6 +34,7 @@ export default function AppRouter() {
           <Route path="profile" element={<Profile />} />
           <Route path="address" element={<Address />} />
           <Route path="purchases" element={<Purchase />} />
+          <Route path="change-password" element={<ChangePassword />} />
         </Route>
       </Route>
 

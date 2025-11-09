@@ -23,7 +23,7 @@ export default function Address() {
     const { t } = useTranslation();
     const [loading, setLoading] = useState(false);
     const [showPopup, setShowPopup] = useState(false);
-    const userId = "1";
+    const userId = localStorage.getItem("userId");
     const [showConfirm, setShowConfirm] = useState(false);
     const [addresses, setAddresses] = useState<Address[]>([]);
     const [selectedAddressId, setSelectedAddressId] = useState<number | null>(null);

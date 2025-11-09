@@ -29,8 +29,7 @@ public class VerifyAccount {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 
-	@Lob
-	@Column(name = "token", unique = true, length = 20)
+	@Column(name = "token", unique = true, nullable = false, columnDefinition = "nvarchar(20)")
 	private String token;
 
 	@Column

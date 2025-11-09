@@ -100,7 +100,7 @@ public class AccountController {
         }
     }
 
-    @PostMapping("/change-password")
+    @PostMapping("/account/change-password")
     public ResponseEntity<?> changePassword(@Valid @RequestBody ChangePasswordDto changePasswordDto) {
         try {
             if (!changePasswordDto.isPasswordsMatch()) {
@@ -210,11 +210,11 @@ public class AccountController {
         }
     }
 
-    @PostMapping("/update-account")
+    @PostMapping("/account/update-account")
     public ResponseEntity<?> updateAccount(@RequestParam("id") Long id,
                                            @RequestParam("firstName") String firstName,
                                            @RequestParam("lastName") String lastName,
-                                           @RequestParam("dateOfBirth") @DateTimeFormat(pattern = "dd/MM/yyyy") Date dateOfBirth,
+                                           @RequestParam("dateOfBirth") String dateOfBirth,
                                            @RequestParam("sex") Integer sex,
                                            @RequestParam("phoneNumber") String phoneNumber,
                                            @RequestParam(value = "file", required = false) MultipartFile imageFiles) {
@@ -224,14 +224,6 @@ public class AccountController {
 
             if (!accountUpdateDto.isValidFile()) {
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Constants.OVER_CAPACITY);
-            }
-
-            Set<ConstraintViolation<AccountUpdateDto>> violations = validator.validate(accountUpdateDto);
-            if (!violations.isEmpty()) {
-                String errorMessage = violations.stream()
-                        .map(ConstraintViolation::getMessage)
-                        .collect(Collectors.joining(", "));
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorMessage);
             }
 
             AccountUpdateDto account = accountService.updateAccount(accountUpdateDto);

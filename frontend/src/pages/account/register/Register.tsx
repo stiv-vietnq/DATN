@@ -87,44 +87,42 @@ export default function Register() {
     const errors = validateFields(rules, t);
     setErrors(errors);
     if (Object.keys(errors).length === 0) {
-      if (Object.keys(errors).length === 0) {
-        setLoading(true);
-        register({
-          username,
-          email,
-          firstName,
-          lastName,
-          password,
-          repeatPassword: confirmPassword,
+      setLoading(true);
+      register({
+        username,
+        email,
+        firstName,
+        lastName,
+        password,
+        repeatPassword: confirmPassword,
+      })
+        .then(() => {
+          setLoading(false);
+          navigate("/verify");
         })
-          .then(() => {
-            setLoading(false);
-            navigate("/verify");
-          })
-          .catch(err => {
-            setLoading(false);
-            if (err.response) {
-              const status = err.response.status;
-              const message = err.response.data;
+        .catch((err) => {
+          setLoading(false);
+          if (err.response) {
+            const status = err.response.status;
+            const message = err.response.data;
 
-              if (status === 409) {
-                if (message === "DUPLICATE_EMAIL") {
-                  alert("Email đã tồn tại. Vui lòng dùng email khác!");
-                } else if (message === "DUPLICATE_USERNAME") {
-                  alert("Tên đăng nhập đã tồn tại. Vui lòng chọn tên khác!");
-                } else {
-                  alert("Tên đăng nhập hoặc email đã tồn tại!");
-                }
-              } else if (status === 400) {
-                alert("Dữ liệu không hợp lệ. Vui lòng kiểm tra lại form!");
+            if (status === 409) {
+              if (message === "DUPLICATE_EMAIL") {
+                alert("Email đã tồn tại. Vui lòng dùng email khác!");
+              } else if (message === "DUPLICATE_USERNAME") {
+                alert("Tên đăng nhập đã tồn tại. Vui lòng chọn tên khác!");
               } else {
-                alert("Đăng ký thất bại. Vui lòng thử lại sau!");
+                alert("Tên đăng nhập hoặc email đã tồn tại!");
               }
+            } else if (status === 400) {
+              alert("Dữ liệu không hợp lệ. Vui lòng kiểm tra lại form!");
             } else {
-              alert("Không thể kết nối đến máy chủ!");
+              alert("Đăng ký thất bại. Vui lòng thử lại sau!");
             }
-          });
-      }
+          } else {
+            alert("Không thể kết nối đến máy chủ!");
+          }
+        });
     }
   };
 

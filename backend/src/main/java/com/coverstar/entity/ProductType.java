@@ -23,13 +23,13 @@ public class ProductType {
     @Column(unique = true, nullable = false)
     private String code;
 
-    @Column(name = "name", nullable = false)
+    @Column(name = "name", nullable = false, columnDefinition = "nvarchar(255)")
     private String name;
 
     @Column(name = "status", nullable = false)
     private Boolean status;
 
-    @Column(name = "directory_path")
+    @Column(name = "directory_path", columnDefinition = "nvarchar(510)")
     private String directoryPath;
 
     @Column(name = "created_date", nullable = false)

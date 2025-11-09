@@ -18,23 +18,16 @@ public class AccountUpdateDto {
 
     private static final long MAX_FILE_SIZE = 1 * 1024 * 1024;
 
-    @NotNull(message = "Username is required")
     private Long id;
 
-    @NotBlank(message = "First name is required")
-    @Length(min = 3, max = 100, message = "First name must be between 3 and 255 characters")
     private String firstName;
 
-    @NotBlank(message = "lastName name is required")
-    @Length(min = 3, max = 100, message = "lastName name must be between 3 and 255 characters")
     private String lastName;
 
-    @PastOrPresent(message = "Date of birth cannot be in the future")
-    private Date dateOfBirth;
+    private String dateOfBirth;
 
     private Integer sex;
 
-    @Pattern(regexp = "^[0-9]{9,14}$", message = "Phone number must be numeric and between 9 to 14 digits")
     private String phoneNumber;
 
     private MultipartFile imageFiles;

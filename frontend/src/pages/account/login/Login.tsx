@@ -30,8 +30,10 @@ export default function Login() {
                 const role = response.data?.role;
                 const firstName = response.data?.firstName;
                 const lastName = response.data?.lastName;
+                const userId = response.data?.id;
 
                 if (token) {
+                    localStorage.setItem("userId", userId);
                     localStorage.setItem("tokenWeb", token);
                     localStorage.setItem("username", username);
                     localStorage.setItem("role", role);

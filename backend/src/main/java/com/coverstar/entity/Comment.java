@@ -30,7 +30,7 @@ public class Comment {
     @Column(name = "product_id", nullable = false)
     private String productId;
 
-    @Column(name = "full_name", nullable = false)
+    @Column(name = "full_name", nullable = false, columnDefinition = "nvarchar(100)")
     private String fullName;
 
     @Column(name = "username", nullable = false)
@@ -50,7 +50,7 @@ public class Comment {
     @Temporal(TemporalType.TIMESTAMP)
     private Date updatedDate;
 
-    @Column(name = "description", nullable = false)
+    @Column(name = "description", nullable = false, columnDefinition = "nvarchar(1000)")
     private String description;
 
     @Column(name = "evaluate", nullable = false)

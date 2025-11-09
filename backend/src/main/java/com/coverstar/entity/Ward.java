@@ -21,6 +21,6 @@ public class Ward {
     @Column(name = "district_id",nullable = false)
     private Integer districtId;
 
-    @Column(name = "name", nullable = false, length = 64)
+    @Column(name = "name", nullable = false, columnDefinition = "nvarchar(64)")
     private String name;
 }

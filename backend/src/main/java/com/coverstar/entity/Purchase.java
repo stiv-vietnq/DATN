@@ -53,7 +53,7 @@ public class Purchase implements Serializable {
     @Temporal(TemporalType.TIMESTAMP)
     private Date updatedDate;
 
-    @Column(name = "description", nullable = false)
+    @Column(name = "description", nullable = false, columnDefinition = "nvarchar(510)")
     private String description;
 
     @Column(name = "quantity", nullable = false)

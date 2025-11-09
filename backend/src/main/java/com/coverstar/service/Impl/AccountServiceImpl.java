@@ -3,16 +3,13 @@ package com.coverstar.service.Impl;
 import com.coverstar.component.mail.Mail;
 import com.coverstar.component.mail.MailService;
 import com.coverstar.constant.Constants;
-import com.coverstar.entity.UserVisits;
+import com.coverstar.entity.*;
 import com.coverstar.repository.UserVisitRepository;
 import com.coverstar.utils.DateUtill;
 import com.coverstar.utils.RandomUtil;
 import com.coverstar.dao.account.AccountDao;
 import com.coverstar.dao.verify_account.VerifyAccountDao;
 import com.coverstar.dto.*;
-import com.coverstar.entity.Account;
-import com.coverstar.entity.Role;
-import com.coverstar.entity.VerifyAccount;
 import com.coverstar.repository.AccountRepository;
 import com.coverstar.service.AccountService;
 import com.coverstar.service.RoleService;
@@ -22,6 +19,7 @@ import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -30,6 +28,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 
 import javax.crypto.SecretKey;
 import javax.mail.MessagingException;
@@ -66,6 +65,14 @@ public class AccountServiceImpl implements AccountService {
     @Autowired
     private UserVisitRepository userVisitRepository;
 
+    @Value("${image.directory}")
+    private String imageDirectory;
+    @Value("${server.port}")
+    private String serverPort;
+
+    private final static String IMAGE_BASE_URL = "/images/";
+    private final static String SERVER_PORT = "http://localhost:";
+
     @Override
     public Map<String, String> authenticateUser(LoginDto loginDto) {
         try {
@@ -92,6 +99,7 @@ public class AccountServiceImpl implements AccountService {
                     .claim("role", role)
                     .signWith(SignatureAlgorithm.HS256, KEY).compact();
             Map<String, String> response = new HashMap<>();
+            response.put("id", userDetails.getId().toString());
             response.put("token", token);
             response.put("username", userDetails.getUsername());
             response.put("role", role);
@@ -158,8 +166,17 @@ public class AccountServiceImpl implements AccountService {
     @Override
     public Account findById(Long id) {
         Account account = accountRepository.findById(id).orElse(null);
+        if (StringUtils.isNotEmpty(account.getDirectoryPath())) {
+            String relativePath = account.getDirectoryPath();
+
+            if (relativePath != null && relativePath.startsWith(relativePath)) {
+                relativePath = relativePath.replace(imageDirectory, SERVER_PORT + serverPort + IMAGE_BASE_URL);
+                account.setDirectoryPath(relativePath);
+            }
+        }
         return account;
     }
+
     @Override
     public void verifyCode(VerifyCodeDto verifyCodeDto) {
         try {
@@ -200,8 +217,6 @@ public class AccountServiceImpl implements AccountService {
     public void changePassword(String userNameOrEmail, String newPassword) {
         Account account = getEmailOrUser(userNameOrEmail);
         account.setPassword(passwordEncoder.encode(newPassword));
-        account.setActive(false);
-        sendEmail(account);
         accountDao.update(account);
     }
 
@@ -341,7 +356,7 @@ public class AccountServiceImpl implements AccountService {
         }
         LocalDateTime fromDateStr = null;
         if (StringUtils.isNotEmpty(fromDate)) {
-            fromDateStr =  DateUtill.toStartOfDay(fromDate);
+            fromDateStr = DateUtill.toStartOfDay(fromDate);
         }
         LocalDateTime toDateStr = null;
         if (StringUtils.isNotEmpty(toDate)) {
@@ -388,6 +403,7 @@ public class AccountServiceImpl implements AccountService {
             account.setLastName(accountUpdateDto.getLastName());
             account.setSex(accountUpdateDto.getSex());
             account.setPhoneNumber(accountUpdateDto.getPhoneNumber());
+            account.setDateOfBirth(accountUpdateDto.getDateOfBirth());
             if (accountUpdateDto.getImageFiles() != null && !accountUpdateDto.getImageFiles().isEmpty()) {
                 if (account.getDirectoryPath() != null) {
                     File oldFile = new File(account.getDirectoryPath());

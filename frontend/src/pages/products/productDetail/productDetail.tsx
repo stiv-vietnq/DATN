@@ -82,7 +82,7 @@ export default function ProductDetail() {
   const [files, setFiles] = useState<File[]>([]);
 
   // 🔹 Hàm chọn file
-  const handleFileChange = (e) => {
+  const handleFileChange = (e: { target: { files: any; }; }) => {
     setFiles([...e.target.files]);
   };
 

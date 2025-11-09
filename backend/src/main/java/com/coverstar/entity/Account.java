@@ -50,10 +50,10 @@ public class Account implements Serializable {
     @Column(name = "PASSWORD", nullable = false)
     private String password;
 
-    @Column(name = "FIRSTNAME", nullable = false)
+    @Column(name = "FIRSTNAME", nullable = false, columnDefinition = "nvarchar(50)")
     private String firstName;
 
-    @Column(name = "LASTNAME", nullable = false)
+    @Column(name = "LASTNAME", nullable = false, columnDefinition = "nvarchar(50)")
     private String lastName;
 
     @Column(name = "is_active", nullable = false)
@@ -69,7 +69,7 @@ public class Account implements Serializable {
     private Date updatedDate;
 
     @Column(name = "DATE_OF_BIRTH")
-    private Date dateOfBirth;
+    private String dateOfBirth;
 
     @Column(name = "SEX")
     private Integer sex;

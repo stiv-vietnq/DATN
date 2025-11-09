@@ -21,7 +21,7 @@ public class Product {
     @Column(name = "id", nullable = false)
     private String id;
 
-    @Column(name = "product_name", nullable = false)
+    @Column(name = "product_name", nullable = false, columnDefinition = "nvarchar(255)")
     private String productName;
 
     @ManyToOne
@@ -57,7 +57,7 @@ public class Product {
     @Column(name = "size")
     private String size;
 
-    @Column(name = "description")
+    @Column(name = "description", columnDefinition = "nvarchar(510)")
     private String description;
 
     @Column(name = "quantity_sold")
