@@ -4,6 +4,7 @@ import Input from "../../../components/common/input/Input";
 import "./Profile.css";
 import { FaUser } from "react-icons/fa";
 import { getUserProfile, updateUserProfile } from "../../../api/user";
+import Loading from "../../../components/common/loading/Loading";
 
 interface ProfileData {
   firstName: string;
@@ -30,6 +31,7 @@ export default function Profile() {
   const userId = localStorage.getItem("userId") || "";
   const [profile, setProfile] = useState<ProfileData | null>(null);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     handleGetProfile();
@@ -72,34 +74,41 @@ export default function Profile() {
   };
 
   const handleGetProfile = () => {
-    getUserProfile(Number(userId)).then((res) => {
-      const data = res?.data;
-      setProfile(data);
-      setLastName(data?.lastName);
-      setFirstName(data?.firstName);
-      setPhone(data?.phoneNumber);
+    setLoading(true);
+    getUserProfile(Number(userId))
+      .then((res) => {
+        const data = res?.data;
+        setProfile(data);
+        setLastName(data?.lastName);
+        setFirstName(data?.firstName);
+        setPhone(data?.phoneNumber);
 
-      if (data?.sex) {
-        setSex(String(data.sex));
-      }
-
-      if (data?.dateOfBirth) {
-        const parts = data.dateOfBirth.split("/");
-        if (parts.length === 3) {
-          setDay(parts[2]);
-          setMonth(parts[1]);
-          setYear(parts[0]);
+        if (data?.sex) {
+          setSex(String(data.sex));
         }
-      }
 
-      if (data?.directoryPath) {
-        setPreview(data?.directoryPath);
-      }
-    });
+        if (data?.dateOfBirth) {
+          const parts = data.dateOfBirth.split("/");
+          if (parts.length === 3) {
+            setDay(parts[2]);
+            setMonth(parts[1]);
+            setYear(parts[0]);
+          }
+        }
+
+        if (data?.directoryPath) {
+          setPreview(data?.directoryPath);
+        }
+      })
+      .finally(() => setLoading(false));
   };
 
   const handleSave = () => {
-    const dateOfBirth = `${year}/${month.padStart(2, "0")}/${day.padStart(2,"0")}`;
+    setLoading(true);
+    const dateOfBirth = `${year}/${month.padStart(2, "0")}/${day.padStart(
+      2,
+      "0"
+    )}`;
     updateUserProfile({
       id: Number(userId),
       firstName,
@@ -108,11 +117,15 @@ export default function Profile() {
       sex: Number(sex),
       phoneNumber: phone,
       file: selectedFile || null,
-    }).then(() => {
-      alert("Cập nhật thành công!");
-      handleGetProfile();
-    });
+    })
+      .then(() => {
+        alert("Cập nhật thành công!");
+        handleGetProfile();
+      })
+      .finally(() => setLoading(false));
   };
+
+  if (loading) return <Loading />;
 
   return (
     <div className="main-container" style={{ padding: "25px" }}>

@@ -4,6 +4,7 @@ import PasswordInput from "../../../components/common/passwordInput/PasswordInpu
 import { validateFields } from "../../../utils/Validation";
 import "./ChangePassword.css";
 import { changePassword } from "../../../api/user";
+import Loading from "../../../components/common/loading/Loading";
 
 interface FormErrors extends Partial<Record<string, string>> {
   oldPassword?: string;
@@ -12,6 +13,7 @@ interface FormErrors extends Partial<Record<string, string>> {
 }
 
 export default function ChangePassword() {
+  const [loading, setLoading] = useState(false);
   const { t } = useTranslation();
   const [errors, setErrors] = useState<FormErrors>({});
   const [oldPassword, setOldPassword] = useState("");
@@ -51,14 +53,24 @@ export default function ChangePassword() {
     const errors = validateFields(rules, t);
     setErrors(errors);
     if (Object.keys(errors).length === 0) {
+      setLoading(true);
       changePassword({
         usernameOrEmail: localStorage.getItem("username") || "",
         oldPassword,
         newPassword,
         confirmPassword: confirmNewPassword,
-      });
+      })
+        .then(() => {
+          alert(t("change_password_success"));
+          setOldPassword("");
+          setNewPassword("");
+          setConfirmNewPassword("");
+        })
+        .finally(() => setLoading(false));
     }
   };
+
+  if (loading) return <Loading />;
 
   return (
     <div className="main-container" style={{ padding: "25px" }}>
