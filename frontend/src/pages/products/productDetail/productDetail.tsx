@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
-import Banner from "./Banner";
-import "./productDetail.css";
-import Breadcrumb from "../../../components/breadcrumb/Breadcrumb";
+import { useTranslation } from "react-i18next";
+import { FaPaperclip, FaStar } from "react-icons/fa";
 import {
   FaBagShopping,
   FaCartShopping,
@@ -11,15 +10,17 @@ import {
   FaRegStar,
   FaXmark,
 } from "react-icons/fa6";
-import { useTranslation } from "react-i18next";
-import Textarea from "../../../components/common/textarea/Textarea";
-import Input from "../../../components/common/input/Input";
-import CommentAvatar from "./commentAvatar/CommentAvatar";
-import { GetProductById } from "../../../api/product";
-import { useParams } from "react-router-dom";
-import { FaPaperclip, FaStar } from "react-icons/fa";
+import { useNavigate, useParams } from "react-router-dom";
+import { createOrUpdateCart } from "../../../api/cart";
 import { createComment } from "../../../api/comment";
+import { GetProductById } from "../../../api/product";
+import Breadcrumb from "../../../components/breadcrumb/Breadcrumb";
+import Input from "../../../components/common/input/Input";
 import Loading from "../../../components/common/loading/Loading";
+import Textarea from "../../../components/common/textarea/Textarea";
+import Banner from "./Banner";
+import CommentAvatar from "./commentAvatar/CommentAvatar";
+import "./productDetail.css";
 
 interface ProductDetailType {
   id: number;
@@ -69,19 +70,16 @@ export default function ProductDetail() {
   const [selectedImageId, setSelectedImageId] = useState<number | null>(null);
   const [selectedDetail, setSelectedDetail] =
     useState<ProductDetailType | null>(null);
-
   const [currentIndex, setCurrentIndex] = useState<number>(0);
   const [showModal, setShowModal] = useState<boolean>(false);
-
-  // Comment
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [phoneNumber, setPhoneNumber] = useState("");
   const [comment, setComment] = useState("");
   const [rating, setRating] = useState(0);
   const [files, setFiles] = useState<File[]>([]);
+  const navigate = useNavigate();
 
-  // 🔹 Hàm chọn file
   const handleFileChange = (e: { target: { files: any; }; }) => {
     setFiles([...e.target.files]);
   };
@@ -181,6 +179,43 @@ export default function ProductDetail() {
     setFiles((prevFiles) => prevFiles.filter((_, i) => i !== index));
   };
 
+  const handleAddToCart = async () => {
+    setLoading(true);
+    if (!selectedDetail) {
+      alert("Vui lòng chọn chi tiết sản phẩm!");
+      return;
+    }
+
+    try {
+      const userId = Number(localStorage.getItem("userId") || "0");
+      if (!userId) {
+        alert("Vui lòng đăng nhập để thêm vào giỏ hàng!");
+        return;
+      }
+
+      const quantity = 1;
+      const total =
+        selectedDetail.price *
+        (1 - (selectedDetail.percentageReduction || 0) / 100) *
+        quantity;
+
+      const cartDto = {
+        productDetailId: String(selectedDetail.id),
+        userId,
+        quantity,
+        total,
+        size: 0,
+      };
+
+      createOrUpdateCart(cartDto);
+      navigate("/cart");
+    } catch (error) {
+    } finally {
+      setLoading(false);
+    }
+  };
+
+
   if (loading) return <Loading />;
 
   return (
@@ -210,9 +245,8 @@ export default function ProductDetail() {
                 {productData?.images?.map((img, index) => (
                   <div
                     key={img.id}
-                    className={`thumbnail-item ${
-                      selectedImageId === img.id ? "active" : ""
-                    }`}
+                    className={`thumbnail-item ${selectedImageId === img.id ? "active" : ""
+                      }`}
                     onClick={() => {
                       setSelectedImage(img.directoryPath);
                       setSelectedImageId(img.id);
@@ -230,7 +264,7 @@ export default function ProductDetail() {
               {/* Giá */}
               <div className="product-price">
                 {selectedDetail?.percentageReduction &&
-                selectedDetail.percentageReduction > 0 ? (
+                  selectedDetail.percentageReduction > 0 ? (
                   <>
                     {/* Giá sau khi giảm */}
                     <span className="current">
@@ -266,9 +300,8 @@ export default function ProductDetail() {
                   {productData?.productDetails?.map((d) => (
                     <div
                       key={d.id}
-                      className={`option-item ${
-                        selectedDetail?.id === d.id ? "selected" : ""
-                      }`}
+                      className={`option-item ${selectedDetail?.id === d.id ? "selected" : ""
+                        }`}
                       onClick={() => setSelectedDetail(d)}
                     >
                       <span>{d.name}</span>
@@ -302,7 +335,7 @@ export default function ProductDetail() {
                   <FaBagShopping />
                   <div>{t("product_detail.buy_now")}</div>
                 </button>
-                <button className="btn-credit">
+                <button className="btn-credit" onClick={handleAddToCart}>
                   <FaCartShopping />
                   <div>{t("product_detail.add_to_cart")}</div>
                 </button>
@@ -493,9 +526,8 @@ export default function ProductDetail() {
               {productData?.images?.map((img, index) => (
                 <div
                   key={img.id}
-                  className={`modal-thumbnail-item ${
-                    selectedImageId === img.id ? "active" : ""
-                  }`}
+                  className={`modal-thumbnail-item ${selectedImageId === img.id ? "active" : ""
+                    }`}
                   onClick={() => {
                     setSelectedImage(img.directoryPath);
                     setSelectedImageId(img.id);

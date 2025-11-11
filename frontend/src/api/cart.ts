@@ -5,3 +5,15 @@ export const getAllCartsByUserId = (userId: number, name: string, status: boolea
     params: { name, status }
   });
 };
+
+export const createOrUpdateCart = (cartDto: {
+  id?: number;
+  productDetailId: string;
+  userId: number;
+  quantity: number;
+  total: number;
+  size: number;
+}) => {
+  return api.post("/carts/createOrUpdateCart", cartDto);
+};
+

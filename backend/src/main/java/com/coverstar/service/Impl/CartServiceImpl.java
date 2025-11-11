@@ -4,6 +4,7 @@ import com.coverstar.dto.CartDto;
 import com.coverstar.entity.Cart;
 import com.coverstar.repository.CartRepository;
 import com.coverstar.service.CartService;
+import com.coverstar.service.ProductDetailService;
 import com.coverstar.service.ProductService;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,6 +23,9 @@ public class CartServiceImpl implements CartService {
     @Autowired
     private ProductService productService;
 
+    @Autowired
+    private ProductDetailService productDetailService;
+
     @Override
     public Cart createOrUpdateCart(CartDto cartDto) {
         Cart cart;
@@ -29,17 +33,16 @@ public class CartServiceImpl implements CartService {
             if (cartDto.getId() != null) {
                 cart = cartRepository.findById(cartDto.getId()).orElse(null);
                 cart.setUpdatedDate(new Date());
-                if (Objects.equals(cartDto.getProductId(), cart.getProduct().getId())
+                if (Objects.equals(cartDto.getProductDetailId(), cart.getProductDetail().getId())
                         && Objects.equals(cartDto.getUserId(), cart.getUserId())) {
                     cart.setQuantity(cart.getQuantity() + cartDto.getQuantity());
                     cart.setTotal(cart.getTotal().add(cartDto.getTotal()));
-                    cart.setColor(cartDto.getColor());
                     cart.setSize(cartDto.getSize());
                     cart.setStatus(true);
                 }
             } else {
-                cart = cartRepository.findByProductIdAndUserIdAndColorAndSize(cartDto.getProductId(),
-                        cartDto.getUserId(), cartDto.getColor(), cartDto.getSize());
+                cart = cartRepository.findByProductDetailIdAndUserIdAndSize(cartDto.getProductDetailId(),
+                        cartDto.getUserId(), cartDto.getSize());
 
                 if (cart != null) {
                     cart.setUpdatedDate(new Date());
@@ -49,11 +52,10 @@ public class CartServiceImpl implements CartService {
                 } else {
                     cart = new Cart();
                     cart.setCreatedDate(new Date());
-                    cart.setProduct(productService.getProductById(cartDto.getProductId()));
+                    cart.setProductDetail(productDetailService.getProductById(cartDto.getProductDetailId()));
                     cart.setUserId(cartDto.getUserId());
                     cart.setQuantity(cartDto.getQuantity());
                     cart.setTotal(cartDto.getTotal());
-                    cart.setColor(cartDto.getColor());
                     cart.setSize(cartDto.getSize());
                     cart.setStatus(true);
                 }

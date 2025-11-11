@@ -15,9 +15,11 @@ import './Header.css';
 
 interface CartItem {
     id: number;
-    name: string;
-    img: string;
-    price: number;
+    total: number;
+    productDetail: {
+        name: string;
+        directoryPath: string;
+    };
 }
 
 export default function Header() {
@@ -210,11 +212,11 @@ export default function Header() {
                                                 {cartItems?.map((item) => (
                                                     <div className='cart-popup-item' key={item?.id}>
                                                         <div className='cart-popup-item-image'>
-                                                            <img src={item?.img} alt={item?.name} />
+                                                            <img src={item?.productDetail?.directoryPath} alt={item?.productDetail?.name} />
                                                         </div>
-                                                        <div className='cart-popup-item-name'>{item?.name}</div>
+                                                        <div className='cart-popup-item-name'>{item?.productDetail?.name}</div>
                                                         <div className='cart-popup-item-price'>
-                                                            {item?.price}
+                                                            {item?.total}
                                                             <span className="currency-symbol">đ</span>
                                                         </div>
                                                     </div>

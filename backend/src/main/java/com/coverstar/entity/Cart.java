@@ -28,8 +28,8 @@ public class Cart {
     private Long id;
 
     @OneToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "product_id", referencedColumnName = "id")
-    private Product product;
+    @JoinColumn(name = "product_detail_id", referencedColumnName = "id")
+    private ProductDetail productDetail;
 
     @Column(name = "user_id", nullable = false)
     private Long userId;
@@ -44,9 +44,6 @@ public class Cart {
 
     @Column(name = "quantity", nullable = false)
     private Long quantity;
-
-    @Column(name = "color", nullable = false)
-    private String color;
 
     @Column(name = "size", nullable = false)
     private Integer size;
