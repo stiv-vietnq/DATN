@@ -64,6 +64,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                         "/address/**",
                         "/locations/**",
                         "/account/**",
+                        "/carts/**",
                         "/images/**"
                 ).permitAll()
                 .anyRequest().authenticated();

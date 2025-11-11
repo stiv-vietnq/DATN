@@ -157,5 +157,7 @@
   "new_password": "New Password",
   "enter_new_password": "Enter new password...",
   "confirm_new_password": "Confirm New Password",
-  "enter_confirm_new_password": "Enter confirm new password..."
+  "enter_confirm_new_password": "Enter confirm new password...",
+  "logout_confirm": "Are you sure you want to log out?",
+  "logout_confirm_title": "Logout Confirmation"
 }
