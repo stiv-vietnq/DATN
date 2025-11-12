@@ -29,4 +29,13 @@ export const updateDefaultAddress = (addressId: number, isDefault: number) => {
     });
 };
 
+export const getAddressByUserIdAndIsDefault = (userId: number) => {
+    return api.get(`/address/getAddressByUserIdAndIsDefault/${userId}`);
+}
+
+export const getAddressById = (addressId: number) => {
+    return api.get(`/address/getAddressById/${addressId}`);
+}
+
+
 

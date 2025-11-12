@@ -3,20 +3,12 @@ package com.coverstar.entity;
 import lombok.Getter;
 import lombok.Setter;
 
-import javax.persistence.CascadeType;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.OneToOne;
-import javax.persistence.Table;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
+import javax.persistence.*;
 import java.io.Serializable;
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 @Entity
 @Table(name = "PURCHASES")
@@ -29,14 +21,6 @@ public class Purchase implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
-    @OneToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "product_id", referencedColumnName = "id")
-    private Product product;
-
-    @OneToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "product_detail_id", referencedColumnName = "id")
-    private ProductDetail productDetail;
 
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "address_id", referencedColumnName = "id")
@@ -56,21 +40,6 @@ public class Purchase implements Serializable {
     @Column(name = "description", nullable = false, columnDefinition = "nvarchar(510)")
     private String description;
 
-    @Column(name = "quantity", nullable = false)
-    private Long quantity;
-
-    @Column(name = "color", nullable = false)
-    private String color;
-
-    @Column(name = "size", nullable = false)
-    private Integer size;
-
-    @Column(name = "total", nullable = false)
-    private BigDecimal total;
-
-    @Column(name = "total_after_discount", nullable = false)
-    private BigDecimal totalAfterDiscount;
-
     @Column(name = "discount_id")
     private Long discountId;
 
@@ -82,4 +51,7 @@ public class Purchase implements Serializable {
 
     @Column(name = "first_wave")
     private Integer firstWave;
+
+    @OneToMany(mappedBy = "purchase", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<PurchaseItem> purchaseItems = new ArrayList<>();
 }

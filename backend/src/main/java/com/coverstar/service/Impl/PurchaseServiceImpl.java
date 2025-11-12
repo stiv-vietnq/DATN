@@ -4,6 +4,7 @@ import com.coverstar.component.mail.Mail;
 import com.coverstar.component.mail.MailService;
 import com.coverstar.constant.Constants;
 import com.coverstar.dto.PurchaseDto;
+import com.coverstar.dto.PurchaseItemDto;
 import com.coverstar.entity.*;
 import com.coverstar.repository.*;
 import com.coverstar.service.*;
@@ -13,6 +14,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.mail.MessagingException;
+import javax.transaction.Transactional;
+import java.math.BigDecimal;
 import java.util.*;
 
 @Service
@@ -52,60 +55,78 @@ public class PurchaseServiceImpl implements PurchaseService {
     private MailService mailService;
 
     @Override
+    @Transactional
     public List<Purchase> createPurchase(List<PurchaseDto> purchaseDtos) throws Exception {
         List<Purchase> purchases = new ArrayList<>();
+
         try {
-
-            getUserVisits(4);
             for (PurchaseDto purchaseDto : purchaseDtos) {
+                getUserVisits(4);
+
+                // 🔹 Kiểm tra giảm giá (nếu có)
+                if (purchaseDto.getDiscountId() != null) {
+                    discountService.getDiscount(purchaseDto.getDiscountId(), 1);
+                }
+
+                // 🔹 Tạo đơn hàng mới
                 Purchase purchase = new Purchase();
-
-                // check if discount is valid
-                discountService.getDiscount(purchaseDto.getDiscountId(), 1);
-
-                Product product = productService.getProductById(purchaseDto.getProductId());
-                if (product.getQuantitySold() == null) {
-                    product.setQuantitySold(0L);
-                }
-
-                product.setQuantitySold(product.getQuantitySold() + purchaseDto.getQuantity());
-                product = productRepository.save(product);
-
-                ProductDetail productDetail = productDetailRepository.getById(purchaseDto.getProductDetailId());
-                if (productDetail.getQuantity() < purchaseDto.getQuantity()) {
-                    throw new Exception(Constants.INSUFFICIENT_PRODUCT_QUANTITY);
-                }
-                productDetail.setQuantity(productDetail.getQuantity() - purchaseDto.getQuantity());
-                productDetail = productDetailRepository.save(productDetail);
-
-                Category category = categoryService.getCategoryById(product.getCategoryId());
-                if (category.getQuantitySold() == null) {
-                    category.setQuantitySold(0L);
-                }
-                category.setQuantitySold(category.getQuantitySold() + purchaseDto.getQuantity());
-                categoryRepository.save(category);
-
-                getUserVisits(2);
-
                 purchase.setUserId(purchaseDto.getUserId());
-                purchase.setProduct(product);
-                purchase.setProductDetail(productDetail);
-                purchase.setQuantity(purchaseDto.getQuantity());
-                purchase.setPaymentMethod(purchaseDto.getPaymentMethod());
                 purchase.setAddress(addressService.getAddressById(purchaseDto.getAddressId()));
+                purchase.setDescription(purchaseDto.getDescription());
+                purchase.setPaymentMethod(purchaseDto.getPaymentMethod());
                 purchase.setStatus(Integer.valueOf(Constants.Number.ONE));
                 purchase.setFirstWave(Integer.valueOf(Constants.Number.ONE));
                 purchase.setCreatedDate(new Date());
                 purchase.setUpdatedDate(new Date());
-                purchase.setColor(purchaseDto.getColor());
-                purchase.setSize(purchaseDto.getSize());
-                purchase.setTotal(purchaseDto.getTotal());
-                purchase.setTotalAfterDiscount(purchaseDto.getTotalAfterDiscount());
-                purchase.setQuantity(purchaseDto.getQuantity());
-                purchase.setDescription(purchaseDto.getDescription());
+                purchase.setPurchaseItems(new ArrayList<>());
+
+                if (purchaseDto.getItems() == null || purchaseDto.getItems().isEmpty()) {
+                    throw new Exception("Danh sách sản phẩm trong đơn hàng trống!");
+                }
+
+                for (PurchaseItemDto itemDto : purchaseDto.getItems()) {
+
+                    Product product = productService.getProductById(itemDto.getProductId());
+                    ProductDetail productDetail = productDetailRepository
+                            .findById(itemDto.getProductDetailId())
+                            .orElseThrow(() -> new Exception("Không tìm thấy chi tiết sản phẩm"));
+
+                    if (productDetail.getQuantity() < itemDto.getQuantity()) {
+                        throw new Exception(Constants.INSUFFICIENT_PRODUCT_QUANTITY);
+                    }
+
+                    productDetail.setQuantity(productDetail.getQuantity() - itemDto.getQuantity());
+                    productDetailRepository.save(productDetail);
+
+                    if (product.getQuantitySold() == null) product.setQuantitySold(0L);
+                    product.setQuantitySold(product.getQuantitySold() + itemDto.getQuantity());
+                    productRepository.save(product);
+
+                    Category category = categoryService.getCategoryById(product.getCategoryId());
+                    if (category.getQuantitySold() == null) category.setQuantitySold(0L);
+                    category.setQuantitySold(category.getQuantitySold() + itemDto.getQuantity());
+                    categoryRepository.save(category);
+
+                    // 🔹 Tạo PurchaseItem
+                    PurchaseItem item = new PurchaseItem();
+                    item.setPurchase(purchase);
+                    item.setProduct(product);
+                    item.setProductDetail(productDetail);
+                    item.setQuantity(itemDto.getQuantity());
+                    item.setTotal(new BigDecimal(itemDto.getTotal()));
+                    item.setTotalAfterDiscount(new BigDecimal(itemDto.getTotalAfterDiscount()));
+
+                    purchase.getPurchaseItems().add(item);
+                }
+
+                getUserVisits(2);
+
+                // 🔹 Lưu đơn hàng (cascade = ALL → tự lưu PurchaseItem)
+                purchase = purchaseRepository.save(purchase);
                 purchases.add(purchase);
             }
-            purchases = purchaseRepository.saveAll(purchases);
+
+            // 🔹 Gửi email xác nhận cho người mua
             String orderTitle = "Người gửi xác nhận đơn hàng.";
             String subject = "Đặt hàng thành công.";
             Account account = accountService.findById(purchaseDtos.get(0).getUserId());
@@ -113,10 +134,11 @@ public class PurchaseServiceImpl implements PurchaseService {
 
             return purchases;
         } catch (Exception e) {
-            e.fillInStackTrace();
+            e.printStackTrace();
             throw e;
         }
     }
+
 
     @Override
     public Purchase updateFirstWave(Long id, Long addressId) throws Exception {
@@ -138,32 +160,30 @@ public class PurchaseServiceImpl implements PurchaseService {
     @Override
     public Purchase updateStatus(Long id, Integer status) throws Exception {
         try {
-            String orderTitle = StringUtils.EMPTY;
-            String subject = StringUtils.EMPTY;
-            Purchase purchase = purchaseRepository.findById(id).orElse(null);
-            Account account = accountService.findById(purchase.getUserId());
-            if (purchase == null) {
-                throw new Exception(Constants.PURCHASE_NOT_FOUND);
-            }
+            Purchase purchase = purchaseRepository.findById(id)
+                    .orElseThrow(() -> new Exception(Constants.PURCHASE_NOT_FOUND));
 
             if (purchase.getStatus() == 4 || purchase.getStatus() == 5) {
                 throw new Exception(Constants.ERROR_STATUS_UPDATE);
             }
 
-            if (status == 5) {
-                Product product = productService.getProductById(purchase.getProduct().getId());
-                if (product.getQuantitySold() < purchase.getQuantity()) {
-                    throw new Exception(Constants.ERROR);
-                }
-                product.setQuantitySold(product.getQuantitySold() - purchase.getQuantity());
-                productRepository.save(product);
+            String orderTitle = "";
+            String subject = "";
 
-                ProductDetail productDetail = productDetailRepository.getById(purchase.getProductDetail().getId());
-                if (productDetail.getQuantity() < productDetail.getQuantity()) {
-                    throw new Exception(Constants.INSUFFICIENT_PRODUCT_QUANTITY);
+            if (status == 5) {
+                for (PurchaseItem item : purchase.getPurchaseItems()) {
+                    Product product = productService.getProductById(item.getProduct().getId());
+                    ProductDetail productDetail = productDetailRepository.getById(item.getProductDetail().getId());
+
+                    if (product.getQuantitySold() < item.getQuantity()) {
+                        throw new Exception(Constants.ERROR);
+                    }
+                    product.setQuantitySold(product.getQuantitySold() - item.getQuantity());
+                    productRepository.save(product);
+
+                    productDetail.setQuantity(productDetail.getQuantity() + item.getQuantity());
+                    productDetailRepository.save(productDetail);
                 }
-                productDetail.setQuantity(productDetail.getQuantity() + purchase.getQuantity());
-                productDetailRepository.save(productDetail);
 
                 orderTitle = "Người gửi đã xác nhận đơn hàng bị hủy.";
                 subject = "Hủy đơn hàng thành công.";
@@ -177,17 +197,22 @@ public class PurchaseServiceImpl implements PurchaseService {
                 orderTitle = "Đơn hàng đã được giao thành công.";
                 subject = "Đã giao hàng thành công.";
             }
-            if (!StringUtils.EMPTY.equals(orderTitle)) {
+
+            if (!orderTitle.isEmpty()) {
+                Account account = accountService.findById(purchase.getUserId());
                 ShopUtil.sendMailPurchaseOrDiscount(account, orderTitle, subject, mailService, 1);
             }
+
             purchase.setStatus(status);
             purchase.setUpdatedDate(new Date());
             return purchaseRepository.save(purchase);
+
         } catch (Exception e) {
             e.fillInStackTrace();
             throw e;
         }
     }
+
 
     @Override
     public List<Purchase> getPurchaseByUserId(Long userId, String productName) {

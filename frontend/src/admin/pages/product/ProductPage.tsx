@@ -273,7 +273,13 @@ const ProductPage = () => {
     setShowConfirm(false);
   };
 
-  const handleCloseModal = () => setIsModalOpen(false);
+  const handleCloseModal = (shouldReload?: boolean) => {
+    setIsModalOpen(false);
+
+    if (shouldReload) {
+      handleSearchProducts();
+    }
+  };
 
   if (loading) return <Loading />;
 

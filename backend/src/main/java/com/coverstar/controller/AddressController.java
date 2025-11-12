@@ -84,7 +84,7 @@ public class AddressController {
         }
     }
 
-    @PostMapping("updateDefaultAddress/{id}")
+    @PostMapping("/updateDefaultAddress/{id}")
     public ResponseEntity<?> updateDefaultAddress(@PathVariable Long id,
                                                   @RequestParam("isDefault") Integer isDefault) {
         try {

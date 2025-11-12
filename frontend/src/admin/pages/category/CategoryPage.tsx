@@ -211,10 +211,13 @@ const CategoryPage = () => {
     }
   };
 
-  const handleCloseModal = () => {
+  const handleCloseModal = (shouldReload?: boolean) => {
     setIsModalOpen(false);
-  };
 
+    if (shouldReload) {
+      handleSearch();
+    }
+  };
   const handleUpdateStatus = (id: any) => {
     console.log("Cập nhật trạng thái:", id);
   };

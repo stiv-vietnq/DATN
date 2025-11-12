@@ -6,23 +6,17 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.io.Serializable;
-import java.math.BigDecimal;
+import java.util.List;
 
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 public class PurchaseDto implements Serializable {
-    private String productId;
-    private Long productDetailId;
     private Long addressId;
     private Long userId;
     private String description;
-    private Long quantity;
-    private String color;
-    private Integer size;
-    private BigDecimal total;
-    private BigDecimal totalAfterDiscount;
     private Long discountId;
     private String paymentMethod;
+    private List<PurchaseItemDto> items;
 }

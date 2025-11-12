@@ -1,25 +1,27 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
+import { FaEdit } from "react-icons/fa";
+import { FaX } from "react-icons/fa6";
+import {
+  getAddressById,
+  getAddressByUserIdAndIsDefault,
+} from "../../api/address";
+import AddressItem from "../user/address/AddressItem";
 import "./Purchases.css";
 import PaymentTab from "./paymentTab/PaymentTab";
-import { useTranslation } from "react-i18next";
 
 export default function Purchases() {
   const [step, setStep] = useState(1);
 
-  // --- dữ liệu lưu trữ ---
   const [customerInfo, setCustomerInfo] = useState({
-    name: "",
-    phone: "",
-    email: "",
-    address: "",
+    userId: Number(localStorage.getItem("userId")),
+    discountId: null,
+    paymentMethod: "",
     description: "",
+    addressId: null,
   });
 
-  const [paymentMethod, setPaymentMethod] = useState<string>("");
-
   const handleCompleteOrder = () => {
-    console.log("Thông tin khách hàng:", customerInfo);
-    console.log("Phương thức thanh toán:", paymentMethod);
     setStep(3);
   };
 
@@ -38,8 +40,10 @@ export default function Purchases() {
           <PaymentTab
             onNext={handleCompleteOrder}
             onBack={() => setStep(1)}
-            setSelectedPayment={setPaymentMethod}
-            selectedPayment={paymentMethod}
+            selectedPayment={customerInfo.paymentMethod}
+            setSelectedPayment={(method: string) =>
+              setCustomerInfo((prev) => ({ ...prev, paymentMethod: method }))
+            }
           />
         );
       case 3:
@@ -119,45 +123,65 @@ const InfoTab = ({
     setInfo((prev: any) => ({ ...prev, [name]: value }));
   };
 
+  const [addressId, setAddressId] = useState<any>(null);
+  const [addressDefaultId, setAddressDefaultId] = useState<any>(null);
+  const [addressData, setAddressData] = useState<any>(null);
+  const userId = localStorage.getItem("userId");
+  const [showAddressPopup, setShowAddressPopup] = useState(false);
+
+  useEffect(() => {
+    if (addressDefaultId === addressId || addressId === null) {
+      handleGetAddressByUserIdAndIsDefaul();
+    } else {
+      getAddressById(addressId).then((response) => {
+        const addressData = response?.data;
+        setAddressData(addressData);
+        setAddressId(addressData?.id);
+      });
+    }
+  }, []);
+
+  const handleGetAddressByUserIdAndIsDefaul = () => {
+    getAddressByUserIdAndIsDefault(Number(userId)).then((response) => {
+      const addressData = response?.data;
+      setAddressDefaultId(10004);
+      setAddressData(addressData);
+      setAddressId(4);
+    });
+  };
+
+  const handleCloseAddressPopup = () => {
+    setShowAddressPopup(false);
+  };
+
   return (
     <div>
       <div className="info-title">{t("customer_info")}</div>
-      <div className="form-grid">
-        <input
-          type="text"
-          name="name"
-          placeholder={t("name_placeholder")}
-          value={info.name}
-          onChange={handleChange}
-        />
-        <input
-          type="text"
-          name="phone"
-          placeholder={t("phone_placeholder")}
-          value={info.phone}
-          onChange={handleChange}
-        />
-      </div>
-      <div className="form-grid" style={{ marginTop: "15px" }}>
-        <input
-          type="email"
-          name="email"
-          placeholder={t("email_placeholder")}
-          value={info.email}
-          onChange={handleChange}
-        />
-      </div>
-      <div className="form-grid" style={{ marginTop: "15px" }}>
-        <input
-          type="text"
-          name="address"
-          placeholder={t("address_placeholder")}
-          value={info.address}
-          onChange={handleChange}
-        />
-      </div>
-
       <div className="form-grid description-box">
+        <div className="description-label">Địa chỉ nhận hàng:</div>
+        <div className="address-item-box">
+          <div className="address-header-item" style={{ color: "#ccc" }}>
+            <div className="address-info-item">
+              <div className="address-info-name">{addressData?.fullName}</div>
+              <div className="address-info-phone" style={{ color: "#ccc" }}>
+                {addressData?.phoneNumber}
+              </div>
+            </div>
+            <div className="address-body-item" style={{ textAlign: "left" }}>
+              <AddressItem addr={addressData} />
+            </div>
+          </div>
+          <div
+            className="change-address-link"
+            style={{ cursor: "pointer" }}
+            onClick={() => setShowAddressPopup(true)}
+          >
+            <FaEdit /> Sửa
+          </div>
+        </div>
+      </div>
+      <div className="form-grid description-box">
+        <div className="description-label">Ghi chú:</div>
         <textarea
           name="description"
           placeholder={t("description_placeholder")}
@@ -168,11 +192,32 @@ const InfoTab = ({
 
       <button
         className="btn next"
-        onClick={onNext}
-        disabled={!info.name || !info.phone || !info.address || !info.email}
+        onClick={() => {
+          setInfo((prev: any) => {
+            const updatedInfo = { ...prev, addressId: addressId };
+            console.log("Địa chỉ ID được chọn:", updatedInfo.addressId);
+            return updatedInfo;
+          });
+          onNext();
+        }}
+        disabled={false}
       >
         {t("next_1")}
       </button>
+
+      {showAddressPopup && (
+        <div className="address-popup-overlay">
+          <div className="address-popup">
+            <div className="address-popup-header">
+              <div className="address-popup-title">Chọn địa chỉ nhận hàng</div>
+              <div className="address-popup-close">
+                <FaX onClick={handleCloseAddressPopup} />
+              </div>
+            </div>
+            <div className="address-popup-content">vietnq</div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
