@@ -2,6 +2,7 @@ package com.coverstar.controller;
 
 import com.coverstar.constant.Constants;
 import com.coverstar.dto.ProductTypeSearchDto;
+import com.coverstar.entity.Product;
 import com.coverstar.entity.ProductType;
 import com.coverstar.service.ProductTypeService;
 import org.apache.commons.lang3.StringUtils;
@@ -102,6 +103,16 @@ public class ProductTypeController {
             }
             List<ProductType> productTypes = productTypeService.getAllProductTypesByStatus(statusBool);
             return ResponseEntity.ok(productTypes);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Constants.ERROR);
+        }
+    }
+
+    @GetMapping("/getProductsByProductTypeId/{id}")
+    public ResponseEntity<?> getProductsByProductTypeId(@PathVariable Long id) {
+        try {
+            List<Product> products = productTypeService.getProductsByProductTypeId(id);
+            return ResponseEntity.ok(products);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Constants.ERROR);
         }

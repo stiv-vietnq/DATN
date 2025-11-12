@@ -2,6 +2,7 @@ package com.coverstar.controller;
 
 import com.coverstar.constant.Constants;
 import com.coverstar.dto.CartDto;
+import com.coverstar.dto.ChangeQuantityDTO;
 import com.coverstar.entity.Cart;
 import com.coverstar.service.CartService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,6 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/carts")
@@ -57,11 +59,23 @@ public class CartController {
         }
     }
 
-    @GetMapping("/deleteCartById/{id}")
-    public ResponseEntity<?> deleteCartById(@PathVariable Long id) {
+    @PostMapping("/deleteCart")
+    public ResponseEntity<?> deleteCart(@RequestBody Map<String, List<Long>> request) {
         try {
-            cartService.deleteCartById(id);
+            List<Long> ids = request.get("itemIds");
+            cartService.deleteCart(ids);
             return ResponseEntity.ok(HttpStatus.OK);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Constants.ERROR);
+        }
+    }
+
+    @PostMapping("/changeQuantityAndTotal/{id}")
+    public ResponseEntity<?> changeQuantityAndTotal(@PathVariable Long id,
+                                                    @RequestBody ChangeQuantityDTO changeQuantityDTO) {
+        try {
+            Cart cart = cartService.changeQuanlityAndTotal(id, changeQuantityDTO.getQuantity(), changeQuantityDTO.getTotal());
+            return ResponseEntity.ok(cart);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Constants.ERROR);
         }

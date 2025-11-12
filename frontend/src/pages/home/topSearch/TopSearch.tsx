@@ -73,7 +73,7 @@ export default function TopSearch() {
   );
 
   const handleSearchTopProducts = (id: any) => {
-    navigate(`/top-products?catId=${id}`);
+    navigate(`/top-products?brandId=${id}`);
   };
 
   const handleViewAll = () => {

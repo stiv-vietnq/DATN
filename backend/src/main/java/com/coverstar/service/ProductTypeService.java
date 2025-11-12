@@ -1,6 +1,7 @@
 package com.coverstar.service;
 
 import com.coverstar.dto.ProductTypeSearchDto;
+import com.coverstar.entity.Product;
 import com.coverstar.entity.ProductType;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -23,4 +24,6 @@ public interface ProductTypeService {
     ProductType updateStatus(Long id, boolean status);
 
     List<ProductType> getAllProductTypesByStatus(Boolean status);
+
+    List<Product> getProductsByProductTypeId(Long id);
 }

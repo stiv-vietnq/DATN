@@ -203,6 +203,11 @@ public class ProductServiceImpl implements ProductService {
                 Set<Image> images = new HashSet<>();
                 if (!CollectionUtils.isEmpty(product.getImages())) {
                     for (Image image : product.getImages()) {
+
+                        if (image.getCommentId() != null) {
+                            continue;
+                        }
+
                         String relativePath = image.getDirectoryPath();
 
                         if (relativePath != null && relativePath.startsWith(imageDirectory)) {
@@ -277,6 +282,9 @@ public class ProductServiceImpl implements ProductService {
             Set<Image> images = new HashSet<>();
             if (!CollectionUtils.isEmpty(product.getImages())) {
                 for (Image image : product.getImages()) {
+                    if (image.getCommentId() != null) {
+                        continue;
+                    }
                     String relativePath = image.getDirectoryPath();
 
                     if (relativePath != null && relativePath.startsWith(imageDirectory)) {
@@ -305,6 +313,27 @@ public class ProductServiceImpl implements ProductService {
             Set<Comment> comments = commentRepository.findCommentById(id);
             if (CollectionUtils.isEmpty(comments)) {
                 comments = new HashSet<>();
+            } else {
+                float voteAverage;
+                long totalVotes = 0;
+                for (Comment comment : comments) {
+                    Set<Image> commentImages = new HashSet<>();
+                    if (!CollectionUtils.isEmpty(comment.getImages())) {
+                        for (Image image : comment.getImages()) {
+                            String relativePath = image.getDirectoryPath();
+
+                            if (relativePath != null && relativePath.startsWith(imageDirectory)) {
+                                relativePath = relativePath.replace(imageDirectory, SERVER_PORT + serverPort + IMAGE_BASE_URL);
+                                image.setDirectoryPath(relativePath);
+                            }
+                            commentImages.add(image);
+                        }
+                        comment.setImages(commentImages);
+                    }
+                    totalVotes += comment.getEvaluate();
+                }
+                voteAverage = (float) totalVotes / comments.size();
+                product.setEvaluate(voteAverage);
             }
             product.setComments(comments);
 

@@ -98,7 +98,8 @@
     "enter_phone_number": "Nhập số điện thoại...",
     "enter_comment": "Nhập bình luận...",
     "submit_comment": "Gửi bình luận",
-    "your_rating": "Đánh giá của bạn:"
+    "your_rating": "Đánh giá của bạn:",
+    "rating": "Đánh giá"
   },
   "all_phone_brands": "Tất cả hãng điện thoại",
   "product_types": "Loại sản phẩm",
@@ -159,5 +160,11 @@
   "confirm_new_password": "Xác nhận mật khẩu mới",
   "enter_confirm_new_password": "Nhập lại mật khẩu mới...",
   "logout_confirm": "Bạn có chắc chắn muốn đăng xuất?",
-  "logout_confirm_title": "Xác nhận đăng xuất"
+  "logout_confirm_title": "Xác nhận đăng xuất",
+  "select_all": "Chọn tất cả",
+  "delete_selected": "Xóa mục đã chọn",
+  "total_price": "Tổng cộng",
+  "product_item": "Sản phẩm",
+  "buy_now": "Mua hàng",
+  "cart_is_empty": "Giỏ hàng của bạn đang trống"
 }

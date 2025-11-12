@@ -36,8 +36,6 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
             @Param("evaluate") Float evaluate
     );
 
-
-
     @Query("SELECT p " +
             "FROM Product p " +
             "INNER JOIN Image a ON p.id = a.productId " +
@@ -54,4 +52,7 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
     @Modifying
     @Query("DELETE FROM Product p WHERE p.id = :id")
     void deleteProductById(String id);
+
+    @Query("SELECT p FROM Product p WHERE p.productType.id = :id ORDER BY p.numberOfVisits DESC")
+    List<Product> findAllByProductTypeIdAndNumberOfVisits(Long id, Pageable pageable);
 }

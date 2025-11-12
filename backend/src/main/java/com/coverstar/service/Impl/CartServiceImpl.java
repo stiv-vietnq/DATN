@@ -5,11 +5,11 @@ import com.coverstar.entity.Cart;
 import com.coverstar.repository.CartRepository;
 import com.coverstar.service.CartService;
 import com.coverstar.service.ProductDetailService;
-import com.coverstar.service.ProductService;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.util.Date;
 import java.util.List;
 import java.util.Objects;
@@ -19,9 +19,6 @@ public class CartServiceImpl implements CartService {
 
     @Autowired
     private CartRepository cartRepository;
-
-    @Autowired
-    private ProductService productService;
 
     @Autowired
     private ProductDetailService productDetailService;
@@ -90,12 +87,24 @@ public class CartServiceImpl implements CartService {
     }
 
     @Override
-    public void deleteCartById(Long id) {
+    public void deleteCart(List<Long> id) {
         try {
-            cartRepository.deleteById(id);
+            for (Long cartId : id) {
+                cartRepository.deleteById(cartId);
+            }
         } catch (Exception e) {
             e.fillInStackTrace();
             throw e;
         }
+    }
+
+    @Override
+    public Cart changeQuanlityAndTotal(Long id, Long quantity, String total) {
+        Cart cart = getCartById(id);
+        BigDecimal totalUpdate = new BigDecimal(total);
+        cart.setQuantity(quantity);
+        cart.setTotal(totalUpdate);
+        cartRepository.save(cart);
+        return cart;
     }
 }

@@ -626,3 +626,22 @@
   text-align: left;
   margin-bottom: 6px;
 }
+
+.product-vote-main {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 10px 0;
+}
+
+.vote-number {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.option-title-vote {
+  display: flex;
+  justify-content: flex-start;
+  font-weight: bold;
+}

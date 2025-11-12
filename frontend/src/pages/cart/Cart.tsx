@@ -1,306 +1,242 @@
-import { useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import "./Cart.css";
+import { useTranslation } from "react-i18next";
+import { changeQuantityAndTotal, deleteCart, getAllCartsByUserId } from "../../api/cart";
+import { FaTrash } from "react-icons/fa6";
+import Loading from "../../components/common/loading/Loading";
+import { FaShoppingCart } from "react-icons/fa";
 
-// ------------------- Types -------------------
 
-interface Item {
-    id: string;
-    name: string;
-    variant: string;
-    image?: string;
-    price: number;
-    oldPrice?: number;
-    qty: number;
-    selected: boolean;
+interface CartItem {
+    id: number;
+    total: number;
+    quantity: number;
+    productDetail: {
+        name: string;
+        directoryPath: string;
+        price: number;
+    };
 }
-
-interface Shop {
-    shopId: number;
-    name: string;
-    promo?: string | null;
-    selected: boolean;
-    items: Item[];
-}
-
-interface Totals {
-    count: number;
-    amount: number;
-}
-
-// ------------------- Helpers -------------------
-
-const formatVND = (n: number): string =>
-    n.toLocaleString("vi-VN", { style: "currency", currency: "VND" });
-
-// ------------------- Demo data -------------------
-
-const initialShops: Shop[] = [
-    {
-        shopId: 1,
-        name: "Archi Shop",
-        promo: "Mua thêm 8 sản phẩm để giảm 2%",
-        selected: false,
-        items: [
-            {
-                id: "A1",
-                name: "Hộp đựng tiền tiết kiệm bằng gỗ",
-                variant: "HTK Mèo + bút",
-                price: 39900,
-                oldPrice: 60000,
-                qty: 1,
-                selected: false,
-            },
-        ],
-    },
-    {
-        shopId: 2,
-        name: "đồ da dụng(ngọc ánh)",
-        promo: null,
-        selected: false,
-        items: [
-            {
-                id: "B1",
-                name: "Máy xay thịt mini Inox 304 4 lưỡi",
-                variant: "2l",
-                price: 120450,
-                oldPrice: 219000,
-                qty: 1,
-                selected: false,
-            },
-        ],
-    },
-];
-
 
 export default function Cart() {
-    const [shops, setShops] = useState<Shop[]>(initialShops);
+    const { t } = useTranslation();
+    const [loading, setLoading] = useState(false);
+    const userId = localStorage.getItem("userId");
+    const [cartItems, setCartItems] = useState<CartItem[]>([]);
+    const [selectedIds, setSelectedIds] = useState<number[]>([]);
+    const [showConfirm, setShowConfirm] = useState(false);
 
-    const allSelected = useMemo<boolean>(() => {
-        if (shops.length === 0) return false;
-        return shops.every((s) => s.items.every((it) => it.selected));
-    }, [shops]);
 
-    const totals = useMemo<Totals>(() => {
-        let count = 0;
-        let amount = 0;
-        shops.forEach((s) =>
-            s.items.forEach((it) => {
-                if (it.selected) {
-                    count += it.qty;
-                    amount += it.price * it.qty;
-                }
-            })
-        );
-        return { count, amount };
-    }, [shops]);
+    useEffect(() => {
+        handleGetCartItemsByUserId();
+    }, []);
 
     const toggleSelectAll = (): void => {
-        const target = !allSelected;
-        setShops((prev) =>
-            prev.map((s) => ({
-                ...s,
-                selected: target,
-                items: s.items.map((it) => ({ ...it, selected: target })),
-            }))
-        );
+        if (selectedIds.length === cartItems.length) {
+            setSelectedIds([]);
+        } else {
+            setSelectedIds(cartItems.map((item) => item.id));
+        }
     };
 
-    const toggleShop = (shopId: number): void => {
-        setShops((prev) =>
-            prev.map((s) =>
-                s.shopId === shopId
-                    ? {
-                        ...s,
-                        selected: !s.selected,
-                        items: s.items.map((it) => ({
-                            ...it,
-                            selected: !s.selected,
-                        })),
-                    }
-                    : s
-            )
-        );
-    };
-
-    const toggleItem = (shopId: number, itemId: string): void => {
-        setShops((prev) =>
-            prev.map((s) =>
-                s.shopId === shopId
-                    ? {
-                        ...s,
-                        items: s.items.map((it) =>
-                            it.id === itemId ? { ...it, selected: !it.selected } : it
-                        ),
-                    }
-                    : s
-            )
-        );
-    };
-
-    const changeQty = (shopId: number, itemId: string, delta: number): void => {
-        setShops((prev) =>
-            prev.map((s) =>
-                s.shopId === shopId
-                    ? {
-                        ...s,
-                        items: s.items.map((it) =>
-                            it.id === itemId
-                                ? { ...it, qty: Math.max(1, it.qty + delta) }
-                                : it
-                        ),
-                    }
-                    : s
-            )
-        );
-    };
-
-    const removeItem = (shopId: number, itemId: string): void => {
-        setShops((prev) =>
-            prev
-                .map((s) =>
-                    s.shopId === shopId
-                        ? { ...s, items: s.items.filter((it) => it.id !== itemId) }
-                        : s
-                )
-                .filter((s) => s.items.length > 0)
-        );
+    const toggleItem = (itemId: number): void => {
+        if (selectedIds.includes(itemId)) {
+            setSelectedIds(selectedIds.filter((id) => id !== itemId));
+        } else {
+            setSelectedIds([...selectedIds, itemId]);
+        }
     };
 
     const removeSelected = (): void => {
-        setShops((prev) =>
-            prev
-                .map((s) => ({
-                    ...s,
-                    items: s.items.filter((it) => !it.selected),
-                }))
-                .filter((s) => s.items.length > 0)
-        );
+        if (selectedIds.length === 0) return;
+        setShowConfirm(true);
     };
 
-    const isShopFullySelected = (shop: Shop): boolean =>
-        shop.items.length > 0 && shop.items.every((it) => it.selected);
+    const handleDelete = (itemId: number): void => {
+        setShowConfirm(true);
+        setSelectedIds([itemId]);
+    }
+
+    const confirmDelete = () => {
+        deleteCartItem(selectedIds);
+        setSelectedIds([]);
+        setShowConfirm(false);
+    };
+
+    const cancelDelete = () => {
+        setShowConfirm(false);
+    };
+
+    const handleGetCartItemsByUserId = (): void => {
+        setLoading(true);
+        if (!userId) return;
+        getAllCartsByUserId(Number(userId), "", true).then((response) => {
+            setCartItems(response.data || []);
+        }).catch((error) => {
+            console.error("Error fetching cart items:", error);
+        }).finally(() => {
+            setLoading(false);
+        });
+    }
+
+    const totalPrice = cartItems
+        .filter((item) => selectedIds.includes(item.id))
+        .reduce((sum, item) => sum + item.total, 0);
+
+    const selectedCount = selectedIds.length;
+
+    const changeQuantity = (itemId: number, newQuantity: number) => {
+        if (newQuantity < 1) return;
+        setCartItems((prev) =>
+            prev.map((item) =>
+                item.id === itemId
+                    ? { ...item, quantity: newQuantity, total: newQuantity * item.productDetail.price }
+                    : item
+            )
+        );
+
+        changeQuantityAndTotal(itemId, newQuantity, (newQuantity * cartItems.find(item => item.id === itemId)?.productDetail.price!).toString())
+    };
+
+    const deleteCartItem = (itemIds: number[]) => {
+        debugger
+        setLoading(true);
+        deleteCart(itemIds).then(() => {
+            handleGetCartItemsByUserId();
+        }).catch((error) => {
+            console.error("Error deleting cart items:", error);
+        }).finally(() => {
+            setLoading(false);
+        });
+    }
+
+    if (loading) return <Loading />;
 
     return (
         <div className="main-content-cart">
             <div className="cart-container">
                 <div className="cart-header">
-                    <div className="col-product">
+                    <div className="col-checkbox">
                         <input
                             type="checkbox"
-                            checked={allSelected}
+                            checked={selectedIds.length === cartItems.length && cartItems.length > 0}
                             onChange={toggleSelectAll}
-                        />{" "}
-                        <span style={{ marginLeft: 8 }}>Sản Phẩm</span>
+                        />
                     </div>
+                    <div className="col-image">Hình ảnh</div>
+                    <div className="col-product">Sản Phẩm</div>
                     <div className="col-price">Đơn Giá</div>
                     <div className="col-quantity">Số Lượng</div>
                     <div className="col-total">Số Tiền</div>
                     <div className="col-action">Thao Tác</div>
                 </div>
 
-                {shops.map((shop) => (
-                    <div className="shop-section" key={shop.shopId}>
-                        <div className="shop-header">
-                            <input
-                                type="checkbox"
-                                checked={isShopFullySelected(shop)}
-                                onChange={() => toggleShop(shop.shopId)}
-                            />
-                            <span className="shop-name">{shop.name}</span>
-                            {shop.promo && <span className="shop-promo">{shop.promo}</span>}
-                        </div>
-
-                        {shop.items.map((it) => (
-                            <div className="cart-item" key={it.id}>
-                                <div className="item-left">
+                {cartItems.length > 0 ? (
+                    cartItems.map((item) => (
+                        <div className="shop-section" key={item.id}>
+                            <div className="cart-item-main">
+                                <div className="col-checkbox">
                                     <input
                                         type="checkbox"
-                                        checked={it.selected}
-                                        onChange={() => toggleItem(shop.shopId, it.id)}
+                                        checked={selectedIds.includes(item.id)}
+                                        onChange={() => toggleItem(item.id)}
                                     />
+                                </div>
+                                <div className="col-image">
                                     <img
+                                        src={item.productDetail?.directoryPath}
+                                        alt={item.productDetail?.name}
                                         className="item-image"
-                                        src={
-                                            it.image ||
-                                            "https://via.placeholder.com/80x80.png?text=No+Image"
-                                        }
-                                        alt={it.name}
                                     />
-                                    <div className="item-info">
-                                        <div className="item-name">{it.name}</div>
-                                        <div className="item-variant">{it.variant}</div>
-                                    </div>
                                 </div>
-
-                                <div className="item-price">
-                                    {it.oldPrice && (
-                                        <div className="old-price">{formatVND(it.oldPrice)}</div>
-                                    )}
-                                    <div className="new-price">{formatVND(it.price)}</div>
-                                </div>
-
-                                <div className="item-quantity">
-                                    <button onClick={() => changeQty(shop.shopId, it.id, -1)}>
+                                <div className="col-product">{item.productDetail?.name}</div>
+                                <div className="col-price">{item.productDetail?.price}</div>
+                                <div className="col-quantity">
+                                    <button
+                                        onClick={() => changeQuantity(item.id, item.quantity - 1)}
+                                        disabled={item.quantity <= 1}
+                                        className="btn-quantity"
+                                    >
                                         -
                                     </button>
-                                    <input type="text" value={it.qty} readOnly />
-                                    <button onClick={() => changeQty(shop.shopId, it.id, 1)}>
+                                    <div className="quantity-value">{item.quantity}</div>
+                                    <button
+                                        onClick={() => changeQuantity(item.id, item.quantity + 1)}
+                                        className="btn-quantity"
+                                    >
                                         +
                                     </button>
                                 </div>
-
-                                <div className="item-total">{formatVND(it.price * it.qty)}</div>
-
-                                <div className="item-action">
-                                    <button
-                                        className="btn-remove"
-                                        onClick={() => removeItem(shop.shopId, it.id)}
-                                    >
-                                        Xóa
-                                    </button>
+                                <div className="col-total">{item.total}</div>
+                                <div className="col-action">
+                                    <FaTrash
+                                        className="icon-delete"
+                                        onClick={() => handleDelete(item.id)}
+                                    />
                                 </div>
                             </div>
-                        ))}
+                        </div>
+                    ))
+                ) : (
+                    <div className="empty-cart">
+                        <div>
+                            <FaShoppingCart className="empty-cart-icon" />
+                        </div>
+                        <div>{t("cart_is_empty")}</div>
                     </div>
-                ))}
+                )}
+
 
                 {/* Summary */}
                 <div className="cart-summary">
                     <div className="summary-left">
-                        <input
-                            type="checkbox"
-                            checked={allSelected}
-                            onChange={toggleSelectAll}
-                        />
-                        <span>
-                            Chọn tất cả (
-                            {shops.reduce((a, s) => a + s.items.length, 0)})
-                        </span>
+                        <div className="col-checkbox-summary">
+                            <input
+                                type="checkbox"
+                                checked={selectedIds.length === cartItems.length && cartItems.length > 0}
+                                onChange={toggleSelectAll}
+                            />
+                        </div>
+                        <div>
+                            {t("select_all")} (<span className="selected-count">{selectedIds.length}</span>)
+                        </div>
                         <button className="btn-remove" onClick={removeSelected}>
-                            Xóa đã chọn
+                            {t("delete_selected")}
                         </button>
                     </div>
 
                     <div className="summary-right">
                         <div className="summary-total">
-                            Tổng cộng ({totals.count} sản phẩm):{" "}
-                            <span className="price">{formatVND(totals.amount)}</span>
+                            {t("total_price")} {totalPrice}( {t("product_item")}):{" "}
+                            <span className="price">{selectedCount}</span>
                         </div>
-                        <button
-                            className="btn-buy"
-                            onClick={() => {
-                                if (totals.count === 0) {
-                                    alert("Bạn chưa chọn sản phẩm nào.");
-                                    return;
-                                }
-                                alert(`Checkout ${totals.count} sản phẩm, tổng ${formatVND(totals.amount)}`);
-                            }}
-                        >
-                            Mua Hàng
-                        </button>
+                        <div>
+                            <button
+                                className="btn-buy"
+                                disabled={cartItems?.length === 0 || selectedIds?.length === 0}
+                                onClick={() => {
+
+                                }}
+                            >
+                                {t("buy_now")}
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>
+            {showConfirm && (
+                <div className="popup-overlay">
+                    <div className="popup">
+                        <h3>Xác nhận xóa</h3>
+                        <p>Bạn có chắc chắn muốn xóa {selectedIds.length} sản phẩm đã chọn?</p>
+                        <div className="popup-actions">
+                            <button className="btn-cancel" onClick={cancelDelete}>Hủy</button>
+                            <button className="btn-confirm" onClick={confirmDelete}>Xác nhận</button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
         </div>
     );
 };

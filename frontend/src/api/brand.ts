@@ -32,3 +32,7 @@ export const getProductTypeByStatus = (params: {
 }) => {
   return api.get("/productTypes/getAllProductTypesByStatus", { params });
 };
+
+export const getProductTypeById = (id: number) => {
+  return api.get(`/productTypes/getProductsByProductTypeId/${id}`);
+}

@@ -3,6 +3,7 @@ package com.coverstar.service.Impl;
 import com.coverstar.constant.Constants;
 import com.coverstar.dto.ProductTypeSearchDto;
 import com.coverstar.entity.Category;
+import com.coverstar.entity.Image;
 import com.coverstar.entity.Product;
 import com.coverstar.entity.ProductType;
 import com.coverstar.repository.CategoryRepository;
@@ -14,13 +15,16 @@ import com.coverstar.service.ProductTypeService;
 import com.coverstar.utils.ShopUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Service
 public class ProductTypeServiceImpl implements ProductTypeService {
@@ -197,6 +201,39 @@ public class ProductTypeServiceImpl implements ProductTypeService {
                 }
             }
             return productTypes;
+        } catch (Exception e) {
+            e.fillInStackTrace();
+            throw e;
+        }
+    }
+
+    @Override
+    public List<Product> getProductsByProductTypeId(Long id) {
+        try {
+            List<Product> products = productRepository.findAllByProductTypeIdAndNumberOfVisits(id, PageRequest.of(0, 30));
+
+            for (Product product : products) {
+                Set<Image> images = new HashSet<>();
+                if (!CollectionUtils.isEmpty(product.getImages())) {
+                    for (Image image : product.getImages()) {
+
+                        if (image.getCommentId() != null) {
+                            continue;
+                        }
+
+                        String relativePath = image.getDirectoryPath();
+
+                        if (relativePath != null && relativePath.startsWith(imageDirectory)) {
+                            relativePath = relativePath.replace(imageDirectory, SERVER_PORT + serverPort + IMAGE_BASE_URL);
+                            image.setDirectoryPath(relativePath);
+                        }
+                        images.add(image);
+                    }
+                    product.setImages(images);
+                }
+            }
+
+            return products;
         } catch (Exception e) {
             e.fillInStackTrace();
             throw e;

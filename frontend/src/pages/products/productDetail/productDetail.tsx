@@ -281,13 +281,12 @@ export default function ProductDetail() {
                     </span>
                   </>
                 ) : (
-                  // Không có giảm giá → chỉ hiển thị giá thường
                   <span className="current">
-                    {selectedDetail
-                      ? selectedDetail.price.toLocaleString()
-                      : productData?.price.toLocaleString()}{" "}
-                    ₫
+                    {(
+                      selectedDetail?.price ?? productData?.price ?? 0
+                    ).toLocaleString()} ₫
                   </span>
+
                 )}
               </div>
 
@@ -318,11 +317,11 @@ export default function ProductDetail() {
                 </div>
               </div>
 
-              <div className="product-description-main">
-                <div className="option-title">{t("comment.rating")}: </div>
+              <div className="product-vote-main">
+                <div className="option-title-vote">{t("comment.rating")}: </div>
                 <div className="vote-number">
-                  {productData?.evaluate || 0}
-                  <FaRegStar
+                  {(productData?.evaluate ? productData.evaluate.toFixed(1) : "0")}
+                  <FaStar
                     className="star small"
                     style={{ color: "#f8b400" }}
                   />

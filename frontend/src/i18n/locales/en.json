@@ -98,7 +98,8 @@
     "enter_phone_number": "Enter phone number...",
     "enter_comment": "Enter comment...",
     "submit_comment": "Submit Comment",
-    "your_rating": "Your Rating:"
+    "your_rating": "Your Rating:",
+    "rating": "Rating"
   },
   "all_phone_brands": "All Phone Brands",
   "product_types": "Product Types",
@@ -159,5 +160,11 @@
   "confirm_new_password": "Confirm New Password",
   "enter_confirm_new_password": "Enter confirm new password...",
   "logout_confirm": "Are you sure you want to log out?",
-  "logout_confirm_title": "Logout Confirmation"
+  "logout_confirm_title": "Logout Confirmation",
+  "select_all": "Select All",
+  "delete_selected": "Delete Selected Items",
+  "total_price": "Total Price",
+  "product_item": "Product",
+  "buy_now": "Buy Now",
+  "cart_is_empty": "Your cart is empty"
 }
