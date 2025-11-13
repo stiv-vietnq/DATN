@@ -57,12 +57,12 @@ const SidebarItemCollapse = ({ item }: Props) => {
       </ListItemButton>
       <Collapse in={open} timeout="auto">
         <List>
-          {item.child?.map((route, index) =>
+          {item.children?.map((route, index) =>
             route.sidebarProps ? (
-              route.child ? (
+              route.children ? (
                 <SidebarItemCollapse item={route} key={index} />
               ) : (
-                <SidebarItem item={route} key={index} />
+               <SidebarItem key={index} item={route} parentPath={item.path} />
               )
             ) : null
           )}

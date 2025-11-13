@@ -50,8 +50,8 @@ export default function AppRouter() {
         <Route path="/verify" element={<Verify />} />
       </Route>
 
-      <Route element={<MainLayout />}>
-        <Route path="/admin/*">{renderRoutes(appRoutes)}</Route>
+      <Route element={<MainLayout />} path="/admin/*">
+        <Route >{renderRoutes(appRoutes)}</Route>
       </Route>
     </Routes>
   );

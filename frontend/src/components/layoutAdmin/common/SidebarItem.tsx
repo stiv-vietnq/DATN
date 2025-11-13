@@ -7,12 +7,15 @@ import { RouteType } from "../../../routes/admin-routes/config";
 
 type Props = {
   item: RouteType;
+  parentPath?: string;
 };
 
-const SidebarItem = ({ item }: Props) => {
+const SidebarItem = ({ item, parentPath = "" }: Props) => {
   const appState = useSelector((state: RootState) => state.appState.appState);
   const location = useLocation();
-  const fullPath = item.path ? `/admin/${item.path}` : "/admin";
+  const fullPath = item.path
+    ? `/admin/${parentPath ? parentPath + "/" : ""}${item.path}`
+    : "/admin";
 
   const isActive =
     appState === item.state || location.pathname === fullPath;

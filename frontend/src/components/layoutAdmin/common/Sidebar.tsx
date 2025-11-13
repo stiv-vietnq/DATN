@@ -9,7 +9,7 @@ import logo from "../../../assets/quickbuyshop.png";
 interface AppRoute {
   path: string;
   sidebarProps?: any;
-  child?: any;
+  children?: any;
 }
 
 const Sidebar = () => {
@@ -35,7 +35,7 @@ const Sidebar = () => {
             src={logo}
             alt="Logo"
             sx={{
-              width: 80,
+              width: "100%",
               height: 80,
               borderRadius: 2,
               cursor: "pointer",
@@ -49,7 +49,7 @@ const Sidebar = () => {
         </Toolbar>
         {appRoutes.map((route, index) =>
           route.sidebarProps ? (
-            route.child ? (
+            route.children ? (
               <SidebarItemCollapse item={route} key={index} />
             ) : (
               <SidebarItem item={route} key={index} />

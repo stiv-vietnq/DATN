@@ -1,0 +1,38 @@
+.dashboard-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.dashboard-header-title {
+    font-size: 24px;
+    font-weight: 600;
+    color: #333;
+    text-transform: uppercase;
+    text-align: start;
+    width: 30%;
+}
+
+.dashboard-header-content {
+    text-align: end;
+    width: 70%;
+}
+
+.btn-chart-purchase {
+    background-color: #5661f5;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: background-color 0.3s ease;
+}
+
+.btn-chart-purchase:hover {
+    background-color: #4054b5;
+}
+
+.btn-chart-purchase:focus {
+    outline: none;
+}

@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.util.Date;
 import java.util.List;
 
 @Repository
@@ -38,4 +39,16 @@ public interface PurchaseRepository extends JpaRepository<Purchase, Long> {
             "FROM Purchase o WHERE YEAR(o.createdDate) = :year AND MONTH(o.createdDate) = :month AND o.status = :status " +
             "GROUP BY DAY(o.createdDate) ORDER BY DAY(o.createdDate)")
     List<Object[]> getOrderCountByDayAndMonth(@Param("year") int year, @Param("month") int month, @Param("status") Integer status);
+
+    @Query("SELECT o.createdDate, COUNT(o) " +
+            "FROM Purchase o " +
+            "WHERE o.createdDate BETWEEN :startDate AND :endDate " +
+            "AND o.status = :status " +
+            "GROUP BY o.createdDate " +
+            "ORDER BY o.createdDate")
+    List<Object[]> getOrderCountByDateRange(@Param("startDate") Date startDate,
+                                            @Param("endDate") Date endDate,
+                                            @Param("status") Integer status);
+
+
 }

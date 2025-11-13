@@ -5,7 +5,7 @@ export type RouteType = {
   state: string,
   index?: boolean,
   path?: string,
-  child?: RouteType[],
+  children?: RouteType[],
   sidebarProps?: {
     displayText: string,
     icon?: ReactNode;

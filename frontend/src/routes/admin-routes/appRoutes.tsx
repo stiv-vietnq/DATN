@@ -9,13 +9,11 @@ import {
 import BrandPage from "../../admin/pages/brand/BrandPage";
 import CategoryPage from "../../admin/pages/category/CategoryPage";
 import AnalyticsPage from "../../admin/pages/dashboard/AnalyticsPage";
-import DashboardIndex from "../../admin/pages/dashboard/DashboardIndex";
 import DashboardPageLayout from "../../admin/pages/dashboard/DashboardPageLayout";
-import DefaultPage from "../../admin/pages/dashboard/DefaultPage";
-import SaasPage from "../../admin/pages/dashboard/SaasPage";
+import PurchasesDashboardPage from "../../admin/pages/dashboard/PurchasesDashboardPage";
 import ProductPage from "../../admin/pages/product/ProductPage";
-import { RouteType } from "./config";
 import UserPage from "../../admin/pages/user/UserPage";
+import { RouteType } from "./config";
 
 const appRoutes: RouteType[] = [
   {
@@ -26,36 +24,25 @@ const appRoutes: RouteType[] = [
       displayText: "Thống kê",
       icon: <FaMobileScreen />,
     },
-    child: [
+    children: [
       {
         index: true,
-        element: <DashboardIndex />,
-        state: "dashboard.index",
-      },
-      {
-        path: "dashboard/default",
-        element: <DefaultPage />,
-        state: "dashboard.default",
-        sidebarProps: {
-          displayText: "Default",
-        },
-      },
-      {
-        path: "dashboard/analytics",
+        path: "analytics",
         element: <AnalyticsPage />,
         state: "dashboard.analytics",
         sidebarProps: {
-          displayText: "Analytic",
+          displayText: "Số lượng truy cập website",
         },
       },
       {
-        path: "dashboard/saas",
-        element: <SaasPage />,
-        state: "dashboard.saas",
+        index: true,
+        path: "default",
+        element: <PurchasesDashboardPage />,
+        state: "dashboard.default",
         sidebarProps: {
-          displayText: "Saas",
+          displayText: "Thống kê đơn hàng",
         },
-      },
+      }
     ],
   },
   {

@@ -4,10 +4,10 @@ import { RouteType } from "./admin-routes/config";
 
 export const renderRoutes = (routes: RouteType[]) =>
   routes.map((route, index) => {
-    if (route.child && route.child.length > 0) {
+    if (route.children && route.children.length > 0) {
       return (
         <Route key={index} path={route.path} element={route.element}>
-          {renderRoutes(route.child)}
+          {renderRoutes(route.children)}
         </Route>
       );
     }
