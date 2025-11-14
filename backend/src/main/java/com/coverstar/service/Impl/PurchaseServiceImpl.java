@@ -215,10 +215,14 @@ public class PurchaseServiceImpl implements PurchaseService {
 
 
     @Override
-    public List<Purchase> getPurchaseByUserId(Long userId, String productName) {
+    public List<Purchase> getPurchaseByUserId(Long userId, String productName, String status) {
         try {
+            Integer statusValue = null;
+            if (StringUtils.isNotEmpty(status)) {
+                statusValue = Integer.parseInt(status);
+            }
             String productNameValue = productName != null ? productName : StringUtils.EMPTY;
-            return purchaseRepository.findAllByUserId(userId, productNameValue);
+            return purchaseRepository.findAllByUserId(userId, productNameValue, statusValue);
         } catch (Exception e) {
             e.fillInStackTrace();
             throw e;

@@ -12,14 +12,14 @@ import java.util.List;
 @Repository
 public interface PurchaseRepository extends JpaRepository<Purchase, Long> {
 
-    @Query("SELECT DISTINCT p FROM Purchase p" +
-            " JOIN p.purchaseItems pi" +
-            " JOIN pi.product prod" +
-            " WHERE p.userId = :userId" +
-            " AND (:productName IS NULL OR LOWER(prod.productName) LIKE LOWER(CONCAT('%', :productName, '%')))" +
-            " ORDER BY p.createdDate DESC")
-    List<Purchase> findAllByUserId(Long userId, String productName);
-
+    @Query("SELECT DISTINCT p FROM Purchase p " +
+            "JOIN p.purchaseItems pi " +
+            "JOIN pi.productDetail pd " +
+            "WHERE p.userId = :userId " +
+            "AND (:status IS NULL OR p.status = :status) " +
+            "AND (:productName IS NULL OR LOWER(pd.name) LIKE LOWER(CONCAT('%', :productName, '%'))) " +
+            "ORDER BY p.createdDate DESC")
+    List<Purchase> findAllByUserId(Long userId, String productName, Integer status);
 
     @Query("SELECT a FROM Purchase a " +
             " WHERE a.userId = :userId " +

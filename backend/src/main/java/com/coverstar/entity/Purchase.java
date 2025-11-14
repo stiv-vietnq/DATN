@@ -1,5 +1,6 @@
 package com.coverstar.entity;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -53,5 +54,6 @@ public class Purchase implements Serializable {
     private Integer firstWave;
 
     @OneToMany(mappedBy = "purchase", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference
     private List<PurchaseItem> purchaseItems = new ArrayList<>();
 }

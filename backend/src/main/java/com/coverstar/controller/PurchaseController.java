@@ -76,9 +76,11 @@ public class PurchaseController {
     }
 
     @GetMapping("/getPurchaseByUserId/{userId}")
-    public ResponseEntity<?> getPurchaseByUserId(@PathVariable Long userId, @RequestParam String productName) {
+    public ResponseEntity<?> getPurchaseByUserId(@PathVariable Long userId,
+                                                 @RequestParam(name = "productName", required = false) String productName,
+                                                 @RequestParam(name = "status", required = false) String status) {
         try {
-            List<Purchase> purchases = purchaseService.getPurchaseByUserId(userId, productName);
+            List<Purchase> purchases = purchaseService.getPurchaseByUserId(userId, productName, status);
             return ResponseEntity.ok(purchases);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Constants.ERROR);

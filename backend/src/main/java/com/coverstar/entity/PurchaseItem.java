@@ -1,5 +1,6 @@
 package com.coverstar.entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -18,6 +19,7 @@ public class PurchaseItem implements Serializable {
     private Long id;
 
     @ManyToOne
+    @JsonBackReference
     @JoinColumn(name = "purchase_id", nullable = false)
     private Purchase purchase;
 

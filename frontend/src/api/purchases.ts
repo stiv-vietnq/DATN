@@ -20,3 +20,17 @@ export interface PurchaseDto {
 export const createPurchase = (purchases: PurchaseDto[]) => {
   return api.post("/purchases/createPurchase", purchases);
 };
+
+export const getPurchaseByUserId = (
+  userId: number,
+  productName: string = "",
+  status: string = ""
+) => {
+  return api.get(`/purchases/getPurchaseByUserId/${userId}`, {
+    params: {
+      productName,
+      status,
+    },
+  });
+};
+

@@ -12,7 +12,7 @@ public interface PurchaseService {
 
     Purchase updateStatus(Long id, Integer status) throws Exception;
 
-    List<Purchase> getPurchaseByUserId(Long userId, String productName);
+    List<Purchase> getPurchaseByUserId(Long userId, String productName, String status);
 
     List<Purchase> getAllPurchase(Long userId, String paymentMethod, Integer status);
 }
