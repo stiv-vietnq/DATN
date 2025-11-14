@@ -34,3 +34,11 @@ export const getPurchaseByUserId = (
   });
 };
 
+export const updateStatus = (id: number, status: number) => {
+  return api.post(`/purchases/updateStatus/${id}`, null, {
+    params: { status },
+  });
+};
+
+
+

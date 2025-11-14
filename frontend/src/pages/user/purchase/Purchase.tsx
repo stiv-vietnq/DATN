@@ -1,7 +1,9 @@
 import { useEffect, useState } from "react";
 import "./Purchase.css";
-import { getPurchaseByUserId } from "../../../api/purchases";
+import { getPurchaseByUserId, updateStatus } from "../../../api/purchases";
 import Input from "../../../components/common/input/Input";
+import Button from "../../../components/common/button/Button";
+import ConfirmModal from "../../../components/common/confirmModal/ConfirmModal";
 
 // Interface cho từng sản phẩm trong đơn hàng
 export interface OrderItem {
@@ -38,6 +40,8 @@ export default function UserPurchases() {
   const [activeTab, setActiveTab] = useState<string>("");
   const [searchValue, setSearchValue] = useState<string>("");
   const userId = localStorage.getItem("userId");
+  const [showConfirm, setShowConfirm] = useState(false);
+  const [selectedId, setSelectedId] = useState<number>(0);
 
   const tabs = [
     { key: "", label: "Tất cả" },
@@ -82,7 +86,16 @@ export default function UserPurchases() {
     }
   };
 
-  console.log(orders);
+  const handleCancelOrder = (orderId: number) => {
+    updateStatus(orderId, 5)
+      .then(() => {
+        setShowConfirm(false);
+        fetchOrders();
+      })
+      .catch((error) => {
+        console.error("Error cancelling order:", error);
+      });
+  };
 
 
   return (
@@ -145,14 +158,42 @@ export default function UserPurchases() {
               </div>
 
               <div className="order-total">
-                Tổng tiền: <span className="order-total-amount">{order.purchaseItems
-                  ?.reduce((sum, item) => sum + Number(item.total), 0)}
-                  ₫</span>
+                <div>
+                  Tổng tiền: <span className="order-total-amount">{order.purchaseItems
+                    ?.reduce((sum, item) => sum + Number(item.total), 0)}
+                    ₫</span>
+                </div>
+                {order.status === 1 && (
+                  <div>
+                    <button
+                      className="btn btn-cancel"
+                      onClick={() => {
+                        setShowConfirm(true);
+                        setSelectedId(order?.id);
+                      }}
+                    >
+                      Hủy đơn hàng
+                    </button>
+                  </div>
+                )}
+
               </div>
             </div>
           ))
         )}
       </div>
+
+      {showConfirm && (
+        <ConfirmModal
+          title={"Xác nhận hủy đơn hàng"}
+          message={"Bạn có chắc chắn muốn hủy đơn hàng này?"}
+          onConfirm={() =>
+            handleCancelOrder(selectedId)
+          }
+          onCancel={() => setShowConfirm(false)}
+          type="delete"
+        />
+      )}
     </div>
   );
 }
