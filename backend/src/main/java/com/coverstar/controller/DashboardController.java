@@ -55,4 +55,25 @@ public class DashboardController {
         }
     }
 
+    @GetMapping("/revenue")
+    public ResponseEntity<?> getRevenue(
+            @RequestParam Integer type,
+            @RequestParam(required = false) Integer year,
+            @RequestParam(required = false) Integer month,
+            @RequestParam(required = false) String startDate,
+            @RequestParam(required = false) String endDate) {
+        try {
+            Date start = null;
+            Date end = null;
+            if (StringUtils.isNotEmpty(startDate) && StringUtils.isNotEmpty(endDate)) {
+                SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+                start = dateFormat.parse(startDate);
+                end = dateFormat.parse(endDate);
+            }
+            return ResponseEntity.ok(dashboardService.getRevenue(type, year, month, start, end));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Constants.ERROR);
+        }
+    }
+
 }

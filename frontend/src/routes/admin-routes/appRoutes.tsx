@@ -14,6 +14,7 @@ import PurchasesDashboardPage from "../../admin/pages/dashboard/PurchasesDashboa
 import ProductPage from "../../admin/pages/product/ProductPage";
 import UserPage from "../../admin/pages/user/UserPage";
 import { RouteType } from "./config";
+import SummaryStatistics from "../../admin/pages/dashboard/SummaryStatistics";
 
 const appRoutes: RouteType[] = [
   {
@@ -27,11 +28,20 @@ const appRoutes: RouteType[] = [
     children: [
       {
         index: true,
+        path: "summary-statistic",
+        element: <SummaryStatistics />,
+        state: "dashboard.summaryStatistics",
+        sidebarProps: {
+          displayText: "Thống kê doanh thu",
+        },
+      },
+      {
+        index: true,
         path: "analytics",
         element: <AnalyticsPage />,
         state: "dashboard.analytics",
         sidebarProps: {
-          displayText: "Số lượng truy cập website",
+          displayText: "Thông kê truy cập",
         },
       },
       {

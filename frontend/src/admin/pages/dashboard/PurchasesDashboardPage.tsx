@@ -33,6 +33,7 @@ ChartJS.register(
 interface ChartData {
   canceled: number[];
   delivered: number[];
+  new: number[];
   labels: string[];
 }
 
@@ -41,6 +42,7 @@ const PurchasesDashboardPage = () => {
   const [barDataDB, setBarDataDB] = useState<ChartData>({
     canceled: [],
     delivered: [],
+    new: [],
     labels: [],
   });
   const [selected, setSelected] = useState<string | null>("year");
@@ -60,12 +62,17 @@ const PurchasesDashboardPage = () => {
       {
         label: 'Đã giao hàng',
         data: barDataDB?.delivered,
-        backgroundColor: 'rgba(75, 192, 192, 0.5)',
+        backgroundColor: 'rgba(95, 192, 75, 0.5)',
       },
       {
         label: 'Đã hủy đơn',
         data: barDataDB?.canceled,
         backgroundColor: 'rgba(218, 49, 49, 0.5)',
+      },
+      {
+        label: 'Đơn mới',
+        data: barDataDB?.new,
+        backgroundColor: 'rgba(19, 33, 228, 0.5)',
       },
     ],
   };
@@ -153,7 +160,7 @@ const PurchasesDashboardPage = () => {
                     { label: "Tháng", value: "month" },
                     { label: "Khoảng ngày", value: "range" },
                   ]}
-                  placeholder="--Chọn thời gian thống kê--"
+                  placeholder={null}
                   error={undefined}
                   style={{ marginBottom: "-28px" }}
                 />

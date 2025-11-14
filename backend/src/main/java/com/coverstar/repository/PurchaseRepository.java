@@ -50,5 +50,20 @@ public interface PurchaseRepository extends JpaRepository<Purchase, Long> {
                                             @Param("endDate") Date endDate,
                                             @Param("status") Integer status);
 
+    @Query("SELECT p.createdDate, SUM(i.totalAfterDiscount) " +
+            "FROM PurchaseItem i " +
+            "JOIN i.purchase p " +
+            "WHERE p.status = 3 AND p.createdDate BETWEEN :from AND :to " +
+            "GROUP BY p.createdDate " +
+            "ORDER BY p.createdDate")
+    List<Object[]> getRevenueByDateRange(Date from, Date to);
+
+    @Query("SELECT FUNCTION('MONTH', p.createdDate), SUM(i.totalAfterDiscount) " +
+            "FROM PurchaseItem i " +
+            "JOIN i.purchase p " +
+            "WHERE p.status = 3 AND FUNCTION('YEAR', p.createdDate) = :year " +
+            "GROUP BY FUNCTION('MONTH', p.createdDate) " +
+            "ORDER BY FUNCTION('MONTH', p.createdDate)")
+    List<Object[]> getRevenueOfYear(int year);
 
 }

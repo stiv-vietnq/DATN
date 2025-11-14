@@ -32,9 +32,6 @@ public class PurchaseItem implements Serializable {
     @Column(name = "quantity", nullable = false)
     private Long quantity;
 
-    @Column(name = "price", nullable = false)
-    private BigDecimal price;
-
     @Column(name = "total", nullable = false)
     private BigDecimal total;
 

@@ -28,8 +28,8 @@ public class PurchaseController {
     @PostMapping("/createPurchase")
     public ResponseEntity<?> createPurchase(@RequestBody @Valid List<PurchaseDto> purchases) {
         try {
-            List<Purchase> purchaseList = purchaseService.createPurchase(purchases);
-            return ResponseEntity.ok(purchaseList);
+            purchaseService.createPurchase(purchases);
+            return ResponseEntity.ok().build();
         } catch (Exception e) {
 
             if (e.getMessage().equals(Constants.DISCOUNT_EXPIRED)) {

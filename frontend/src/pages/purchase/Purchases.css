@@ -107,29 +107,33 @@ input:focus {
 }
 
 .cart-img {
-  width: 100px;
-  height: 100px;
+  width: 80px;
+  height: 80px;
   border-radius: 8px;
   object-fit: cover;
 }
 
 .cart-info {
-  flex: 1;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 
 .cart-name {
-  font-weight: 600;
+  font-weight: 500;
   color: #333;
+  text-align: left;
 }
 
-.cart-size {
-  font-size: 13px;
+.cart-quantity {
+  font-size: 14px;
   color: #777;
 }
 
-.cart-price {
-  color: #007bff;
-  font-weight: bold;
+.cart-total-purchase {
+  font-size: 16px;
+  font-weight: 500;
+  color: red;
 }
 
 .cart-total {

@@ -1,20 +1,29 @@
 import { useTranslation } from "react-i18next";
 import "../Purchases.css";
 
-const PaymentTab = ({
-  onNext,
-  onBack,
-  selectedPayment,
-  setSelectedPayment,
-}: {
-  onNext: () => void;
+interface PaymentTabProps {
   onBack: () => void;
   selectedPayment: string;
   setSelectedPayment: (method: string) => void;
-}) => {
+  onCODPayment: () => void;
+  onOnlinePayment: () => void;
+}
+
+const PaymentTab = ({
+  onBack,
+  selectedPayment,
+  setSelectedPayment,
+  onCODPayment,
+  onOnlinePayment,
+}: PaymentTabProps) => {
   const { t } = useTranslation();
-  const handleSelect = (method: string) => {
-    setSelectedPayment(method);
+
+  const handlePayClick = () => {
+    if (selectedPayment === "cod") {
+      onCODPayment();
+    } else if (selectedPayment) {
+      onOnlinePayment();
+    }
   };
 
   return (
@@ -32,14 +41,14 @@ const PaymentTab = ({
             className={`payment-options-item ${
               selectedPayment === item.value ? "selected" : ""
             }`}
-            onClick={() => handleSelect(item.value)}
+            onClick={() => setSelectedPayment(item.value)}
           >
             <input
               type="radio"
               name="payment"
               className="input-radio"
               checked={selectedPayment === item.value}
-              onChange={() => handleSelect(item.value)}
+              onChange={() => setSelectedPayment(item.value)}
             />
             <div>{item.label}</div>
           </div>
@@ -48,13 +57,9 @@ const PaymentTab = ({
 
       <div className="btn-group">
         <button className="btn back" onClick={onBack}>
-            {t("back")}
+          {t("back")}
         </button>
-        <button
-          className="btn next"
-          onClick={onNext}
-          disabled={!selectedPayment}
-        >
+        <button className="btn next" onClick={handlePayClick} disabled={!selectedPayment}>
           {t("pay")}
         </button>
       </div>

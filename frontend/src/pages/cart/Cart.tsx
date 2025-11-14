@@ -1,10 +1,12 @@
-import { useEffect, useState } from "react";
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import {useEffect, useState} from "react";
 import "./Cart.css";
-import { useTranslation } from "react-i18next";
-import { changeQuantityAndTotal, deleteCart, getAllCartsByUserId } from "../../api/cart";
-import { FaTrash } from "react-icons/fa6";
+import {useTranslation} from "react-i18next";
+import {changeQuantityAndTotal, deleteCart, getAllCartsByUserId} from "../../api/cart";
+import {FaTrash} from "react-icons/fa6";
 import Loading from "../../components/common/loading/Loading";
-import { FaShoppingCart } from "react-icons/fa";
+import {FaShoppingCart} from "react-icons/fa";
+import {useNavigate} from "react-router-dom";
 
 
 interface CartItem {
@@ -19,12 +21,13 @@ interface CartItem {
 }
 
 export default function Cart() {
-    const { t } = useTranslation();
+    const {t} = useTranslation();
     const [loading, setLoading] = useState(false);
     const userId = localStorage.getItem("userId");
     const [cartItems, setCartItems] = useState<CartItem[]>([]);
     const [selectedIds, setSelectedIds] = useState<number[]>([]);
     const [showConfirm, setShowConfirm] = useState(false);
+    const navigate = useNavigate();
 
 
     useEffect(() => {
@@ -90,16 +93,15 @@ export default function Cart() {
         setCartItems((prev) =>
             prev.map((item) =>
                 item.id === itemId
-                    ? { ...item, quantity: newQuantity, total: newQuantity * item.productDetail.price }
+                    ? {...item, quantity: newQuantity, total: newQuantity * item.productDetail.price}
                     : item
             )
         );
 
-        changeQuantityAndTotal(itemId, newQuantity, (newQuantity * cartItems.find(item => item.id === itemId)?.productDetail.price!).toString())
+        changeQuantityAndTotal(itemId, newQuantity, (newQuantity * cartItems?.find(item => item.id === itemId)?.productDetail.price!).toString())
     };
 
     const deleteCartItem = (itemIds: number[]) => {
-        debugger
         setLoading(true);
         deleteCart(itemIds).then(() => {
             handleGetCartItemsByUserId();
@@ -110,7 +112,13 @@ export default function Cart() {
         });
     }
 
-    if (loading) return <Loading />;
+    const handleBuyNow = () => {
+        if (selectedIds.length === 0) return;
+        const selectedItems = cartItems.filter(item => selectedIds.includes(item.id));
+        navigate("/purchases", {state: {selectedItems}});
+    };
+
+    if (loading) return <Loading/>;
 
     return (
         <div className="main-content-cart">
@@ -144,8 +152,8 @@ export default function Cart() {
                                 </div>
                                 <div className="col-image">
                                     <img
-                                        src={item.productDetail?.directoryPath}
-                                        alt={item.productDetail?.name}
+                                        src={item?.productDetail?.directoryPath}
+                                        alt={item?.productDetail?.name}
                                         className="item-image"
                                     />
                                 </div>
@@ -180,7 +188,7 @@ export default function Cart() {
                 ) : (
                     <div className="empty-cart">
                         <div>
-                            <FaShoppingCart className="empty-cart-icon" />
+                            <FaShoppingCart className="empty-cart-icon"/>
                         </div>
                         <div>{t("cart_is_empty")}</div>
                     </div>
@@ -214,9 +222,7 @@ export default function Cart() {
                             <button
                                 className="btn-buy"
                                 disabled={cartItems?.length === 0 || selectedIds?.length === 0}
-                                onClick={() => {
-
-                                }}
+                                onClick={handleBuyNow}
                             >
                                 {t("buy_now")}
                             </button>

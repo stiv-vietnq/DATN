@@ -6,6 +6,8 @@ import com.coverstar.service.DashboardService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.YearMonth;
@@ -37,6 +39,7 @@ public class DashboardServiceImpl implements DashboardService {
             if ("year".equalsIgnoreCase(type) && year != null) {
                 List<Object[]> canceledOrders = purchaseRepository.getOrderCountByMonthAndYear(year, 5);
                 List<Object[]> deliveredOrders = purchaseRepository.getOrderCountByMonthAndYear(year, 4);
+                List<Object[]> newOrders = purchaseRepository.getOrderCountByMonthAndYear(year, 1);
                 List<Integer> canceledCounts = new ArrayList<>(Collections.nCopies(12, 0));
                 List<Integer> deliveredCounts = new ArrayList<>(Collections.nCopies(12, 0));
 
@@ -56,11 +59,13 @@ public class DashboardServiceImpl implements DashboardService {
 
                 result.put("canceled", canceledCounts);
                 result.put("delivered", deliveredCounts);
+                result.put("new", newOrders);
                 result.put("labels", labels);
             } else if ("month".equalsIgnoreCase(type) && year != null && month != null) {
                 int daysInMonth = YearMonth.of(year, month).lengthOfMonth();
                 List<Object[]> canceledOrders = purchaseRepository.getOrderCountByDayAndMonth(year, month, 5);
                 List<Object[]> deliveredOrders = purchaseRepository.getOrderCountByDayAndMonth(year, month, 4);
+                List<Object[]> newOrders = purchaseRepository.getOrderCountByDayAndMonth(year, month, 1);
                 List<Integer> canceledCounts = new ArrayList<>(Collections.nCopies(daysInMonth, 0));
                 List<Integer> deliveredCounts = new ArrayList<>(Collections.nCopies(daysInMonth, 0));
 
@@ -80,6 +85,7 @@ public class DashboardServiceImpl implements DashboardService {
 
                 result.put("canceled", canceledCounts);
                 result.put("delivered", deliveredCounts);
+                result.put("new", newOrders);
                 result.put("labels", labels);
             } else if ("range".equalsIgnoreCase(type) && startDate != null && endDate != null) {
                 Calendar calStart = Calendar.getInstance();
@@ -102,6 +108,7 @@ public class DashboardServiceImpl implements DashboardService {
 
                 List<Object[]> canceledOrders = purchaseRepository.getOrderCountByDateRange(startDate, endDate, 5);
                 List<Object[]> deliveredOrders = purchaseRepository.getOrderCountByDateRange(startDate, endDate, 4);
+                List<Object[]> newOrders = purchaseRepository.getOrderCountByDateRange(startDate, endDate, 1);
 
                 for (Object[] record : canceledOrders) {
                     Date date = (Date) record[0];
@@ -118,6 +125,7 @@ public class DashboardServiceImpl implements DashboardService {
 
                 result.put("canceled", canceledCounts);
                 result.put("delivered", deliveredCounts);
+                result.put("new", newOrders);
                 result.put("labels", labels);
             }
 
@@ -187,5 +195,159 @@ public class DashboardServiceImpl implements DashboardService {
 
         return cal1.get(Calendar.YEAR) == cal2.get(Calendar.YEAR) &&
                 cal1.get(Calendar.DAY_OF_YEAR) == cal2.get(Calendar.DAY_OF_YEAR);
+    }
+
+    @Override
+    public Map<String, Object> getRevenue(Integer type, Integer year, Integer month, Date fromDate, Date toDate) {
+        try {
+            Map<String, Object> result = new HashMap<>();
+            List<String> labels = new ArrayList<>();
+            List<BigDecimal> revenues = new ArrayList<>();
+            List<BigDecimal> growthPercent = new ArrayList<>();
+
+            // CASE 1: RANGE DATE
+            if (type == 1) {
+                List<Date> allDates = getDatesBetween(fromDate, toDate);
+                for (Date d : allDates) {
+                    labels.add(dateFormat.format(d));
+                    revenues.add(BigDecimal.ZERO);
+                    growthPercent.add(BigDecimal.ZERO);
+                }
+
+                List<Object[]> dbResult = purchaseRepository.getRevenueByDateRange(fromDate, toDate);
+
+                for (Object[] row : dbResult) {
+                    Date d = (Date) row[0];
+                    BigDecimal amount = (BigDecimal) row[1];
+                    for (int i = 0; i < allDates.size(); i++) {
+                        if (isSameDay(allDates.get(i), d)) {
+                            revenues.set(i, amount);
+                            break;
+                        }
+                    }
+                }
+
+                // Tính growthPercent
+                for (int i = 1; i < revenues.size(); i++) {
+                    BigDecimal prev = revenues.get(i - 1);
+                    BigDecimal curr = revenues.get(i);
+                    if (prev.compareTo(BigDecimal.ZERO) == 0) {
+                        growthPercent.set(i, BigDecimal.ZERO);
+                    } else {
+                        growthPercent.set(i, curr.subtract(prev).divide(prev, 4, RoundingMode.HALF_UP).multiply(BigDecimal.valueOf(100)));
+                    }
+                }
+
+                result.put("labels", labels);
+                result.put("revenues", revenues);
+                result.put("growthPercent", growthPercent);
+                return result;
+            }
+
+            // CASE 2: MONTH
+            if (type == 2) {
+                Calendar cal = Calendar.getInstance();
+                cal.set(year, month - 1, 1);
+                int daysInMonth = cal.getActualMaximum(Calendar.DAY_OF_MONTH);
+
+                for (int d = 1; d <= daysInMonth; d++) {
+                    labels.add(String.valueOf(d));
+                    revenues.add(BigDecimal.ZERO);
+                    growthPercent.add(BigDecimal.ZERO);
+                }
+
+                Date start = getStartOfMonth(year, month);
+                Date end = getEndOfMonth(year, month);
+                List<Object[]> dbResult = purchaseRepository.getRevenueByDateRange(start, end);
+
+                for (Object[] row : dbResult) {
+                    Calendar c = Calendar.getInstance();
+                    c.setTime((Date) row[0]);
+                    int day = c.get(Calendar.DAY_OF_MONTH);
+                    revenues.set(day - 1, (BigDecimal) row[1]);
+                }
+
+                for (int i = 1; i < revenues.size(); i++) {
+                    BigDecimal prev = revenues.get(i - 1);
+                    BigDecimal curr = revenues.get(i);
+                    if (prev.compareTo(BigDecimal.ZERO) == 0) {
+                        growthPercent.set(i, BigDecimal.ZERO);
+                    } else {
+                        growthPercent.set(i, curr.subtract(prev).divide(prev, 4, RoundingMode.HALF_UP).multiply(BigDecimal.valueOf(100)));
+                    }
+                }
+
+                result.put("labels", labels);
+                result.put("revenues", revenues);
+                result.put("growthPercent", growthPercent);
+                return result;
+            }
+
+            // CASE 3: YEAR
+            if (type == 3) {
+                for (int m = 1; m <= 12; m++) {
+                    labels.add("Tháng " + m);
+                    revenues.add(BigDecimal.ZERO);
+                    growthPercent.add(BigDecimal.ZERO);
+                }
+
+                List<Object[]> dbResult = purchaseRepository.getRevenueOfYear(year);
+
+                for (Object[] row : dbResult) {
+                    Integer m = (Integer) row[0];
+                    BigDecimal amount = (BigDecimal) row[1];
+                    revenues.set(m - 1, amount);
+                }
+
+                for (int i = 1; i < revenues.size(); i++) {
+                    BigDecimal prev = revenues.get(i - 1);
+                    BigDecimal curr = revenues.get(i);
+                    if (prev.compareTo(BigDecimal.ZERO) == 0) {
+                        growthPercent.set(i, BigDecimal.ZERO);
+                    } else {
+                        growthPercent.set(i, curr.subtract(prev).divide(prev, 4, RoundingMode.HALF_UP).multiply(BigDecimal.valueOf(100)));
+                    }
+                }
+
+                result.put("labels", labels);
+                result.put("revenues", revenues);
+                result.put("growthPercent", growthPercent);
+                return result;
+            }
+
+            return result;
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw e;
+        }
+    }
+
+
+    private List<Date> getDatesBetween(Date start, Date end) {
+        List<Date> dates = new ArrayList<>();
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(start);
+
+        while (!cal.getTime().after(end)) {
+            dates.add(cal.getTime());
+            cal.add(Calendar.DAY_OF_YEAR, 1);
+        }
+        return dates;
+    }
+
+    private Date getStartOfMonth(int year, int month) {
+        Calendar cal = Calendar.getInstance();
+        cal.set(year, month - 1, 1, 0, 0, 0);
+        cal.set(Calendar.MILLISECOND, 0);
+        return cal.getTime();
+    }
+
+    private Date getEndOfMonth(int year, int month) {
+        Calendar cal = Calendar.getInstance();
+        cal.set(year, month - 1, 1, 23, 59, 59);
+        cal.set(Calendar.DAY_OF_MONTH, cal.getActualMaximum(Calendar.DAY_OF_MONTH));
+        cal.set(Calendar.MILLISECOND, 999);
+        return cal.getTime();
     }
 }

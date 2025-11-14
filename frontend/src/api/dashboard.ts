@@ -17,3 +17,15 @@ interface ChartPurchaseParams {
 export const getChartPurchase = (params: ChartPurchaseParams) => {
   return api.get("/dashboards/getChartPurchase", { params });
 };
+
+interface RevenueParams {
+    type: number;
+    year?: number;
+    month?: number;
+    startDate?: string;
+    endDate?: string;
+}
+
+export const getChartRevenue = (params: RevenueParams) => {
+  return api.get("/dashboards/revenue", { params });
+};

@@ -10,7 +10,7 @@ interface StringDropdownProps {
     value: string | null;
     onChange: (value: string | null) => void;
     options: Option[];
-    placeholder?: string;
+    placeholder?: string | null;
     error?: string;
     style?: CSSProperties;
     disabled?: boolean;
@@ -39,7 +39,11 @@ const StringDropdown = ({
                 style={style}
                 disabled={disabled}
             >
-                <option value="">{placeholder}</option>
+                {placeholder && (
+                    <option value="">
+                        {placeholder}
+                    </option>
+                )}
                 {options.map((opt) => (
                     <option key={opt.value} value={opt.value}>
                         {opt.label}

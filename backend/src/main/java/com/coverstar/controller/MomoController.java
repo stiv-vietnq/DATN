@@ -23,17 +23,17 @@ public class MomoController {
     private CreateOrderMoMo createOrderMoMo;
 
     @PostMapping("/submitOrder")
-    public ResponseEntity<?> submidOrder(@RequestParam("amount") BigDecimal orderTotal,
-                                         @RequestParam("username") String username) {
+    public ResponseEntity<?> submidOrder(@RequestParam("amount") String orderTotal) {
         try {
+            long amount = (long) Double.parseDouble(orderTotal);
             String requestId = String.valueOf(System.currentTimeMillis());
             String orderId = String.valueOf(System.currentTimeMillis());
             String orderInfo = "Pay With MoMo";
-            String returnURL = "https://google.com.vn";
-            String notifyURL = "https://google.com.vn";
+            String returnURL = "http://localhost:4200/purchases?payment=momo-success";
+            String notifyURL = "http://localhost:4200/purchases?payment=momo-notify";
             ConfigEnvironment configEnvironment = ConfigEnvironment.selectEnv("dev");
             PaymentResponse captureATMMoMoResponse = CreateOrderMoMo.process(configEnvironment, orderId, requestId,
-                    String.valueOf(orderTotal), orderInfo, returnURL, notifyURL, "", RequestType.PAY_WITH_ATM, null);
+                    String.valueOf(amount), orderInfo, returnURL, notifyURL, "", RequestType.PAY_WITH_ATM, null);
             return ResponseEntity.ok(captureATMMoMoResponse);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Constants.ERROR);

@@ -10,6 +10,5 @@ public interface CartService {
     List<Cart> getAllCartsByUserId(Long userId, String name, boolean status);
     Cart getCartById(Long id);
     void deleteCart(List<Long> id);
-
     Cart changeQuanlityAndTotal(Long id, Long quantity, String total);
 }

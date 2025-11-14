@@ -8,4 +8,6 @@ public interface DashboardService {
     Map<String, Object> getChartPurchase(String type, Integer year, Integer month, Date startDate, Date endDate) throws Exception;
 
     List<Object> getChartWidgets(Integer type);
+
+    Map<String, Object> getRevenue(Integer type, Integer year, Integer month, Date start, Date end);
 }
