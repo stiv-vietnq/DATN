@@ -12,6 +12,7 @@ import Loading from "../../components/common/loading/Loading";
 import AddressItem from "../user/address/AddressItem";
 import PaymentTab from "./paymentTab/PaymentTab";
 import "./Purchases.css";
+import { deleteCart } from "../../api/cart";
 
 interface ProductDetail {
     name: string;
@@ -66,6 +67,10 @@ export default function Purchases() {
         setLoading(true);
         createPurchase([customerInfo]).then(() => {
             if (customerInfo.paymentMethod === "cod") {
+                const itemIds = selectedItems.map((item) => item.id);
+                if (itemIds.length > 0) {
+                    handleDeleteCartItem(itemIds);
+                }
                 navigate("/purchases-success");
             }
             setLoading(false);
@@ -77,6 +82,10 @@ export default function Purchases() {
     const handleOnlinePayment = () => {
         handleBuyNow();
         if (customerInfo.paymentMethod === "vnpay") {
+            const itemIds = selectedItems.map((item) => item.id);
+            if (itemIds.length > 0) {
+                handleDeleteCartItem(itemIds);
+            }
         } else if (customerInfo.paymentMethod === "momo") {
             createMomoPayment(
                 String(selectedItems.reduce((acc, item) => acc + item.total, 0))
@@ -85,10 +94,18 @@ export default function Purchases() {
                 if (payUrl) {
                     window.location.href = payUrl;
                 }
+                const itemIds = selectedItems.map((item) => item.id);
+                if (itemIds.length > 0) {
+                    handleDeleteCartItem(itemIds);
+                }
             }).catch((err) => {
                 console.error("Error creating Momo payment:", err);
             });
         } else if (customerInfo.paymentMethod === "paypal") {
+            const itemIds = selectedItems.map((item) => item.id);
+            if (itemIds.length > 0) {
+                handleDeleteCartItem(itemIds);
+            }
         }
     }
 
@@ -119,6 +136,18 @@ export default function Purchases() {
                 return null;
         }
     };
+
+    const handleDeleteCartItem = (itemIds: number[]) => {
+        setLoading(true);
+        deleteCart(itemIds)
+            .then()
+            .catch((error) => {
+                console.error("Error deleting cart items:", error);
+            }).finally(() => {
+                setLoading(false);
+            });
+    }
+
     if (loading) return <Loading />;
     return (
         <div className="main-content-cart">

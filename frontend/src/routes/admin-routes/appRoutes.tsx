@@ -1,4 +1,4 @@
-import { FaList } from "react-icons/fa";
+import { FaDiscord, FaList } from "react-icons/fa";
 import {
   FaBoxesStacked,
   FaCartShopping,
@@ -109,6 +109,15 @@ const appRoutes: RouteType[] = [
     sidebarProps: {
       displayText: "Quản lý người dùng",
       icon: <FaUser />,
+    },
+  },
+  {
+    path: "discounts",
+    element: <UserPage />,
+    state: "discounts",
+    sidebarProps: {
+      displayText: "Quản lý giảm giá",
+      icon: <FaDiscord />,
     },
   },
 ];

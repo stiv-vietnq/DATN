@@ -1,12 +1,11 @@
 import { useTranslation } from "react-i18next";
-import { use, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import "./Address.css";
 import AddressPopup from "./modal/AddressPopup";
 import { deleteAddressById, getAddressesByUserId, updateDefaultAddress } from "../../../api/address";
 import AddressItem from "./AddressItem";
 import ConfirmModal from "../../../components/common/confirmModal/ConfirmModal";
 import Loading from "../../../components/common/loading/Loading";
-
 
 interface Address {
     id: number;
@@ -23,13 +22,12 @@ export default function Address() {
     const { t } = useTranslation();
     const [loading, setLoading] = useState(false);
     const [showPopup, setShowPopup] = useState(false);
+    const [editingAddress, setEditingAddress] = useState<Address | null>(null); // thêm state để lưu địa chỉ đang edit
     const userId = localStorage.getItem("userId");
     const [showConfirm, setShowConfirm] = useState(false);
     const [addresses, setAddresses] = useState<Address[]>([]);
     const [selectedAddressId, setSelectedAddressId] = useState<number | null>(null);
-    const [confirmAction, setConfirmAction] = useState<
-        "setDefault" | "delete" | null
-    >(null);
+    const [confirmAction, setConfirmAction] = useState<"setDefault" | "delete" | null>(null);
 
     useEffect(() => {
         handleSearch();
@@ -38,11 +36,9 @@ export default function Address() {
     const handleSearch = () => {
         if (userId) {
             setLoading(true);
-            getAddressesByUserId(Number(userId)).then((res) => {
-                setAddresses(res.data);
-            }).finally(() => {
-                setLoading(false);
-            });
+            getAddressesByUserId(Number(userId))
+                .then((res) => setAddresses(res.data))
+                .finally(() => setLoading(false));
         }
     };
 
@@ -78,7 +74,10 @@ export default function Address() {
                 <div className="address-actions">
                     <button
                         className="address-add-button"
-                        onClick={() => setShowPopup(true)}
+                        onClick={() => {
+                            setEditingAddress(null); // Thêm mới thì null
+                            setShowPopup(true);
+                        }}
                     >
                         {t("add_new_address")}
                     </button>
@@ -103,27 +102,40 @@ export default function Address() {
                             </div>
                             <div className="address-actions-item">
                                 <div className="address-action-set-default">
-                                    <button className="btn-set-default"
+                                    <button
+                                        className="btn-set-default"
                                         onClick={() => {
                                             setSelectedAddressId(addr.id);
                                             setConfirmAction("setDefault");
                                             setShowConfirm(true);
                                         }}
-                                        disabled={addr.defaultValue === 1}>
+                                        disabled={addr.defaultValue === 1}
+                                    >
                                         Thiết lập mặc định
                                     </button>
                                 </div>
                                 <div className="address-action-delete">
                                     {addr.defaultValue === 0 && (
-                                        <button className="btn-delete"
+                                        <button
+                                            className="btn-delete"
                                             onClick={() => {
                                                 setSelectedAddressId(addr.id);
                                                 setConfirmAction("delete");
                                                 setShowConfirm(true);
                                             }}
-                                        >Xóa</button>
+                                        >
+                                            Xóa
+                                        </button>
                                     )}
-                                    <button className="btn-update">Cập nhật</button>
+                                    <button
+                                        className="btn-update"
+                                        onClick={() => {
+                                            setEditingAddress(addr); // truyền địa chỉ hiện tại vào popup
+                                            setShowPopup(true);
+                                        }}
+                                    >
+                                        Cập nhật
+                                    </button>
                                 </div>
                             </div>
                         </div>
@@ -133,6 +145,7 @@ export default function Address() {
 
             {showPopup && (
                 <AddressPopup
+                    addressData={editingAddress} // truyền dữ liệu nếu đang edit
                     onClose={() => setShowPopup(false)}
                     onSuccess={() => {
                         setShowPopup(false);

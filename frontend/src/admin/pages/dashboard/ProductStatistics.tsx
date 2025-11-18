@@ -10,16 +10,16 @@ import {
   Tooltip,
 } from "chart.js";
 import { useEffect, useState } from "react";
-import { Chart, Line } from "react-chartjs-2";
-import { getChartRevenue, getProductStats } from "../../../api/dashboard";
-import StringDropdown from "../../../components/common/dropdown/StringDropdown";
-import Input from "../../../components/common/input/Input";
-import DateRangePicker from "../../../components/common/dateRangePicker/DateRangePicker";
+import { Chart } from "react-chartjs-2";
 import { getProductTypeByStatus } from "../../../api/brand";
 import { getCategorysByProductTypeId } from "../../../api/category";
-import Loading from "../../../components/common/loading/Loading";
-import MultiDropdown from "../../../components/common/dropdown/MultiDropdown";
+import { getProductStats } from "../../../api/dashboard";
 import { ProductSearch } from "../../../api/product";
+import DateRangePicker from "../../../components/common/dateRangePicker/DateRangePicker";
+import MultiDropdown from "../../../components/common/dropdown/MultiDropdown";
+import StringDropdown from "../../../components/common/dropdown/StringDropdown";
+import Input from "../../../components/common/input/Input";
+import Loading from "../../../components/common/loading/Loading";
 
 ChartJS.register(
   BarElement,
@@ -62,10 +62,6 @@ const ProductStatistics = () => {
   );
   const [selectedValues, setSelectedValues] = useState<string[]>([]);
   const [productOptions, setProductOptions] = useState<Option[]>([]);
-  const [detailPieData, setDetailPieData] = useState<{
-    label: string;
-    value: number;
-  } | null>(null);
 
   useEffect(() => {
     handleChartRevenue();
@@ -226,8 +222,8 @@ const ProductStatistics = () => {
                     onChangeTo={setToDate}
                     error={
                       fromDate &&
-                      toDate &&
-                      new Date(fromDate) > new Date(toDate)
+                        toDate &&
+                        new Date(fromDate) > new Date(toDate)
                         ? "Ngày bắt đầu phải nhỏ hơn ngày kết thúc"
                         : undefined
                     }
