@@ -4,6 +4,7 @@ import { getPurchaseByUserId, updateStatus } from "../../../api/purchases";
 import Input from "../../../components/common/input/Input";
 import Button from "../../../components/common/button/Button";
 import ConfirmModal from "../../../components/common/confirmModal/ConfirmModal";
+import { t } from "i18next";
 
 // Interface cho từng sản phẩm trong đơn hàng
 export interface OrderItem {
@@ -44,12 +45,12 @@ export default function UserPurchases() {
   const [selectedId, setSelectedId] = useState<number>(0);
 
   const tabs = [
-    { key: "", label: "Tất cả" },
-    { key: "1", label: "Chờ duyệt" },
-    { key: "2", label: "Đã duyệt" },
-    { key: "3", label: "Đang giao" },
-    { key: "4", label: "Hoàn thành" },
-    { key: "5", label: "Đã hủy" },
+    { key: "", label: t('all') },
+    { key: "1", label: t('waiting_for_confirmation') },
+    { key: "2", label: t('being_delivered') },
+    { key: "3", label: t('delivering') },
+    { key: "4", label: t('delivered') },
+    { key: "5", label: t('cancelled') },
   ];
 
   useEffect(() => {
@@ -72,17 +73,17 @@ export default function UserPurchases() {
   const getStatusLabel = (status: number) => {
     switch (status) {
       case 1:
-        return { text: "Chờ xác nhận", color: "#FFA500" }; // cam
+        return { text: t('waiting_for_confirmation'), color: "#FFA500" };
       case 2:
-        return { text: "Vận chuyển", color: "#1E90FF" }; // xanh dương
+        return { text: t('being_delivered'), color: "#1E90FF" };
       case 3:
-        return { text: "Chờ giao hàng", color: "#FFD700" }; // vàng
+        return { text: t('delivering'), color: "#FFD700" };
       case 4:
-        return { text: "Hoàn thành", color: "#28a745" }; // xanh lá
+        return { text: t('delivered'), color: "#28a745" };
       case 5:
-        return { text: "Đã hủy", color: "#dc3545" }; // đỏ
+        return { text: t('cancelled'), color: "#dc3545" };
       default:
-        return { text: "Không xác định", color: "#6c757d" }; // xám
+        return { text: "Không xác định", color: "#6c757d" };
     }
   };
 
@@ -126,8 +127,8 @@ export default function UserPurchases() {
         {orders.length === 0 ? (
           <div className="empty-orders">
             <div className="empty-icon">🛒</div>
-            <div className="empty-text">Chưa có đơn hàng nào</div>
-            <div className="empty-subtext">Hãy mua sắm ngay để tạo đơn đầu tiên!</div>
+            <div className="empty-text">{t('no_orders')}</div>
+            <div className="empty-subtext">{t('buuy')}</div>
           </div>
         ) : (
           orders.map((order) => (
@@ -159,7 +160,7 @@ export default function UserPurchases() {
 
               <div className="order-total">
                 <div>
-                  Tổng tiền: <span className="order-total-amount">{order.purchaseItems
+                  {t('total_price_1')}: <span className="order-total-amount">{order.purchaseItems
                     ?.reduce((sum, item) => sum + Number(item.total), 0)}
                     ₫</span>
                 </div>
@@ -172,7 +173,7 @@ export default function UserPurchases() {
                         setSelectedId(order?.id);
                       }}
                     >
-                      Hủy đơn hàng
+                      {t("cancel_order")}
                     </button>
                   </div>
                 )}
@@ -185,8 +186,8 @@ export default function UserPurchases() {
 
       {showConfirm && (
         <ConfirmModal
-          title={"Xác nhận hủy đơn hàng"}
-          message={"Bạn có chắc chắn muốn hủy đơn hàng này?"}
+          title={t("confirm_cancel_order")}
+          message={t("are_you_sure_cancel_order")}
           onConfirm={() =>
             handleCancelOrder(selectedId)
           }

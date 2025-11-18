@@ -20,6 +20,7 @@ import { renderRoutes } from "./RenderRoutes";
 import appRoutes from "./admin-routes/appRoutes";
 import Address from "../pages/user/address/Address";
 import ChangePassword from "../pages/user/change-password/ChangePassword";
+import PurchasesSuccess from "../pages/purchase/purchasesSuccess/PurchasesSuccess";
 
 export default function AppRouter() {
   return (
@@ -41,6 +42,7 @@ export default function AppRouter() {
       <Route element={<CartLayout />}>
         <Route path="/cart" element={<Cart />} />
         <Route path="/purchases" element={<Purchases />} />
+        <Route path="/purchases-success" element={<PurchasesSuccess />} />
       </Route>
 
       <Route element={<AuthLayout />}>

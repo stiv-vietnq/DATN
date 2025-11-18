@@ -1,12 +1,12 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import {useEffect, useState} from "react";
+import { useEffect, useState } from "react";
 import "./Cart.css";
-import {useTranslation} from "react-i18next";
-import {changeQuantityAndTotal, deleteCart, getAllCartsByUserId} from "../../api/cart";
-import {FaTrash} from "react-icons/fa6";
+import { useTranslation } from "react-i18next";
+import { changeQuantityAndTotal, deleteCart, getAllCartsByUserId } from "../../api/cart";
+import { FaTrash } from "react-icons/fa6";
 import Loading from "../../components/common/loading/Loading";
-import {FaShoppingCart} from "react-icons/fa";
-import {useNavigate} from "react-router-dom";
+import { FaShoppingCart } from "react-icons/fa";
+import { useLocation, useNavigate } from "react-router-dom";
 
 
 interface CartItem {
@@ -21,14 +21,21 @@ interface CartItem {
 }
 
 export default function Cart() {
-    const {t} = useTranslation();
+    const { t } = useTranslation();
     const [loading, setLoading] = useState(false);
     const userId = localStorage.getItem("userId");
     const [cartItems, setCartItems] = useState<CartItem[]>([]);
     const [selectedIds, setSelectedIds] = useState<number[]>([]);
     const [showConfirm, setShowConfirm] = useState(false);
     const navigate = useNavigate();
+    const location = useLocation();
+    const autoSelectId = location.state?.autoSelectId;
 
+    useEffect(() => {
+        if (autoSelectId) {
+            setSelectedIds([autoSelectId]);
+        }
+    }, [autoSelectId]);
 
     useEffect(() => {
         handleGetCartItemsByUserId();
@@ -93,7 +100,7 @@ export default function Cart() {
         setCartItems((prev) =>
             prev.map((item) =>
                 item.id === itemId
-                    ? {...item, quantity: newQuantity, total: newQuantity * item.productDetail.price}
+                    ? { ...item, quantity: newQuantity, total: newQuantity * item.productDetail.price }
                     : item
             )
         );
@@ -115,10 +122,10 @@ export default function Cart() {
     const handleBuyNow = () => {
         if (selectedIds.length === 0) return;
         const selectedItems = cartItems.filter(item => selectedIds.includes(item.id));
-        navigate("/purchases", {state: {selectedItems}});
+        navigate("/purchases", { state: { selectedItems } });
     };
 
-    if (loading) return <Loading/>;
+    if (loading) return <Loading />;
 
     return (
         <div className="main-content-cart">
@@ -188,7 +195,7 @@ export default function Cart() {
                 ) : (
                     <div className="empty-cart">
                         <div>
-                            <FaShoppingCart className="empty-cart-icon"/>
+                            <FaShoppingCart className="empty-cart-icon" />
                         </div>
                         <div>{t("cart_is_empty")}</div>
                     </div>

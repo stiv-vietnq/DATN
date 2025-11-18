@@ -62,7 +62,7 @@ public class PaypalController {
         try {
             Payment payment = paypalService.executePayment(paymentId, payerId);
             if (payment.getState().equals("approved")) {
-                return ResponseEntity.ok("paymentSuccess");
+                return ResponseEntity.ok("purchases-success");
             }
         } catch (PayPalRESTException e) {
             log.error("Error occurred:: ", e);

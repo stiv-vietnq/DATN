@@ -166,5 +166,18 @@
   "total_price": "Total Price",
   "product_item": "Product",
   "buy_now": "Buy Now",
-  "cart_is_empty": "Your cart is empty"
+  "cart_is_empty": "Your cart is empty",
+  "cancel_order": "Cancel Order",
+  "confirm_cancel_order": "Confirm Cancel Order",
+  "are_you_sure_cancel_order": "Are you sure you want to cancel this order?",
+  "total_price_1": "Total Amount",
+  "no_orders": "No orders yet",
+  "buuy": "Shop now to create your first order!",
+  "waiting_for_confirmation": "Waiting for confirmation",
+  "being_delivered": "Being delivered",
+  "delivering": "Delivering",
+  "delivered": "Delivered",
+  "cancelled": "Cancelled",
+  "all": "All",
+  "purchase-success":"Purchase Successful"
 }

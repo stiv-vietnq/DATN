@@ -215,6 +215,43 @@ export default function ProductDetail() {
     }
   };
 
+  const handleBuyNow = () => {
+    setLoading(true);
+    if (!selectedDetail) {
+      alert("Vui lòng chọn chi tiết sản phẩm!");
+      return;
+    }
+
+    try {
+      const userId = Number(localStorage.getItem("userId") || "0");
+      if (!userId) {
+        alert("Vui lòng đăng nhập để thêm vào giỏ hàng!");
+        return;
+      }
+
+      const quantity = 1;
+      const total =
+        selectedDetail.price *
+        (1 - (selectedDetail.percentageReduction || 0) / 100) *
+        quantity;
+
+      const cartDto = {
+        productDetailId: String(selectedDetail.id),
+        userId,
+        quantity,
+        total,
+        size: 0,
+      };
+
+      createOrUpdateCart(cartDto).then((res) => {
+        navigate("/cart", { state: { autoSelectId: res.data.id } });
+      });
+    } catch (error) {
+    } finally {
+      setLoading(false);
+    }
+  }
+
 
   if (loading) return <Loading />;
 
@@ -330,7 +367,7 @@ export default function ProductDetail() {
 
               {/* Nút mua hàng */}
               <div className="btn-group">
-                <button className="btn-buy">
+                <button className="btn-buy" onClick={handleBuyNow}>
                   <FaBagShopping />
                   <div>{t("product_detail.buy_now")}</div>
                 </button>

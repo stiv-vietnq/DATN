@@ -29,8 +29,8 @@ public class MomoController {
             String requestId = String.valueOf(System.currentTimeMillis());
             String orderId = String.valueOf(System.currentTimeMillis());
             String orderInfo = "Pay With MoMo";
-            String returnURL = "http://localhost:4200/purchases?payment=momo-success";
-            String notifyURL = "http://localhost:4200/purchases?payment=momo-notify";
+            String returnURL = "http://localhost:4200/purchases-success";
+            String notifyURL = "http://localhost:4200/purchases-notify";
             ConfigEnvironment configEnvironment = ConfigEnvironment.selectEnv("dev");
             PaymentResponse captureATMMoMoResponse = CreateOrderMoMo.process(configEnvironment, orderId, requestId,
                     String.valueOf(amount), orderInfo, returnURL, notifyURL, "", RequestType.PAY_WITH_ATM, null);

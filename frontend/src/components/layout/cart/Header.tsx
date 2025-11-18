@@ -15,6 +15,7 @@ export default function Header() {
   const getTitle = () => {
     if (location.pathname.startsWith("/cart")) return t("cart");
     if (location.pathname.startsWith("/purchases")) return t("purchase");
+    if (location.pathname.startsWith("/purchases-success")) return t("purchase-success");
     return "";
   };
 

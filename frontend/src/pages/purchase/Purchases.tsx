@@ -8,6 +8,7 @@ import {
 } from "../../api/address";
 import { createMomoPayment } from "../../api/momo";
 import { createPurchase, PurchaseDto, PurchaseItemDto } from "../../api/purchases";
+import Loading from "../../components/common/loading/Loading";
 import AddressItem from "../user/address/AddressItem";
 import PaymentTab from "./paymentTab/PaymentTab";
 import "./Purchases.css";
@@ -33,6 +34,7 @@ interface CartItem {
 }
 
 export default function Purchases() {
+    const [loading, setLoading] = useState(false);
     const [step, setStep] = useState(1);
     const [customerInfo, setCustomerInfo] = useState<PurchaseDto>({
         userId: Number(localStorage.getItem("userId")),
@@ -45,8 +47,8 @@ export default function Purchases() {
 
     const location = useLocation();
     const selectedItems: CartItem[] = location.state?.selectedItems || [];
+    const navigate = useNavigate();
 
-    // ----- set items từ selectedItems
     useEffect(() => {
         if (selectedItems.length > 0) {
             const items: PurchaseItemDto[] = selectedItems.map((item) => ({
@@ -61,14 +63,19 @@ export default function Purchases() {
     }, [selectedItems]);
 
     const handleBuyNow = () => {
-        createPurchase([customerInfo]).then((res) => {
-            setStep(3);
-        }).catch((err) => {
-            console.error("Error creating purchase:", err);
+        setLoading(true);
+        createPurchase([customerInfo]).then(() => {
+            if (customerInfo.paymentMethod === "cod") {
+                navigate("/purchases-success");
+            }
+            setLoading(false);
+        }).catch(() => {
+            setLoading(false);
         });
     };
 
     const handleOnlinePayment = () => {
+        handleBuyNow();
         if (customerInfo.paymentMethod === "vnpay") {
         } else if (customerInfo.paymentMethod === "momo") {
             createMomoPayment(
@@ -78,12 +85,10 @@ export default function Purchases() {
                 if (payUrl) {
                     window.location.href = payUrl;
                 }
-                handleBuyNow();
             }).catch((err) => {
                 console.error("Error creating Momo payment:", err);
             });
         } else if (customerInfo.paymentMethod === "paypal") {
-            setStep(3);
         }
     }
 
@@ -110,13 +115,11 @@ export default function Purchases() {
                     />
 
                 );
-            case 3:
-                return <CompleteTab />;
             default:
                 return null;
         }
     };
-
+    if (loading) return <Loading />;
     return (
         <div className="main-content-cart">
             <div className="purchases-main">
@@ -162,7 +165,7 @@ const StepHeader = ({ step }: { step: number }) => {
     const { t } = useTranslation();
     return (
         <div className="step-header">
-            {[t("info"), t("buy"), t("complete")].map((label, index) => (
+            {[t("info"), t("buy")].map((label, index) => (
                 <div key={index} className="step-item">
                     <div className={`step-circle ${step >= index + 1 ? "active" : ""}`}>
                         {index + 1}
@@ -266,24 +269,6 @@ const InfoTab = ({
                     </div>
                 </div>
             )}
-        </div>
-    );
-};
-
-// ----- Complete Tab -----
-const CompleteTab = () => {
-    const navigate = useNavigate();
-
-    return (
-        <div className="complete-tab">
-            <h3>✅ Đặt hàng thành công!</h3>
-            <p>
-                Cảm ơn bạn đã mua hàng. Chúng tôi sẽ liên hệ để xác nhận đơn hàng sớm
-                nhất.
-            </p>
-            <button className="btn back" onClick={() => navigate("/")}>
-                Quay lại
-            </button>
         </div>
     );
 };

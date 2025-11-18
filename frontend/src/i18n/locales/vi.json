@@ -80,7 +80,7 @@
   "top_search": "Danh mục",
   "view_all": "Xem tất cả",
   "home": {
-    "product":{
+    "product": {
       "title": "Gợi ý hôm nay",
       "view_all": "Xem thêm"
     }
@@ -92,7 +92,7 @@
     "add_to_cart": "Thêm vào giỏ hàng"
   },
   "product-description": "Mô tả sản phẩm",
-  "comment" : {
+  "comment": {
     "enter_username": "Nhập tên người dùng...",
     "enter_email": "Nhập email...",
     "enter_phone_number": "Nhập số điện thoại...",
@@ -116,10 +116,10 @@
   "reset_all": "Đặt lại tất cả",
   "sold": "Đã bán:",
   "product_sold": "Đã bán",
-  "purchase":"Mua hàng",
-  "info":"Thông tin",
-  "buy":"Đặt hàng",
-  "complete":"Hoàn tất",
+  "purchase": "Mua hàng",
+  "info": "Thông tin",
+  "buy": "Đặt hàng",
+  "complete": "Hoàn tất",
   "customer_info": "Thông tin khách hàng",
   "name_placeholder": "Họ và tên",
   "phone_placeholder": "Số điện thoại",
@@ -150,9 +150,9 @@
   "month": "Tháng",
   "year": "Năm",
   "save": "Lưu",
-  "placeholder_1":"Dung lượng file tối đa 1MB",
-  "placeholder_2":"Định dạng file: .JPEG, .PNG",
-  "placeholder_change_password":"Để bảo mật tài khoản, vui lòng không chia sẻ mật khẩu cho người khác",
+  "placeholder_1": "Dung lượng file tối đa 1MB",
+  "placeholder_2": "Định dạng file: .JPEG, .PNG",
+  "placeholder_change_password": "Để bảo mật tài khoản, vui lòng không chia sẻ mật khẩu cho người khác",
   "old_password": "Mật khẩu cũ",
   "enter_old_password": "Nhập mật khẩu cũ...",
   "new_password": "Mật khẩu mới",
@@ -166,5 +166,18 @@
   "total_price": "Tổng cộng",
   "product_item": "Sản phẩm",
   "buy_now": "Mua hàng",
-  "cart_is_empty": "Giỏ hàng của bạn đang trống"
+  "cart_is_empty": "Giỏ hàng của bạn đang trống",
+  "cancel_order": "Hủy đơn hàng",
+  "confirm_cancel_order": "Xác nhận hủy đơn hàng",
+  "are_you_sure_cancel_order": "Bạn có chắc chắn muốn hủy đơn hàng này?",
+  "total_price_1": "Tổng tiền",
+  "no_orders": "Chưa có đơn hàng nào",
+  "buuy": "Hãy mua sắm ngay để tạo đơn đầu tiên!",
+  "waiting_for_confirmation": "Chờ xác nhận",
+  "being_delivered": "Vận chuyển",
+  "delivering": "Đang giao hàng",
+  "delivered": "Đã giao hàng",
+  "cancelled": "Đã hủy",
+  "all": "Tất cả",
+  "purchase-success":"Mua hàng thành công"
 }

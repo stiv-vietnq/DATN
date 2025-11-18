@@ -158,19 +158,19 @@ const PurchasePage = () => {
 
         switch (item.status) {
           case 1:
-            label = "Chờ duyệt";
+            label = "Chờ xác nhận";
             className = "status-pending";
             break;
           case 2:
-            label = "Đã duyệt";
+            label = "Vận chuyển";
             className = "status-approved";
             break;
           case 3:
-            label = "Đang xử lý";
+            label = "Đang giao hàng";
             className = "status-processing";
             break;
           case 4:
-            label = "Hoàn thành";
+            label = "Đã giao hàng";
             className = "status-completed";
             break;
           case 5:
@@ -236,10 +236,10 @@ const PurchasePage = () => {
                 value={selectedStatus}
                 onChange={setSelectedStatus}
                 options={[
-                  { label: "Chờ duyệt", value: "1" },
-                  { label: "Đã duyệt", value: "2" },
-                  { label: "Đang xử lý", value: "3" },
-                  { label: "Hoàn thành", value: "4" },
+                  { label: "Chờ xác nhận", value: "1" },
+                  { label: "Vận chuyển", value: "2" },
+                  { label: "Đang giao hàng", value: "3" },
+                  { label: "Đã giao hàng", value: "4" },
                   { label: "Đã hủy", value: "5" },
                 ]}
                 placeholder="--Chọn trạng thái--"
