@@ -17,6 +17,7 @@ import "./dashboard.css";
 import StringDropdown from "../../../components/common/dropdown/StringDropdown";
 import Input from "../../../components/common/input/Input";
 import DateRangePicker from "../../../components/common/dateRangePicker/DateRangePicker";
+import Loading from "../../../components/common/loading/Loading";
 
 ChartJS.register(
   CategoryScale,
@@ -49,6 +50,7 @@ const PurchasesDashboardPage = () => {
   const [month, setMonth] = useState<number | null>(null);
   const [fromDate, setFromDate] = useState<string | null>(null);
   const [toDate, setToDate] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     handleGetVisitAccount();
@@ -76,6 +78,7 @@ const PurchasesDashboardPage = () => {
   };
 
   const handleGetVisitAccount = () => {
+    setLoading(true);
     getChartPurchase({
       type: selected || "year",
       year: year || 2025,
@@ -88,9 +91,11 @@ const PurchasesDashboardPage = () => {
       })
       .catch((error) => {
         console.error("Error fetching chart purchase data:", error);
+      }).finally(() => {
+        setLoading(false);
       });
   };
-
+  if (loading) return <Loading />;
   return (
     <div style={{ padding: "20px" }}>
       <div style={{ width: "100%", margin: "0 auto" }}>
@@ -115,8 +120,8 @@ const PurchasesDashboardPage = () => {
                     onChangeTo={setToDate}
                     error={
                       fromDate &&
-                      toDate &&
-                      new Date(fromDate) > new Date(toDate)
+                        toDate &&
+                        new Date(fromDate) > new Date(toDate)
                         ? "Ngày bắt đầu phải nhỏ hơn ngày kết thúc"
                         : undefined
                     }

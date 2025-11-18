@@ -12,8 +12,8 @@ import java.util.List;
 @Repository
 public interface UserVisitRepository extends JpaRepository<UserVisits, Long> {
 
-    @Query("SELECT u FROM UserVisits u WHERE CAST(u.visitDate AS date) = CAST(:date AS date) AND u.type = :type")
-    UserVisits findByVisitDate(@Param("date") Date date, @Param("type") Integer type);
+    @Query("SELECT u FROM UserVisits u WHERE u.type = :type")
+    UserVisits findByVisitDate(@Param("type") Integer type);
 
 
     @Query("SELECT uv.visitDate, SUM(uv.visitCount) " +

@@ -15,6 +15,7 @@ import { getChartRevenue } from "../../../api/dashboard";
 import StringDropdown from "../../../components/common/dropdown/StringDropdown";
 import Input from "../../../components/common/input/Input";
 import DateRangePicker from "../../../components/common/dateRangePicker/DateRangePicker";
+import Loading from "../../../components/common/loading/Loading";
 
 ChartJS.register(
   BarElement,
@@ -44,12 +45,14 @@ const SummaryStatistics = () => {
   const [month, setMonth] = useState<number | null>(11);
   const [fromDate, setFromDate] = useState<string | null>(null);
   const [toDate, setToDate] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     handleChartRevenue();
   }, []);
 
   const handleChartRevenue = () => {
+    setLoading(true);
     getChartRevenue({
       type: Number(selected) || 3,
       year: year || 2025,
@@ -60,6 +63,8 @@ const SummaryStatistics = () => {
       setRevenueDB(response?.data);
     }).catch((error) => {
       console.error('Error fetching chart widgets:', error);
+    }).finally(() => {
+      setLoading(false);
     });
   }
 
@@ -112,7 +117,7 @@ const SummaryStatistics = () => {
       },
     },
   };
-
+  if (loading) return <Loading />;
   return (
     <div style={{ padding: '20px' }}>
       <div style={{ width: '100%', margin: '0 auto' }}>

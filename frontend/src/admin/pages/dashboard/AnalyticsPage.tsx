@@ -14,6 +14,7 @@ import { useEffect, useState } from "react";
 import { Line } from "react-chartjs-2";
 import { getChartWidgets } from "../../../api/dashboard";
 import StringDropdown from "../../../components/common/dropdown/StringDropdown";
+import Loading from "../../../components/common/loading/Loading";
 
 ChartJS.register(
   CategoryScale,
@@ -32,18 +33,23 @@ const AnalyticsPage = () => {
     (number[] | string[] | number | number)[]
   >([]);
   const [selected, setSelected] = useState<string | null>("1");
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     handleGetVisitAccount();
   }, []);
 
   const handleGetVisitAccount = () => {
+    setLoading(true);
     getChartWidgets(Number(selected))
       .then((response) => {
         setLineDataDB(response?.data);
       })
       .catch((error) => {
         console.error("Error fetching chart widgets:", error);
+      })
+      .finally(() => {
+        setLoading(false);
       });
   };
 
@@ -75,6 +81,8 @@ const AnalyticsPage = () => {
     },
   };
 
+  if (loading) return <Loading />;
+
   return (
     <div style={{ padding: "20px" }}>
       <div style={{ width: "90%", margin: "0 auto" }}>
@@ -90,7 +98,10 @@ const AnalyticsPage = () => {
           >
             <StringDropdown
               value={selected}
-              onChange={setSelected}
+              onChange={(option) => {
+                setSelected(option);
+                handleGetVisitAccount();
+              }}
               options={[
                 { label: "Số lượng truy cập website", value: "1" },
                 { label: "Số lượng truy cập sản phẩm", value: "2" },

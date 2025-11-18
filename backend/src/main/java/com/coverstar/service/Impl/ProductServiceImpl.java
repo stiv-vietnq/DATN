@@ -166,7 +166,7 @@ public class ProductServiceImpl implements ProductService {
     public List<Product> findByNameAndPriceRange(SearchProductDto searchProductDto) throws Exception {
         try {
             // --- Update userVisits ---
-            UserVisits userVisits = userVisitRepository.findByVisitDate(new Date(), 3);
+            UserVisits userVisits = userVisitRepository.findByVisitDate(3);
             if (userVisits == null) {
                 userVisits = new UserVisits();
                 userVisits.setVisitDate(new Date());

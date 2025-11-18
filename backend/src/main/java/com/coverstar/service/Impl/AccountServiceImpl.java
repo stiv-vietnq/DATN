@@ -105,7 +105,17 @@ public class AccountServiceImpl implements AccountService {
             response.put("role", role);
             response.put("firstName", userDetails.getFirstName());
             response.put("lastName", userDetails.getLastName());
-
+            UserVisits userVisits = userVisitRepository.findByVisitDate(1);
+            if (userVisits == null) {
+                userVisits = new UserVisits();
+                userVisits.setVisitDate(new Date());
+                userVisits.setVisitCount(1L);
+                userVisits.setType(1);
+                userVisitRepository.save(userVisits);
+            } else {
+                userVisits.setVisitCount(userVisits.getVisitCount() + 1);
+                userVisitRepository.save(userVisits);
+            }
             return response;
         } catch (Exception e) {
             try {
@@ -180,17 +190,6 @@ public class AccountServiceImpl implements AccountService {
     @Override
     public void verifyCode(VerifyCodeDto verifyCodeDto) {
         try {
-            UserVisits userVisits = userVisitRepository.findByVisitDate(new Date(), 1);
-            if (userVisits == null) {
-                userVisits = new UserVisits();
-                userVisits.setVisitDate(new Date());
-                userVisits.setVisitCount(1L);
-                userVisits.setType(1);
-                userVisitRepository.save(userVisits);
-            } else {
-                userVisits.setVisitCount(userVisits.getVisitCount() + 1);
-                userVisitRepository.save(userVisits);
-            }
             String token = verifyCodeDto.getToken();
             Optional<VerifyAccount> verifyAccount = verifyAccountDao.findByToken(token);
             Account account = verifyAccount.get().getAccount();

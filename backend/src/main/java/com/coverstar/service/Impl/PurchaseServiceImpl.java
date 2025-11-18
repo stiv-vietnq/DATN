@@ -242,7 +242,7 @@ public class PurchaseServiceImpl implements PurchaseService {
 
     private void getUserVisits(Integer type) {
         try {
-            UserVisits userVisits = userVisitRepository.findByVisitDate(new Date(), type);
+            UserVisits userVisits = userVisitRepository.findByVisitDate(type);
             if (userVisits == null) {
                 userVisits = new UserVisits();
                 userVisits.setVisitDate(new Date());

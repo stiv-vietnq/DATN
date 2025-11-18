@@ -166,6 +166,7 @@ const ProductStatistics = () => {
   };
 
   const handleGetProducts = () => {
+    setLoading(true);
     ProductSearch({
       productTypeId: selectedBrandId,
       categoryId: selectedCategoryId,
@@ -191,7 +192,7 @@ const ProductStatistics = () => {
       })
       .catch((error) => {
         console.error("Error fetching products:", error);
-      });
+      }).finally(() => setLoading(false));
   };
 
   if (loading) return <Loading />;

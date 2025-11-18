@@ -22,16 +22,13 @@ public class UserVisits implements Serializable {
 
     private static final long serialVersionUID = 8851049962714608168L;
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-
     @Column(name = "visit_date")
     private Date visitDate;
 
     @Column(name = "visit_count")
     private Long visitCount;
 
+    @Id
     @Column(name = "type")
     private Integer type;
 }

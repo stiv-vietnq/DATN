@@ -3,6 +3,7 @@ import {
   FaBoxesStacked,
   FaCartShopping,
   FaMobileScreen,
+  FaSliders,
   FaTrademark,
   FaUser,
 } from "react-icons/fa6";
@@ -118,6 +119,15 @@ const appRoutes: RouteType[] = [
     sidebarProps: {
       displayText: "Quản lý giảm giá",
       icon: <FaDiscord />,
+    },
+  },
+  {
+    path: "sliders",
+    element: <UserPage />,
+    state: "sliders",
+    sidebarProps: {
+      displayText: "Quản lý slider",
+      icon: <FaSliders />,
     },
   },
 ];
