@@ -1,6 +1,6 @@
 .dashboard-header {
     display: flex;
-    align-items: center;
+    align-items: flex-start;
     margin-bottom: 20px;
 }
 
@@ -13,9 +13,23 @@
     width: 30%;
 }
 
+.dashboard-header-title-product {
+    font-size: 24px;
+    font-weight: 600;
+    color: #333;
+    text-transform: uppercase;
+    text-align: start;
+    width: 20%;
+}
+
 .dashboard-header-content {
     text-align: end;
     width: 70%;
+}
+
+.dashboard-header-content-product {
+    text-align: end;
+    width: 80%;
 }
 
 .btn-chart-purchase {

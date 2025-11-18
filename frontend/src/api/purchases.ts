@@ -40,5 +40,12 @@ export const updateStatus = (id: number, status: number) => {
   });
 };
 
-
-
+export const getAllPurchase = (
+  userId: number,
+  paymentMethod: string,
+  status: number
+) => {
+  return api.get(`/purchases/admin/getAllPurchase/`, {
+    params: { userId, paymentMethod, status },
+  });
+};

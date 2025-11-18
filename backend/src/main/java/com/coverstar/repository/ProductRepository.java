@@ -10,6 +10,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.math.BigDecimal;
+import java.util.Date;
 import java.util.List;
 
 @Repository
@@ -55,4 +56,65 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
 
     @Query("SELECT p FROM Product p WHERE p.productType.id = :id ORDER BY p.numberOfVisits DESC")
     List<Product> findAllByProductTypeIdAndNumberOfVisits(Long id, Pageable pageable);
+
+    @Query("SELECT p.productName, SUM(p.quantitySold) " +
+            "FROM Product p " +
+            "WHERE (:startDate IS NULL OR p.createdDate >= :startDate) " +
+            "AND (:endDate IS NULL OR p.createdDate <= :endDate) " +
+            "AND (p.id IN :productIds) " +
+            "GROUP BY p.productName")
+    List<Object[]> getProductStatsByDateRangeProduct(
+            @Param("startDate") Date startDate,
+            @Param("endDate") Date endDate,
+            @Param("productIds") List<String> productIds
+    );
+
+    @Query("SELECT p.productName, SUM(p.quantitySold) " +
+            "FROM Product p " +
+            "WHERE FUNCTION('YEAR', p.createdDate) = :year " +
+            "AND FUNCTION('MONTH', p.createdDate) = :month " +
+            "AND (p.id IN :productIds) " +
+            "GROUP BY p.productName")
+    List<Object[]> getProductStatsByMonthProduct(
+            @Param("year") int year,
+            @Param("month") int month,
+            @Param("productIds") List<String> productIds
+    );
+
+    @Query("SELECT p.productName, SUM(p.quantitySold) " +
+            "FROM Product p " +
+            "WHERE FUNCTION('YEAR', p.createdDate) = :year " +
+            "AND (p.id IN :productIds) " +
+            "GROUP BY p.productName")
+    List<Object[]> getProductStatsByYear(
+            @Param("year") int year,
+            @Param("productIds") List<String> productIds);
+
+    @Query("SELECT p.productName, SUM(p.quantitySold) " +
+            "FROM Product p " +
+            "WHERE (:startDate IS NULL OR p.createdDate >= :startDate) " +
+            "AND (:endDate IS NULL OR p.createdDate <= :endDate) " +
+            "GROUP BY p.productName")
+    List<Object[]> getProductStatsByDateRangeProductNoProductId(
+            @Param("startDate") Date startDate,
+            @Param("endDate") Date endDate
+    );
+
+    @Query("SELECT p.productName, SUM(p.quantitySold) " +
+            "FROM Product p " +
+            "WHERE FUNCTION('YEAR', p.createdDate) = :year " +
+            "AND FUNCTION('MONTH', p.createdDate) = :month " +
+            "GROUP BY p.productName")
+    List<Object[]> getProductStatsByMonthProductNoProductId(
+            @Param("year") int year,
+            @Param("month") int month
+    );
+
+    @Query("SELECT p.productName, SUM(p.quantitySold) " +
+            "FROM Product p " +
+            "WHERE FUNCTION('YEAR', p.createdDate) = :year " +
+            "GROUP BY p.productName")
+    List<Object[]> getProductStatsByYearNoProductId(
+            @Param("year") int year);
+
 }

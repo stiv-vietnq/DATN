@@ -22,13 +22,14 @@ public interface PurchaseRepository extends JpaRepository<Purchase, Long> {
     List<Purchase> findAllByUserId(Long userId, String productName, Integer status);
 
     @Query("SELECT a FROM Purchase a " +
-            " WHERE a.userId = :userId " +
-            " AND a.paymentMethod LIKE CONCAT('%', :paymentMethod, '%') " +
-            " AND a.status = :status " +
-            " ORDER BY a.createdDate DESC")
-    List<Purchase> findAllByUserIdAndPaymentMethodContainingAndStatus(Long userId,
-                                                                      String paymentMethod,
-                                                                      Integer status);
+            "WHERE (:userId IS NULL OR a.userId = :userId) " +
+            "AND (:paymentMethod IS NULL OR a.paymentMethod LIKE CONCAT('%', :paymentMethod, '%')) " +
+            "AND (:status IS NULL OR a.status = :status) " +
+            "ORDER BY a.createdDate DESC")
+    List<Purchase> findAllByUserIdAndPaymentMethodContainingAndStatus(
+            @Param("userId") Long userId,
+            @Param("paymentMethod") String paymentMethod,
+            @Param("status") Integer status);
 
     @Query("SELECT MONTH(o.createdDate) AS month, COUNT(o) AS total " +
             "FROM Purchase o WHERE YEAR(o.createdDate) = :year AND o.status = :status " +
@@ -53,7 +54,7 @@ public interface PurchaseRepository extends JpaRepository<Purchase, Long> {
     @Query("SELECT p.createdDate, SUM(i.totalAfterDiscount) " +
             "FROM PurchaseItem i " +
             "JOIN i.purchase p " +
-            "WHERE p.status = 3 AND p.createdDate BETWEEN :from AND :to " +
+            "WHERE p.createdDate BETWEEN :from AND :to " +
             "GROUP BY p.createdDate " +
             "ORDER BY p.createdDate")
     List<Object[]> getRevenueByDateRange(Date from, Date to);
@@ -61,7 +62,7 @@ public interface PurchaseRepository extends JpaRepository<Purchase, Long> {
     @Query("SELECT FUNCTION('MONTH', p.createdDate), SUM(i.totalAfterDiscount) " +
             "FROM PurchaseItem i " +
             "JOIN i.purchase p " +
-            "WHERE p.status = 3 AND FUNCTION('YEAR', p.createdDate) = :year " +
+            "WHERE FUNCTION('YEAR', p.createdDate) = :year " +
             "GROUP BY FUNCTION('MONTH', p.createdDate) " +
             "ORDER BY FUNCTION('MONTH', p.createdDate)")
     List<Object[]> getRevenueOfYear(int year);

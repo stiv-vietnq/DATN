@@ -8,12 +8,12 @@ import {
   LineElement,
   PointElement,
   Title,
-  Tooltip
-} from 'chart.js';
-import { useEffect, useState } from 'react';
-import { Line } from 'react-chartjs-2';
-import { getChartWidgets } from '../../../api/dashboard';
-import StringDropdown from '../../../components/common/dropdown/StringDropdown';
+  Tooltip,
+} from "chart.js";
+import { useEffect, useState } from "react";
+import { Line } from "react-chartjs-2";
+import { getChartWidgets } from "../../../api/dashboard";
+import StringDropdown from "../../../components/common/dropdown/StringDropdown";
 
 ChartJS.register(
   CategoryScale,
@@ -28,8 +28,9 @@ ChartJS.register(
 );
 
 const AnalyticsPage = () => {
-
-  const [lineDataDB, setLineDataDB] = useState<(number[] | string[] | number | number)[]>([]);
+  const [lineDataDB, setLineDataDB] = useState<
+    (number[] | string[] | number | number)[]
+  >([]);
   const [selected, setSelected] = useState<string | null>("1");
 
   useEffect(() => {
@@ -37,21 +38,23 @@ const AnalyticsPage = () => {
   }, []);
 
   const handleGetVisitAccount = () => {
-    getChartWidgets(Number(selected)).then((response) => {
-      setLineDataDB(response?.data);
-    }).catch((error) => {
-      console.error('Error fetching chart widgets:', error);
-    });
-  }
+    getChartWidgets(Number(selected))
+      .then((response) => {
+        setLineDataDB(response?.data);
+      })
+      .catch((error) => {
+        console.error("Error fetching chart widgets:", error);
+      });
+  };
 
   const lineData = {
     labels: (lineDataDB[1] as string[]) || [],
     datasets: [
       {
-        label: 'Lượt truy cập',
+        label: "Lượt truy cập",
         data: (lineDataDB[0] as number[]) || [],
-        borderColor: 'rgba(53, 162, 235, 0.8)',
-        backgroundColor: 'rgba(53, 162, 235, 0.3)',
+        borderColor: "rgba(53, 162, 235, 0.8)",
+        backgroundColor: "rgba(53, 162, 235, 0.3)",
         fill: true,
         tension: 0.4,
       },
@@ -61,8 +64,8 @@ const AnalyticsPage = () => {
   const lineOptions = {
     responsive: true,
     plugins: {
-      legend: { position: 'top' as const },
-      title: { display: true, text: 'Biểu đồ lượt truy cập' },
+      legend: { position: "top" as const },
+      title: { display: true, text: "Biểu đồ lượt truy cập" },
     },
     scales: {
       y: {
@@ -73,11 +76,18 @@ const AnalyticsPage = () => {
   };
 
   return (
-    <div style={{ padding: '20px' }}>
-      <div style={{ width: '90%', margin: '0 auto' }}>
+    <div style={{ padding: "20px" }}>
+      <div style={{ width: "90%", margin: "0 auto" }}>
         <div className="dashboard-header">
-          <div className='dashboard-header-title'>Thông kê truy cập</div>
-          <div style={{ width: '250px', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+          <div className="dashboard-header-title">Thông kê truy cập</div>
+          <div
+            style={{
+              width: "250px",
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+            }}
+          >
             <StringDropdown
               value={selected}
               onChange={setSelected}
@@ -90,6 +100,7 @@ const AnalyticsPage = () => {
               error={undefined}
               style={{ marginBottom: "-28px" }}
             />
+
           </div>
         </div>
         <Line data={lineData} options={lineOptions} />

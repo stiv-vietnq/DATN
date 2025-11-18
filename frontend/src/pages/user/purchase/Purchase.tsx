@@ -166,7 +166,7 @@ export default function UserPurchases() {
                 {order.status === 1 && (
                   <div>
                     <button
-                      className="btn btn-cancel"
+                      className="btn-cancel-order"
                       onClick={() => {
                         setShowConfirm(true);
                         setSelectedId(order?.id);

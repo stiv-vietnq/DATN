@@ -1,10 +1,13 @@
 package com.coverstar.service.Impl;
 
+import com.coverstar.repository.ProductDetailRepository;
+import com.coverstar.repository.ProductRepository;
 import com.coverstar.repository.PurchaseRepository;
 import com.coverstar.repository.UserVisitRepository;
 import com.coverstar.service.DashboardService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -13,13 +16,8 @@ import java.text.SimpleDateFormat;
 import java.time.YearMonth;
 import java.time.temporal.ChronoUnit;
 import java.time.temporal.Temporal;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class DashboardServiceImpl implements DashboardService {
@@ -31,6 +29,12 @@ public class DashboardServiceImpl implements DashboardService {
     private UserVisitRepository userVisitsRepository;
 
     private static final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+
+    @Autowired
+    private ProductRepository productRepository;
+
+    @Autowired
+    private ProductDetailRepository productDetailRepository;
 
     @Override
     public Map<String, Object> getChartPurchase(String type, Integer year, Integer month, Date startDate, Date endDate) throws Exception {
@@ -45,7 +49,7 @@ public class DashboardServiceImpl implements DashboardService {
 
                 List<String> labels = new ArrayList<>();
                 for (int i = 1; i <= 12; i++) {
-                    labels.add(String.valueOf(i));
+                    labels.add("tháng" + i);
                 }
 
                 for (Object[] record : canceledOrders) {
@@ -57,9 +61,16 @@ public class DashboardServiceImpl implements DashboardService {
                     deliveredCounts.set(monthIndex, ((Number) record[1]).intValue());
                 }
 
+                List<Integer> newCounts = new ArrayList<>(Collections.nCopies(12, 0));
+                for (Object[] record : newOrders) {
+                    int monthIndex = ((Number) record[0]).intValue() - 1; // tháng bắt đầu từ 1
+                    int count = ((Number) record[1]).intValue();
+                    newCounts.set(monthIndex, count);
+                }
+
                 result.put("canceled", canceledCounts);
                 result.put("delivered", deliveredCounts);
-                result.put("new", newOrders);
+                result.put("new", newCounts);
                 result.put("labels", labels);
             } else if ("month".equalsIgnoreCase(type) && year != null && month != null) {
                 int daysInMonth = YearMonth.of(year, month).lengthOfMonth();
@@ -83,9 +94,17 @@ public class DashboardServiceImpl implements DashboardService {
                     deliveredCounts.set(dayIndex, ((Number) record[1]).intValue());
                 }
 
+                List<Integer> newCounts = new ArrayList<>(Collections.nCopies(daysInMonth, 0));
+
+                for (Object[] record : newOrders) {
+                    int dayIndex = ((Number) record[0]).intValue() - 1; // ngày bắt đầu từ 1
+                    int count = ((Number) record[1]).intValue();
+                    newCounts.set(dayIndex, count);
+                }
+
                 result.put("canceled", canceledCounts);
                 result.put("delivered", deliveredCounts);
-                result.put("new", newOrders);
+                result.put("new", newCounts);
                 result.put("labels", labels);
             } else if ("range".equalsIgnoreCase(type) && startDate != null && endDate != null) {
                 Calendar calStart = Calendar.getInstance();
@@ -123,9 +142,17 @@ public class DashboardServiceImpl implements DashboardService {
                     deliveredCounts.set(index, count);
                 }
 
+                List<Integer> newCounts = new ArrayList<>(Collections.nCopies((int) days, 0));
+                for (Object[] record : newOrders) {
+                    Date date = (Date) record[0];
+                    int count = ((Number) record[1]).intValue();
+                    int index = (int) ((date.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24));
+                    newCounts.set(index, count);
+                }
+
+                result.put("new", newCounts);
                 result.put("canceled", canceledCounts);
                 result.put("delivered", deliveredCounts);
-                result.put("new", newOrders);
                 result.put("labels", labels);
             }
 
@@ -323,6 +350,79 @@ public class DashboardServiceImpl implements DashboardService {
         }
     }
 
+    @Override
+    public Map<String, Object> getProductStats(
+            Integer type, Integer year, Integer month, Date startDate, Date endDate, List<String> productIds) {
+
+        Map<String, Object> result = new HashMap<>();
+        List<String> labels = new ArrayList<>();
+        List<Long> quantitySoldList = new ArrayList<>();
+        List<Long> stockList = new ArrayList<>();
+
+        List<Object[]> productResult;
+        List<Object[]> detailResult;
+
+        switch (type) {
+            case 1: // RANGE DATE
+                if (CollectionUtils.isEmpty(productIds)) {
+                    productResult = productRepository.getProductStatsByDateRangeProductNoProductId(startDate, endDate);
+                    detailResult = productDetailRepository.getProductStatsByDateRangeDetailNoProductId(startDate, endDate);
+                } else {
+                    productResult = productRepository.getProductStatsByDateRangeProduct(startDate, endDate, productIds);
+                    detailResult = productDetailRepository.getProductStatsByDateRangeDetail(startDate, endDate, productIds);
+                }
+                break;
+            case 2: // MONTH
+                if (CollectionUtils.isEmpty(productIds)) {
+                    productResult = productRepository.getProductStatsByMonthProductNoProductId(year, month);
+                    detailResult = productDetailRepository.getProductStatsByMonthDetailNoProductId(year, month);
+                } else {
+                    productResult = productRepository.getProductStatsByMonthProduct(year, month, productIds);
+                    detailResult = productDetailRepository.getProductStatsByMonthDetail(year, month, productIds);
+                }
+                break;
+            case 3: // YEAR
+                if (CollectionUtils.isEmpty(productIds)) {
+                    productResult = productRepository.getProductStatsByYearNoProductId(year);
+                    detailResult = productDetailRepository.getProductStatsByYearDetailNoProductId(year);
+                } else {
+                    productResult = productRepository.getProductStatsByYear(year, productIds);
+                    detailResult = productDetailRepository.getProductStatsByYearDetail(year, productIds);
+                }
+                break;
+            default:
+                return result;
+        }
+
+        Map<String, Long> soldMap = productResult.stream()
+                .collect(Collectors.toMap(
+                        r -> (String) r[0],
+                        r -> r[1] != null ? ((Number) r[1]).longValue() : 0L,
+                        Long::sum
+                ));
+
+        Map<String, Long> stockMap = detailResult.stream()
+                .collect(Collectors.toMap(
+                        r -> (String) r[0],
+                        r -> r[1] != null ? ((Number) r[1]).longValue() : 0L,
+                        Long::sum
+                ));
+
+        Set<String> allProductNames = new LinkedHashSet<>();
+        allProductNames.addAll(soldMap.keySet());
+        allProductNames.addAll(stockMap.keySet());
+
+        for (String productName : allProductNames) {
+            labels.add(productName);
+            quantitySoldList.add(soldMap.getOrDefault(productName, 0L));
+            stockList.add(stockMap.getOrDefault(productName, 0L));
+        }
+        result.put("labels", labels);
+        result.put("quantitySold", quantitySoldList);
+        result.put("stock", stockList);
+        return result;
+    }
+
 
     private List<Date> getDatesBetween(Date start, Date end) {
         List<Date> dates = new ArrayList<>();
@@ -349,5 +449,49 @@ public class DashboardServiceImpl implements DashboardService {
         cal.set(Calendar.DAY_OF_MONTH, cal.getActualMaximum(Calendar.DAY_OF_MONTH));
         cal.set(Calendar.MILLISECOND, 999);
         return cal.getTime();
+    }
+
+    @Override
+    public Map<String, Object> getProductDetailStats(Integer type, String productId,
+                                               Integer year, Integer month,
+                                               Date startDate, Date endDate) {
+        Map<String, Object> result = new HashMap<>();
+        List<String> labels = new ArrayList<>();
+        List<Long> quantitySoldList = new ArrayList<>();
+        List<Long> stockList = new ArrayList<>();
+
+        List<Object[]> rows;
+
+        switch (type) {
+            case 1: // RANGE DATE
+                rows = productDetailRepository.getProductDetailByDate(productId, startDate, endDate);
+                break;
+            case 2: // MONTH
+                if (year == null || month == null) return result;
+                rows = productDetailRepository.getProductDetailByMonth(productId, year, month);
+                break;
+            case 3: // YEAR
+                if (year == null) return result;
+                rows = productDetailRepository.getProductDetailByYear(productId, year);
+                break;
+            default:
+                return result;
+        }
+
+        for (Object[] row : rows) {
+            String name = (String) row[0];
+            Long sold = row[1] != null ? ((Number) row[1]).longValue() : 0L;
+            Long stock = row[2] != null ? ((Number) row[2]).longValue() : 0L;
+
+            labels.add(name);
+            quantitySoldList.add(sold);
+            stockList.add(stock);
+        }
+
+        result.put("labels", labels);
+        result.put("quantitySold", quantitySoldList);
+        result.put("stock", stockList);
+
+        return result;
     }
 }

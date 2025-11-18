@@ -9,7 +9,7 @@ import {
   PointElement,
   Tooltip
 } from "chart.js";
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Chart, Line } from 'react-chartjs-2';
 import { getChartRevenue } from "../../../api/dashboard";
 import StringDropdown from "../../../components/common/dropdown/StringDropdown";
@@ -39,11 +39,15 @@ const SummaryStatistics = () => {
     revenues: [],
     labels: [],
   });
-  const [selected, setSelected] = useState<string | null>("1");
-  const [year, setYear] = useState<number | null>(null);
-  const [month, setMonth] = useState<number | null>(null);
+  const [selected, setSelected] = useState<string | null>("2");
+  const [year, setYear] = useState<number | null>(2025);
+  const [month, setMonth] = useState<number | null>(11);
   const [fromDate, setFromDate] = useState<string | null>(null);
   const [toDate, setToDate] = useState<string | null>(null);
+
+  useEffect(() => {
+    handleChartRevenue();
+  }, []);
 
   const handleChartRevenue = () => {
     getChartRevenue({
@@ -111,12 +115,12 @@ const SummaryStatistics = () => {
 
   return (
     <div style={{ padding: '20px' }}>
-      <div style={{ width: '90%', margin: '0 auto' }}>
+      <div style={{ width: '100%', margin: '0 auto' }}>
         <div className="dashboard-header">
           <div className='dashboard-header-title'>Thống kê doanh thu</div>
           <div className='dashboard-header-content'>
             <div style={{ display: "flex", gap: "10px", justifyContent: "end", alignItems: "center", marginBottom: "-28px" }}>
-              {selected === "range" && (
+              {selected === "1" && (
                 <div>
                   <DateRangePicker
                     fromDate={fromDate}
@@ -132,7 +136,7 @@ const SummaryStatistics = () => {
                 </div>
               )}
 
-              {selected === "month" && (
+              {selected === "2" && (
                 <>
                   <div>
                     <Input
@@ -156,7 +160,7 @@ const SummaryStatistics = () => {
                   </div>
                 </>
               )}
-              {selected === "year" && (
+              {selected === "3" && (
                 <div>
                   <Input
                     value={year ? year.toString() : ""}

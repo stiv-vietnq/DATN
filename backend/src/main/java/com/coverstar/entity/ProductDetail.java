@@ -33,6 +33,9 @@ public class ProductDetail implements Serializable {
     @Column(name = "quantity", nullable = false)
     private Long quantity;
 
+    @Column(name = "quantity_sold")
+    private Long quantitySold;
+
     @Column(name = "price", nullable = false)
     private BigDecimal price;
 

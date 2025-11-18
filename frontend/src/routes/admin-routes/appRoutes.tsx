@@ -15,6 +15,8 @@ import ProductPage from "../../admin/pages/product/ProductPage";
 import UserPage from "../../admin/pages/user/UserPage";
 import { RouteType } from "./config";
 import SummaryStatistics from "../../admin/pages/dashboard/SummaryStatistics";
+import PurchasePage from "../../admin/pages/purchase/PurchasePage";
+import ProductStatistics from "../../admin/pages/dashboard/ProductStatistics";
 
 const appRoutes: RouteType[] = [
   {
@@ -52,6 +54,15 @@ const appRoutes: RouteType[] = [
         sidebarProps: {
           displayText: "Thống kê đơn hàng",
         },
+      },
+      {
+        index: true,
+        path: "product-statistics",
+        element: <ProductStatistics />,
+        state: "dashboard.productStatistics",
+        sidebarProps: {
+          displayText: "Thống kê sản phẩm",
+        },
       }
     ],
   },
@@ -84,7 +95,7 @@ const appRoutes: RouteType[] = [
   },
   {
     path: "purchases",
-    element: <BrandPage />,
+    element: <PurchasePage />,
     state: "purchases",
     sidebarProps: {
       displayText: "Quản lý đơn hàng",

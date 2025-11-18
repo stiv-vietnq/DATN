@@ -63,12 +63,10 @@ public class PurchaseServiceImpl implements PurchaseService {
             for (PurchaseDto purchaseDto : purchaseDtos) {
                 getUserVisits(4);
 
-                // 🔹 Kiểm tra giảm giá (nếu có)
                 if (purchaseDto.getDiscountId() != null) {
                     discountService.getDiscount(purchaseDto.getDiscountId(), 1);
                 }
 
-                // 🔹 Tạo đơn hàng mới
                 Purchase purchase = new Purchase();
                 purchase.setUserId(purchaseDto.getUserId());
                 purchase.setAddress(addressService.getAddressById(purchaseDto.getAddressId()));
@@ -96,6 +94,9 @@ public class PurchaseServiceImpl implements PurchaseService {
                     }
 
                     productDetail.setQuantity(productDetail.getQuantity() - itemDto.getQuantity());
+                    productDetail.setQuantitySold(
+                            (productDetail.getQuantitySold() == null ? 0L : productDetail.getQuantitySold()) + itemDto.getQuantity()
+                    );
                     productDetailRepository.save(productDetail);
 
                     if (product.getQuantitySold() == null) product.setQuantitySold(0L);
@@ -107,7 +108,6 @@ public class PurchaseServiceImpl implements PurchaseService {
                     category.setQuantitySold(category.getQuantitySold() + itemDto.getQuantity());
                     categoryRepository.save(category);
 
-                    // 🔹 Tạo PurchaseItem
                     PurchaseItem item = new PurchaseItem();
                     item.setPurchase(purchase);
                     item.setProduct(product);
@@ -121,12 +121,10 @@ public class PurchaseServiceImpl implements PurchaseService {
 
                 getUserVisits(2);
 
-                // 🔹 Lưu đơn hàng (cascade = ALL → tự lưu PurchaseItem)
                 purchase = purchaseRepository.save(purchase);
                 purchases.add(purchase);
             }
 
-            // 🔹 Gửi email xác nhận cho người mua
             String orderTitle = "Người gửi xác nhận đơn hàng.";
             String subject = "Đặt hàng thành công.";
             Account account = accountService.findById(purchaseDtos.get(0).getUserId());
@@ -232,9 +230,9 @@ public class PurchaseServiceImpl implements PurchaseService {
     @Override
     public List<Purchase> getAllPurchase(Long userId, String paymentMethod, Integer status) {
         try {
-            Long userIdValue = userId != null ? userId : 0L;
-            Integer statusValue = status != null ? status : 0;
-            String paymentMethodValue = paymentMethod != null ? paymentMethod : StringUtils.EMPTY;
+            Long userIdValue = userId != 0 ? userId : null;
+            Integer statusValue = status != 0 ? status : null;
+            String paymentMethodValue = StringUtils.EMPTY.equals(paymentMethod) ? paymentMethod : null;
             return purchaseRepository.findAllByUserIdAndPaymentMethodContainingAndStatus(userIdValue, paymentMethodValue, statusValue);
         } catch (Exception e) {
             e.fillInStackTrace();
