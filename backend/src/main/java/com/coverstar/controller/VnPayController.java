@@ -26,7 +26,7 @@ public class VnPayController {
     public ResponseEntity<?> submidOrder(@RequestParam("amount") int orderTotal,
                                          @RequestParam("orderInfo") String orderInfo) {
         try {
-            String baseUrl = "http://localhost:8080";
+            String baseUrl = "http://localhost:9999";
             String vnpayUrl = vnPayService.createOrder(orderTotal, orderInfo, baseUrl);
             return ResponseEntity.ok(vnpayUrl);
         } catch (Exception e) {
