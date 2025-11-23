@@ -1,11 +1,13 @@
 package com.coverstar.utils;
 
+import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
+import java.util.Calendar;
 import java.util.Date;
 
 public class DateUtill {
@@ -48,4 +50,24 @@ public class DateUtill {
         return (date == null || date.isEmpty()) ? null :
                 LocalDate.parse(date).atTime(LocalTime.MAX); // 23:59:59.999
     }
+
+    public static Date parseDateMaxTime(String dateStr) {
+        try {
+            SimpleDateFormat sdfInput = new SimpleDateFormat("yyyyMMdd");
+            sdfInput.setLenient(false);
+            Date dateOnly = sdfInput.parse(dateStr);
+
+            Calendar cal = Calendar.getInstance();
+            cal.setTime(dateOnly);
+            cal.set(Calendar.HOUR_OF_DAY, 23);
+            cal.set(Calendar.MINUTE, 59);
+            cal.set(Calendar.SECOND, 59);
+            cal.set(Calendar.MILLISECOND, 999);
+
+            return cal.getTime();
+        } catch (Exception e) {
+            throw new RuntimeException("Ngày không đúng định dạng yyyyMMdd: " + dateStr);
+        }
+    }
+
 }

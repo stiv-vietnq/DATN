@@ -58,9 +58,6 @@ public class CategoryServiceImpl implements CategoryService {
             Category category = new Category();
             if (brandOrCategoryDto.getId() != null) {
                 category = categoryRepository.getById(brandOrCategoryDto.getId());
-                if (brandOrCategoryDto.getCode().equals(category.getCode())){
-                    throw new Exception(Constants.DUPLICATE_CATEGORY);
-                }
                 category.setUpdatedDate(new Date());
             } else {
                 ProductType productType = productTypeService.getProductType(brandOrCategoryDto.getProductTypeId());
@@ -73,7 +70,6 @@ public class CategoryServiceImpl implements CategoryService {
                     throw new Exception(Constants.NOT_IMAGE);
                 }
 
-                category.setCode(brandOrCategoryDto.getCode());
                 category.setCreatedDate(new Date());
                 category.setUpdatedDate(new Date());
                 category.setProductType(productType);

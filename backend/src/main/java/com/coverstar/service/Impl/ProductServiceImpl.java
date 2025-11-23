@@ -428,7 +428,7 @@ public class ProductServiceImpl implements ProductService {
                     throw new Exception(Constants.NOT_IMAGE);
                 }
                 String timestamp = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMddHHmmssSSS"));
-                String id = productDto.getBrandCode() + productDto.getCategoryCode() + "-" + timestamp;
+                String id = productDto.getBrandCode() + "_" + timestamp;
                 product.setId(id);
                 product.setCreatedDate(new Date());
                 product.setUpdatedDate(new Date());
@@ -440,18 +440,13 @@ public class ProductServiceImpl implements ProductService {
                 throw new Exception(Constants.PRODUCT_TYPE_NOT_FOUND);
             }
             BigDecimal price = StringUtils.isNotEmpty(productDto.getPrice()) ? new BigDecimal(productDto.getPrice()) : BigDecimal.ZERO;
-            Float percentageReduction = productDto.getPercentageReduction() != null ? Float.valueOf(productDto.getPercentageReduction()) : 0f;
+            Float percentageReduction = productDto.getPercentageReduction() != null ? Float.parseFloat(productDto.getPercentageReduction()) : 0f;
             product.setProductType(productType);
             product.setSize(productDto.getSize());
             product.setPrice(price);
             product.setPercentageReduction(percentageReduction);
             product.setCategoryId(Long.valueOf(productDto.getCategoryId()));
             product.setStatus(Boolean.valueOf(productDto.getStatus()));
-
-//            List<ShippingMethod> shippingMethods = shippingMethodRepository.findAllById(
-//                    productDto.getShippingMethodIds().stream().map(Long::parseLong).collect(Collectors.toList())
-//            );
-//            product.setShippingMethods(new HashSet<>(shippingMethods));
             product.setDescription(productDto.getDescription());
             if (StringUtils.isNotEmpty(productDto.getImageIdsToRemove())) {
                 List<Long> imageIdsToRemoveDT = Arrays.stream(productDto.getImageIdsToRemove().split(","))

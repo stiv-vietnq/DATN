@@ -1,25 +1,21 @@
 package com.coverstar.service.Impl;
 
-import com.coverstar.component.mail.MailService;
-import com.coverstar.constant.Constants;
-import com.coverstar.entity.Account;
+import com.coverstar.dto.DiscountCreateRequest;
 import com.coverstar.entity.Discount;
-import com.coverstar.repository.AccountRepository;
+import com.coverstar.entity.DiscountProduct;
+import com.coverstar.entity.Product;
+import com.coverstar.repository.DiscountProductRepository;
 import com.coverstar.repository.DiscountRepository;
+import com.coverstar.repository.ProductRepository;
 import com.coverstar.service.DiscountService;
 import com.coverstar.utils.DateUtill;
-import com.coverstar.utils.ShopUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
 
-import java.io.File;
-import java.math.BigDecimal;
+import javax.transaction.Transactional;
 import java.util.Date;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 @Service
 public class DiscountServiceImpl implements DiscountService {
@@ -28,145 +24,78 @@ public class DiscountServiceImpl implements DiscountService {
     private DiscountRepository discountRepository;
 
     @Autowired
-    private AccountRepository accountRepository;
+    private ProductRepository productRepository;
 
     @Autowired
-    private MailService mailService;
+    private DiscountProductRepository discountProductRepository;
 
     @Override
-    public Discount createOrUpdateDiscount(Long id,
-                                           String name,
-                                           String code,
-                                           String description,
-                                           BigDecimal percent,
-                                           MultipartFile imageFile,
-                                           String expiredDate,
-                                           List<Long> userIds,
-                                           Integer discountType,
-                                           BigDecimal levelApplied) throws Exception {
-        Discount discount = new Discount();
-        try {
-            String orderTitle = "Có những ưu đãi mới đang chờ đón bạn sử dụng.";
-            String subject = "Thông báo.";
-            boolean isCodeExist = id == null
-                    ? discountRepository.existsByCode(code)
-                    : discountRepository.existsByCodeAndIdNot(code, id);
+    @Transactional
+    public Discount createOrUpdateDiscount(DiscountCreateRequest request) {
 
-            if (isCodeExist) {
-                throw new Exception(Constants.DUPLICATE_DISCOUNT);
-            }
+        Discount discount;
 
-            if (id != null) {
-                discount = discountRepository.findById(id).orElse(null);
-                discount.setUpdatedDate(new Date());
-                discount.setStatus(true);
-            } else {
-                if (imageFile == null || imageFile.isEmpty()) {
-                    throw new Exception(Constants.NOT_IMAGE);
-                }
-                discount.setCreatedDate(new Date());
-                discount.setStatus(true);
-            }
-            discount.setName(name);
-            discount.setCode(code);
-            discount.setDiscountPercent(percent);
-            discount.setDescription(description);
-            discount.setExpiredDate(DateUtill.parseDate(expiredDate));
-            discount.setDiscountType(discountType);
-            discount.setLevelApplied(levelApplied);
-            if (userIds != null && !userIds.isEmpty()) {
-                Set<Account> accounts = new HashSet<>();
-                for (Long usedId : userIds) {
-                    Account account = accountRepository.findById(usedId).orElse(null);
-                    if (discount != null) {
-                        accounts.add(account);
-                    }
-                    ShopUtil.sendMailPurchaseOrDiscount(account, orderTitle, subject, mailService, 2);
-                }
-                discount.setAccounts(accounts);
-            }
-            discount = discountRepository.save(discount);
+        if (request.getId() == null) {
+            discount = new Discount();
+            discount.setCreatedDate(new Date());
+        } else {
+            discount = discountRepository.findById(request.getId())
+                    .orElseThrow(() -> new RuntimeException("Discount not found with id = " + request.getId()));
 
-            if (imageFile != null && !imageFile.isEmpty()) {
-                if (discount.getDirectoryPath() != null) {
-                    File oldFile = new File(discount.getDirectoryPath());
-                    if (oldFile.exists()) {
-                        oldFile.delete();
-                    }
-                }
-                String fullPath = ShopUtil.handleFileUpload(imageFile, "discount", discount.getId());
-                discount.setDirectoryPath(fullPath);
-            }
-            discountRepository.save(discount);
-        } catch (Exception e) {
-            e.fillInStackTrace();
-            throw e;
+            discountProductRepository.deleteByDiscountId(discount.getId());
         }
-        return discount;
+
+        discount.setName(request.getName());
+        discount.setStatus(request.getStatus());
+        discount.setDiscountPercent(request.getDiscountPercent());
+        discount.setExpiredDate(DateUtill.parseDateMaxTime(request.getExpiredDate()));
+        discount.setUpdatedDate(new Date());
+
+        Discount savedDiscount = discountRepository.save(discount);
+
+        List<Product> products = productRepository.findByIdIn(request.getProductIds());
+
+        for (Product p : products) {
+            DiscountProduct dp = new DiscountProduct();
+            dp.setDiscount(savedDiscount);
+            dp.setProduct(p);
+            discountProductRepository.save(dp);
+        }
+
+        return savedDiscount;
     }
 
     @Override
-    public List<Discount> searchDiscount(String name, Boolean status, String code, Long accountId, Integer discountType) {
-        List<Discount> discounts;
-        try {
-            String nameValue = name != null ? name : StringUtils.EMPTY;
-            Boolean statusValue = status != null ? status : null;
-            String codeValue = code != null ? code : StringUtils.EMPTY;
-            discounts = discountRepository.findAllByStatus(nameValue, statusValue, codeValue, accountId, discountType);
-        } catch (Exception e) {
-            e.fillInStackTrace();
-            throw e;
-        }
-        return discounts;
+    public Discount updateStatus(Long discountId, Boolean status) {
+        Discount discount = discountRepository.findById(discountId)
+                .orElseThrow(() -> new RuntimeException("Discount not found with id = " + discountId));
+
+        discount.setStatus(status);
+        discount.setUpdatedDate(new Date());
+
+        return discountRepository.save(discount);
     }
 
     @Override
-    public Discount getDiscount(Long id, Integer type) throws Exception {
-        try {
-            Discount discount = discountRepository.findById(id).orElse(null);
-            if (type == 1 && discount != null && discount.getExpiredDate().before(new Date())) {
-                discount.setStatus(false);
-                discountRepository.save(discount);
-                throw new Exception(Constants.DISCOUNT_EXPIRED);
-            }
-            return discount;
-        } catch (Exception e) {
-            e.fillInStackTrace();
-            throw e;
-        }
+    public Discount updateExpiredDate(Long discountId, String expiredDate) {
+        Discount discount = discountRepository.findById(discountId)
+                .orElseThrow(() -> new RuntimeException("Discount not found with id = " + discountId));
+
+        discount.setExpiredDate(DateUtill.parseDateMaxTime(expiredDate));
+        discount.setUpdatedDate(new Date());
+
+        return discountRepository.save(discount);
     }
 
     @Override
-    public void deleteDiscount(Long id) {
-        try {
-            Discount discount = discountRepository.findById(id).orElse(null);
-            if (discount != null && discount.getDirectoryPath() != null) {
-                File oldFile = new File(discount.getDirectoryPath());
-                if (oldFile.exists()) {
-                    oldFile.delete();
-                }
-            }
-
-            discountRepository.deleteById(id);
-        } catch (Exception e) {
-            e.fillInStackTrace();
-            throw e;
-        }
+    public Discount getById(Long discountId) {
+        return discountRepository.findById(discountId)
+                .orElseThrow(() -> new RuntimeException("Discount not found with id = " + discountId));
     }
 
     @Override
-    public Discount updateStatus(Long id, boolean status) {
-        try {
-            Discount discount = discountRepository.findById(id).orElse(null);
-            if (discount != null) {
-                discount.setStatus(status);
-                discount.setUpdatedDate(new Date());
-                discountRepository.save(discount);
-            }
-            return discount;
-        } catch (Exception e) {
-            e.fillInStackTrace();
-            throw e;
-        }
+    public List<Discount> search(String name, Boolean status) {
+        String nameValue = name != null ? name : StringUtils.EMPTY;
+        return discountRepository.search(nameValue, status);
     }
 }

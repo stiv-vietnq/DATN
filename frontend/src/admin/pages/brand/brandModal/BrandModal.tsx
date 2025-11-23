@@ -45,7 +45,7 @@ const BrandModal: React.FC<BrandModalProps> = ({ brandId, onClose, mode }) => {
       .replace(/[\u0300-\u036f]/g, "")
       .replace(/[^a-zA-Z0-9]/g, "")
       .toUpperCase();
-    return normalized.substring(0, 3);
+    return normalized.substring(0, 10);
   };
 
   useEffect(() => {

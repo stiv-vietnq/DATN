@@ -18,6 +18,7 @@ import { RouteType } from "./config";
 import SummaryStatistics from "../../admin/pages/dashboard/SummaryStatistics";
 import PurchasePage from "../../admin/pages/purchase/PurchasePage";
 import ProductStatistics from "../../admin/pages/dashboard/ProductStatistics";
+import DiscountPage from "../../admin/pages/discount/DiscountPage";
 
 const appRoutes: RouteType[] = [
   {
@@ -114,7 +115,7 @@ const appRoutes: RouteType[] = [
   },
   {
     path: "discounts",
-    element: <UserPage />,
+    element: <DiscountPage />,
     state: "discounts",
     sidebarProps: {
       displayText: "Quản lý giảm giá",

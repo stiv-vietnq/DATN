@@ -63,10 +63,6 @@ public class PurchaseServiceImpl implements PurchaseService {
             for (PurchaseDto purchaseDto : purchaseDtos) {
                 getUserVisits(4);
 
-                if (purchaseDto.getDiscountId() != null) {
-                    discountService.getDiscount(purchaseDto.getDiscountId(), 1);
-                }
-
                 Purchase purchase = new Purchase();
                 purchase.setUserId(purchaseDto.getUserId());
                 purchase.setAddress(addressService.getAddressById(purchaseDto.getAddressId()));

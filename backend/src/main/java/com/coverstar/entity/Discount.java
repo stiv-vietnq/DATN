@@ -19,20 +19,11 @@ public class Discount {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "name", nullable = false)
+    @Column(name = "name", nullable = false, columnDefinition = "nvarchar(255)")
     private String name;
 
-    @Column(name = "status", nullable = false, columnDefinition = "BIT")
+    @Column(name = "status", nullable = false)
     private Boolean status;
-
-    @Column(name = "code", nullable = false)
-    private String code;
-
-    @Column(name = "directory_path")
-    private String directoryPath;
-
-    @Column(name = "description")
-    private String description;
 
     @Column(name = "discount_percent")
     private BigDecimal discountPercent;
@@ -49,18 +40,6 @@ public class Discount {
     @Temporal(TemporalType.TIMESTAMP)
     private Date expiredDate;
 
-    @Column(name = "discount_type")
-    private Integer discountType;
-
-    @Column(name = "level_applied")
-    private BigDecimal levelApplied;
-
-    @ManyToMany
-    @JoinTable(
-            name = "discount_account",
-            joinColumns = @JoinColumn(name = "discount_id"),
-            inverseJoinColumns = @JoinColumn(name = "account_id")
-    )
-    @JsonIgnore
-    private Set<Account> accounts;
+    @OneToMany(mappedBy = "discount", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<DiscountProduct> discountProducts;
 }

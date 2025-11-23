@@ -72,12 +72,6 @@ public class Product {
     @OneToMany(mappedBy = "productId", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private Set<ProductDetail> productDetails;
 
-//    @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-//    @JoinTable(
-//            name = "product_shipping_methods",
-//            joinColumns = @JoinColumn(name = "product_id"),
-//            inverseJoinColumns = @JoinColumn(name = "shipping_method_id")
-//    )
-//    @JsonManagedReference
-//    private Set<ShippingMethod> shippingMethods;
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<DiscountProduct> discountProducts;
 }

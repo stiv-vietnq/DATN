@@ -1,26 +1,22 @@
 import { useEffect, useState } from "react";
 import { FaEdit, FaEye, FaSearch, FaTrash } from "react-icons/fa";
 import { FaPlus } from "react-icons/fa6";
-// import { deleteCategory, searchCategory } from "../../../api/category";
+import { getProductTypeByStatus } from "../../../api/brand";
+import { searchCategory } from "../../../api/category";
 import ConfirmModal from "../../../components/common/confirmModal/ConfirmModal";
-import Dropdown from "../../../components/common/dropdown/Dropdown";
+import StringDropdown from "../../../components/common/dropdown/StringDropdown";
 import Input from "../../../components/common/input/Input";
+import Loading from "../../../components/common/loading/Loading";
 import Pagination from "../../../components/pagination/Pagination";
 import BaseTable, {
   BaseColumn,
 } from "../../../components/table/BaseTableLayout";
-// import CategoryModal from "./categoryModal/CategoryModal";
 import "./CategoryPage.css";
 import CategoryModal from "./categoryModal/CategoryModal";
-import { getProductTypeByStatus } from "../../../api/brand";
-import StringDropdown from "../../../components/common/dropdown/StringDropdown";
-import { searchCategory } from "../../../api/category";
-import Loading from "../../../components/common/loading/Loading";
 
 export interface CategoryType {
   id: number;
   name: string;
-  code: string;
   createdDate: string;
   updatedDate: string;
   description: string;
@@ -105,8 +101,7 @@ const CategoryPage = () => {
 
   const columns: BaseColumn<CategoryType>[] = [
     { key: "id", label: "ID", width: "5%" },
-    { key: "name", label: "Tên danh mục", width: "15%" },
-    { key: "code", label: "Mã danh mục", width: "5%" },
+    { key: "name", label: "Tên danh mục", width: "20%" },
     {
       key: "productType",
       label: "Thương hiệu",

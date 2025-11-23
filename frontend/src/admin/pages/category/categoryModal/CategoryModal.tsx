@@ -29,7 +29,6 @@ const CategoryModal: React.FC<CategoryModalProps> = ({
   mode,
 }) => {
   const [name, setName] = useState("");
-  const [code, setCode] = useState("");
   const [description, setDescription] = useState("");
   const [file, setFile] = useState<File | null>(null);
   const [preview, setPreview] = useState<string>("");
@@ -101,7 +100,6 @@ const CategoryModal: React.FC<CategoryModalProps> = ({
 
     const formData = new FormData();
     formData.append("name", name);
-    formData.append("code", code);
     formData.append("description", description);
     formData.append("status", selected === null ? "" : String(selected));
     if (file) {
@@ -128,16 +126,6 @@ const CategoryModal: React.FC<CategoryModalProps> = ({
     }
   };
 
-  const generateBrandCode = (name: string) => {
-    if (!name) return "";
-    const normalized = name
-      .normalize("NFD")
-      .replace(/[\u0300-\u036f]/g, "")
-      .replace(/[^a-zA-Z0-9]/g, "")
-      .toUpperCase();
-    return normalized.substring(0, 50);
-  };
-
   if (loading) return <Loading />;
 
   return (
@@ -159,25 +147,12 @@ const CategoryModal: React.FC<CategoryModalProps> = ({
         <div className="modal-body">
           <div style={{ display: "flex", gap: "10px" }}>
             <div className="modal-field">
-              <div className="modal-label-name">Mã danh mục:</div>
-              <Input
-                value={code}
-                onChange={(e) => setCode(e.target.value)}
-                placeholder="Mã danh mục"
-                style={{ width: "100%" }}
-                disabled
-              />
-            </div>
-            <div className="modal-field">
               <div className="modal-label-name">Tên danh mục:</div>
               <Input
                 value={name}
                 onChange={(e) => {
                   const value = e.target.value;
                   setName(value);
-                  if (mode === "add") {
-                    setCode(generateBrandCode(value));
-                  }
                 }}
                 placeholder="Nhập tên danh mục....."
                 style={{ width: "100%" }}

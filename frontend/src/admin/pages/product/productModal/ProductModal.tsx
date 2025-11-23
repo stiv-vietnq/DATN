@@ -166,7 +166,6 @@ const ProductModal: React.FC<ProductModalProps> = ({
     }
     if (selectedCategory) {
       formData.append("categoryName", selectedCategory.name);
-      formData.append("categoryCode", selectedCategory.code);
     }
 
     formData.append("size", "1505");

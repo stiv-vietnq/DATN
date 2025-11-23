@@ -117,4 +117,6 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
     List<Object[]> getProductStatsByYearNoProductId(
             @Param("year") int year);
 
+    @Query("SELECT p FROM Product p WHERE p.id IN :productIds")
+    List<Product> findByIdIn(List<String> productIds);
 }

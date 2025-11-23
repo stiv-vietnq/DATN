@@ -17,7 +17,6 @@ import java.util.List;
 public class CreateOrUpdateProduct implements Serializable {
     private String id;
     private String brandCode;
-    private String categoryCode;
     private String productName;
     private String productTypeId;
     private String size;
