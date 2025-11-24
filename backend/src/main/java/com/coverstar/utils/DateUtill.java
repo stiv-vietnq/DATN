@@ -53,7 +53,7 @@ public class DateUtill {
 
     public static Date parseDateMaxTime(String dateStr) {
         try {
-            SimpleDateFormat sdfInput = new SimpleDateFormat("yyyyMMdd");
+            SimpleDateFormat sdfInput = new SimpleDateFormat("yyyy-MM-dd");
             sdfInput.setLenient(false);
             Date dateOnly = sdfInput.parse(dateStr);
 

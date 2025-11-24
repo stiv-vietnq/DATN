@@ -1,5 +1,7 @@
 package com.coverstar.entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -17,10 +19,12 @@ public class DiscountProduct {
 
     @ManyToOne
     @JoinColumn(name = "discount_id", nullable = false)
+    @JsonBackReference
     private Discount discount;
 
     @ManyToOne
     @JoinColumn(name = "product_id", nullable = false)
+    @JsonManagedReference
     private Product product;
 }
 

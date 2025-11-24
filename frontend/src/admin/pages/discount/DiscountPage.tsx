@@ -61,6 +61,9 @@ const DiscountPage = () => {
       });
   };
 
+  console.log(discounts);
+  
+
   useEffect(() => {
     handleSearch();
   }, []);

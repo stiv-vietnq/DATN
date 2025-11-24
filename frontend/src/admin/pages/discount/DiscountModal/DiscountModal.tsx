@@ -7,6 +7,7 @@ import DateOnePicker from "../../../../components/common/dateRangePicker/DateOne
 import MultiDropdown from "../../../../components/common/dropdown/MultiDropdown";
 import { ProductSearch } from "../../../../api/product";
 import Dropdown from "../../../../components/common/dropdown/Dropdown";
+import { createOrUpdate } from "../../../../api/discount";
 
 interface BrandModalProps {
   discountId?: number | null | string;
@@ -30,7 +31,7 @@ const DiscountModal: React.FC<BrandModalProps> = ({
   const [date, setDate] = useState<string | null>(null);
   const [selectedValues, setSelectedValues] = useState<string[]>([]);
   const [productOptions, setProductOptions] = useState<Option[]>([]);
-    const [selectedStatus, setSelectedStatus] = useState<boolean | null>(null);
+  const [selectedStatus, setSelectedStatus] = useState<boolean | null>(null);
 
   useEffect(() => {
     if ((mode === "edit" || mode === "view") && discountId) {
@@ -81,6 +82,32 @@ const DiscountModal: React.FC<BrandModalProps> = ({
         console.error("Error fetching products:", error);
       })
       .finally(() => setLoading(false));
+  };
+
+  const handleSubmit = () => {
+    if (!name) {
+      alert("Vui lòng nhập tên giảm giá!");
+      return;
+    }
+
+    const formData = new FormData();
+    if (discountId !== null && discountId !== undefined && discountId !== "") {
+      formData.append("id", String(Number(discountId)));
+    }
+    formData.append("name", name);
+    formData.append("discountPercent", discountPercent);
+    formData.append("expiredDate", date || "");
+    formData.append(
+      "status",
+      selectedStatus !== null ? String(selectedStatus) : ""
+    );
+    selectedValues.forEach((value) => {
+      formData.append("productIds", value);
+    });
+
+    createOrUpdate(formData).then(() => {
+      onClose(true);
+    });
   };
 
   if (loading) return <Loading />;
@@ -157,7 +184,7 @@ const DiscountModal: React.FC<BrandModalProps> = ({
             </div>
           </div>
 
-          <div style={{ display: "flex", gap: "10px", marginTop: "28px" }}>
+          <div style={{ display: "flex", gap: "10px" }}>
             <div className="modal-field" style={{ width: "100%" }}>
               <div className="modal-label-name">Sản phẩm:</div>
               <MultiDropdown
@@ -170,7 +197,7 @@ const DiscountModal: React.FC<BrandModalProps> = ({
         </div>
         <div className="modal-actions">
           {mode !== "view" && (
-            <button className="btn-green">
+            <button className="btn-green" onClick={handleSubmit}>
               {mode === "add" ? "Thêm mới" : "Lưu"}
             </button>
           )}

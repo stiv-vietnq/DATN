@@ -6,3 +6,7 @@ export const searchDiscount = (params: {
 }) => {
   return api.get("/discounts/admin/search", { params });
 };
+
+export const createOrUpdate = (data: FormData) => {
+  return api.post("/discounts/admin/createOrUpdate", data);
+};
