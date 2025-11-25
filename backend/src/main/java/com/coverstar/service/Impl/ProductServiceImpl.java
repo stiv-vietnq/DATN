@@ -3,6 +3,7 @@ package com.coverstar.service.Impl;
 import com.coverstar.constant.Constants;
 import com.coverstar.dto.CreateOrUpdateProduct;
 import com.coverstar.dto.ProductDetailDTO;
+import com.coverstar.dto.ProductSearchDto;
 import com.coverstar.dto.SearchProductDto;
 import com.coverstar.entity.*;
 import com.coverstar.repository.*;
@@ -43,6 +44,9 @@ public class ProductServiceImpl implements ProductService {
 
     @Autowired
     private ProductDetailRepository productDetailRepository;
+
+    @Autowired
+    private DiscountProductRepository discountProductRepository;
 
     @Value("${server.port}")
     private String serverPort;
@@ -162,7 +166,8 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public List<Product> findByNameAndPriceRange(SearchProductDto searchProductDto) throws Exception {
+    public List<ProductSearchDto> findByNameAndPriceRange(SearchProductDto searchProductDto) throws Exception {
+        List<ProductSearchDto> result = new ArrayList<>();
         try {
             // --- Update userVisits ---
             UserVisits userVisits = userVisitRepository.findByVisitDate(3);
@@ -262,7 +267,30 @@ public class ProductServiceImpl implements ProductService {
 
             distinctProducts.sort(comparator);
 
-            return distinctProducts;
+            result.addAll(distinctProducts.stream()
+                    .map(product -> {
+                        ProductSearchDto dto = new ProductSearchDto();
+                        dto.setId(product.getId());
+                        dto.setProductName(product.getProductName());
+                        dto.setPrice(product.getPrice());
+                        dto.setEvaluate(product.getEvaluate());
+                        dto.setNumberOfVisits(product.getNumberOfVisits());
+                        dto.setQuantitySold(product.getQuantitySold());
+                        dto.setStatus(product.getStatus());
+                        dto.setCreatedDate(product.getCreatedDate());
+                        dto.setUpdatedDate(product.getUpdatedDate());
+                        dto.setCategoryId(product.getCategoryId());
+                        dto.setProductType(product.getProductType());
+                        dto.setImages(product.getImages());
+                        dto.setProductDetails(product.getProductDetails());
+
+                        BigDecimal discountPrice = discountProductRepository.findDiscountPriceByDiscountProductId(product.getDiscountProductId());
+                        dto.setDiscountedPrice(discountPrice);
+
+                        return dto;
+                    })
+                    .collect(Collectors.toList()));
+            return result;
 
         } catch (Exception e) {
             e.fillInStackTrace();
@@ -467,5 +495,11 @@ public class ProductServiceImpl implements ProductService {
             e.fillInStackTrace();
             throw e;
         }
+    }
+
+    @Override
+    public BigDecimal getDiscountedPrice(String id) {
+        BigDecimal discountPrice = discountProductRepository.findDiscountPriceByProductId(id);
+        return discountPrice;
     }
 }

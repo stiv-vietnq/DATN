@@ -2,6 +2,7 @@ package com.coverstar.controller;
 
 import com.coverstar.constant.Constants;
 import com.coverstar.dto.CreateOrUpdateProduct;
+import com.coverstar.dto.ProductSearchDto;
 import com.coverstar.dto.SearchProductDto;
 import com.coverstar.entity.Product;
 import com.coverstar.service.ProductService;
@@ -13,6 +14,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
@@ -26,7 +28,7 @@ public class ProductController {
     private ProductService productService;
 
     @GetMapping("/search")
-    public ResponseEntity<List<Product>> search(
+    public ResponseEntity<List<ProductSearchDto>> search(
             @RequestParam(required = false) Long productTypeId,
             @RequestParam(required = false) String name,
             @RequestParam(required = false) String minPrice,
@@ -69,7 +71,7 @@ public class ProductController {
             searchProductDto.setQuantitySold(quantitySold);
             searchProductDto.setNumberOfVisits(numberOfVisits);
             searchProductDto.setEvaluate(evaluate);
-            List<Product> products = productService.findByNameAndPriceRange(searchProductDto);
+            List<ProductSearchDto> products = productService.findByNameAndPriceRange(searchProductDto);
             return ResponseEntity.ok(products);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
@@ -123,6 +125,16 @@ public class ProductController {
                         ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
                 default -> ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Constants.ERROR);
             };
+        }
+    }
+
+    @GetMapping("/getDiscountedPrice/{id}")
+    public ResponseEntity<?> getDiscountedPrice(@PathVariable String id) {
+        try {
+            BigDecimal discountedPrice = productService.getDiscountedPrice(id);
+            return ResponseEntity.ok(discountedPrice);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Constants.ERROR);
         }
     }
 }

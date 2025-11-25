@@ -32,3 +32,7 @@ export const GetProductById = (productId?: number | null | string) => {
 export const DeleteProductById = (productId: number) => {
     return api.post(`/products/admin/deleteProduct/${productId}`);
 }
+
+export const getDiscountedPrice = (productId: string) => {
+    return api.get(`/products/getDiscountedPrice/${productId}`);
+}

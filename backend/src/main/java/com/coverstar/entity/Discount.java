@@ -1,5 +1,6 @@
 package com.coverstar.entity;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import lombok.Getter;
 import lombok.Setter;
 import net.minidev.json.annotate.JsonIgnore;
@@ -41,5 +42,6 @@ public class Discount {
     private Date expiredDate;
 
     @OneToMany(mappedBy = "discount", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference
     private Set<DiscountProduct> discountProducts;
 }

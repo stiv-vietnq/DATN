@@ -100,7 +100,7 @@ const DiscountModal: React.FC<BrandModalProps> = ({
         }));
         setProductOptions(mappedOptions);
       })
-      .catch((error) => {
+      .catch(() => {
         showToast("Lỗi lấy dữ liệu sản phẩm", "error");
       })
       .finally(() => setLoading(false));
@@ -109,23 +109,23 @@ const DiscountModal: React.FC<BrandModalProps> = ({
   const handleSubmit = () => {
 
     if (!name.trim()) {
-      showToast("Vui lòng nhập tên giảm giá!", "error");
+      showToast("Vui lòng nhập tên giảm giá!", "info");
       return;
     }
 
     if (!discountPercent.trim()) {
-      showToast("Vui lòng nhập phần trăm giảm giá!", "error");
+      showToast("Vui lòng nhập phần trăm giảm giá!", "info");
       return;
     }
 
     const discountValue = Number(discountPercent);
     if (isNaN(discountValue) || discountValue < 0 || discountValue > 100) {
-      showToast("Phần trăm giảm giá phải là số từ 0 đến 100!", "error");
+      showToast("Phần trăm giảm giá phải là số từ 0 đến 100!", "info");
       return;
     }
 
     if (!date) {
-      showToast("Vui lòng chọn Ngày kết thúc giảm giá!", "error");
+      showToast("Vui lòng chọn Ngày kết thúc giảm giá!", "info");
       return;
     }
 
@@ -133,17 +133,17 @@ const DiscountModal: React.FC<BrandModalProps> = ({
     const today = new Date();
     today.setHours(0, 0, 0, 0);
     if (selectedDate < today) {
-      showToast("Ngày kết thúc giảm giá phải lớn hơn hoặc bằng hôm nay!", "error");
+      showToast("Ngày kết thúc giảm giá phải lớn hơn hoặc bằng hôm nay!", "info");
       return;
     }
 
     if (selectedStatus === null) {
-      showToast("Vui lòng chọn trạng thái!", "error");
+      showToast("Vui lòng chọn trạng thái!", "info");
       return;
     }
 
     if (selectedValues.length === 0) {
-      showToast("Vui lòng chọn ít nhất 1 sản phẩm!", "error");
+      showToast("Vui lòng chọn ít nhất 1 sản phẩm!", "info");
       return;
     }
 

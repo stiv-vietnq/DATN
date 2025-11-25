@@ -69,6 +69,6 @@ public class Product {
     @OneToMany(mappedBy = "productId", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private Set<ProductDetail> productDetails;
 
-    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
-    private Set<DiscountProduct> discountProducts;
+    @Column(name = "discount_product_id")
+    private Long discountProductId;
 }

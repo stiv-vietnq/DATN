@@ -6,12 +6,12 @@ import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 
 interface Product {
-  id: number;
-  productName: string;
-  price: number;
-  quantitySold: number;
-  images: { directoryPath: string }[];
-  percentageReduction?: string;
+  id?: number;
+  productName?: string;
+  price?: number;
+  quantitySold?: number;
+  images?: { directoryPath: string }[];
+  discountedPrice?: number;
 }
 
 export default function Products() {
@@ -44,6 +44,7 @@ export default function Products() {
       .then((response) => {
         const data = response?.data || [];
         setProducts(data);
+        console.log(data);
       })
       .catch((error) => {
         console.error("Lỗi khi tìm kiếm sản phẩm:", error);
@@ -77,11 +78,13 @@ export default function Products() {
           <div
             key={item?.id}
             className="product-card"
-            onClick={() => handleViewProductDetail(item?.id)}
+            onClick={() => item?.id && handleViewProductDetail(item.id)}
           >
-            <div className="discount-badge-product">
-              -{item?.percentageReduction}%
-            </div>
+            {item?.discountedPrice && (
+              <div className="discount-badge-product">
+                -{item?.discountedPrice}%
+              </div>
+            )}
             <img
               src={item?.images?.[0]?.directoryPath}
               alt={item?.productName}

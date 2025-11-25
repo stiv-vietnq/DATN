@@ -3,7 +3,7 @@ package com.coverstar.constant;
 public class Constants {
     public static final String ERROR = "An error occurred while creating the account";
     public static final String VALID_VERIFICATION = "Valid verification code. Account has been activated.";
-    public static final String VERIFYING_ERROR = "An error occurred while verifying the code.";
+    public static final String VERIFYING_ERROR = "VERIFYING_ERROR";
     public static final String PURCHASE_NOT_FOUND = "Purchase not found";
     public static final String INSUFFICIENT_PRODUCT_QUANTITY = "Insufficient product quantity";
     public static final String LANGUAGE_VI = "vi";
@@ -21,8 +21,8 @@ public class Constants {
     public static final String DUPLICATE_PRODUCT_TYPE = "name";
     public static final String DUPLICATE_PRODUCT_TYPE_CODE = "code";
     public static final String DUPLICATE_SHIPPING = "Shipping method not found";
-    public static final String DUPLICATE_EMAIL = "Email already exists";
-    public static final String DUPLICATE_USERNAME = "Username already exists";
+    public static final String DUPLICATE_EMAIL = "DUPLICATE_EMAIL";
+    public static final String DUPLICATE_USERNAME = "DUPLICATE_USERNAME";
     public static final String USERNAME_EMAIL_REQUIRED = "usernameOrEmail is required";
     public static final String LOCK_ACCOUNT = "Account is locked";
     public static final String INVALID_USERNAME = "Invalid username or password";
@@ -32,7 +32,7 @@ public class Constants {
     public static final String ERROR_EMAIL = "Error changing email";
     public static final String ERROR_UNLOCK = "Error unlocking account";
     public static final String ERROR_LOCK = "Error locking account";
-    public static final String ACCOUNT_NOTFOUND = "Account not found";
+    public static final String ACCOUNT_NOTFOUND = "ACCOUNT_NOTFOUND";
     public static final String ERROR_GET_ALL_ACCOUNT = "Error getting all account";
     public static final String DISCOUNT_EXPIRED = "Discount code has expired";
     public static final String EMAIL_INVALID = "Email is invalid";

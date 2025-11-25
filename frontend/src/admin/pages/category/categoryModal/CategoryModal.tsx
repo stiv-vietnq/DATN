@@ -86,22 +86,22 @@ const CategoryModal: React.FC<CategoryModalProps> = ({
 
   const handleSubmit = async () => {
     if (!name) {
-      showToast("Vui lòng nhập tên loại sản phẩm!", "error");
+      showToast("Vui lòng nhập tên loại sản phẩm!", "info");
       return;
     }
 
     if (!selectedBrandId) {
-      showToast("Vui lòng chọn thương hiệu cho loại sản phẩm!", "error");
+      showToast("Vui lòng chọn thương hiệu cho loại sản phẩm!", "info");
       return;
     }
 
     if (selected === null) {
-      showToast("Vui lòng chọn trạng thái hoạt động!", "error");
+      showToast("Vui lòng chọn trạng thái hoạt động!", "info");
       return;
     }
 
     if (!file && mode === "add") {
-      showToast("Vui lòng chọn ảnh loại sản phẩm!", "error");
+      showToast("Vui lòng chọn ảnh loại sản phẩm!", "info");
       return;
     }
 

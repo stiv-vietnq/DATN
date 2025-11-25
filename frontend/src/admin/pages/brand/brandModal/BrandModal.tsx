@@ -60,12 +60,12 @@ const BrandModal: React.FC<BrandModalProps> = ({ brandId, onClose, mode }) => {
   const handleSubmit = async () => {
 
     if (!name) {
-      showToast("Vui lòng nhập tên thương hiệu!", "error");
+      showToast("Vui lòng nhập tên thương hiệu!", "info");
       return;
     }
 
     if (!file && mode === "add") {
-      showToast("Vui lòng chọn ảnh thương hiệu!", "error");
+      showToast("Vui lòng chọn ảnh thương hiệu!", "info");
       return;
     }
 

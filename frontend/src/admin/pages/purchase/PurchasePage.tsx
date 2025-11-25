@@ -10,6 +10,7 @@ import BaseTable, {
 } from "../../../components/table/BaseTableLayout";
 import "./PurchasePage.css";
 import StatusModal from "./changeStatus/ChangeStatus";
+import { useToast } from "../../../components/toastProvider/ToastProvider";
 
 interface Option {
   label: string;
@@ -50,6 +51,7 @@ const PurchasePage = () => {
   const [selectedPurchaseStatus, setSelectedPurchaseStatus] = useState<
     number | null
   >(null);
+  const { showToast } = useToast();
 
   const paymentMethodOptions = {
     cod: "Thanh toán khi nhận hàng",
@@ -70,6 +72,9 @@ const PurchasePage = () => {
         setPurchases(response.data);
         setTotalItems(response.data.length);
       })
+      .catch(() => {
+        showToast("Lỗi lấy dữ liệu đơn hàng", "error");
+      })
       .finally(() => setLoading(false));
   };
 
@@ -89,6 +94,7 @@ const PurchasePage = () => {
         }));
         setUsers(userOptions);
       })
+      .catch(() => showToast("Lỗi lấy dữ liệu người dùng", "error"))
       .finally(() => setLoading(false));
   };
 
@@ -191,7 +197,6 @@ const PurchasePage = () => {
       width: "10%",
       render: (item: Purchase) => (
         <div className="action-buttons">
-          {/* <FaEdit className="action-buttons-icon" color="blue" /> */}
           {item.status !== 4 && item.status !== 5 && (
             <FaExchangeAlt
               className="action-buttons-icon"

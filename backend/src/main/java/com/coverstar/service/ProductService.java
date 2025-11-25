@@ -1,6 +1,7 @@
 package com.coverstar.service;
 
 import com.coverstar.dto.CreateOrUpdateProduct;
+import com.coverstar.dto.ProductSearchDto;
 import com.coverstar.dto.SearchProductDto;
 import com.coverstar.entity.Product;
 import org.springframework.util.MultiValueMap;
@@ -11,7 +12,7 @@ import java.util.List;
 
 public interface ProductService {
 
-    List<Product> findByNameAndPriceRange(SearchProductDto searchProductDto) throws Exception;
+    List<ProductSearchDto> findByNameAndPriceRange(SearchProductDto searchProductDto) throws Exception;
 
     Product getProductById(String id);
 
@@ -20,4 +21,6 @@ public interface ProductService {
     Product updateStatus(String id, Boolean type);
 
     Product createOrUpdate(CreateOrUpdateProduct createOrUpdateProduct) throws Exception;
+
+    BigDecimal getDiscountedPrice(String id);
 }

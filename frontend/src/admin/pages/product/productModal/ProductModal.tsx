@@ -131,51 +131,51 @@ const ProductModal: React.FC<ProductModalProps> = ({
         setCategoryOptions(mappedOptions);
       })
       .catch(() => {
-        showToast("Lỗi khi lấy loại sản phẩm!", "error");
+        showToast("Lỗi khi lấy loại sản phẩm!", "info");
       });
   };
 
   const handleSubmit = async () => {
 
     if (!name) {
-      showToast("Vui lòng nhập tên sản phẩm!", "error");
+      showToast("Vui lòng nhập tên sản phẩm!", "info");
       return;
     }
 
     if (!selectedBrand) {
-      showToast("Vui lòng chọn thương hiệu sản phẩm!", "error");
+      showToast("Vui lòng chọn thương hiệu sản phẩm!", "info");
       return;
     }
 
     if (!selectedCategory) {
-      showToast("Vui lòng chọn loại sản phẩm!", "error");
+      showToast("Vui lòng chọn loại sản phẩm!", "info");
       return;
     }
 
     if (!selectedStatus) {
-      showToast("Vui lòng chọn trạng thái hoạt động!", "error");
+      showToast("Vui lòng chọn trạng thái hoạt động!", "info");
       return;
     }
 
     if (!price) {
-      showToast("Vui lòng nhập giá sản phẩm!", "error");
+      showToast("Vui lòng nhập giá sản phẩm!", "info");
       return;
     }
 
     if (productDetails.length === 0) {
-      showToast("Vui lòng thêm sản phẩm chi tiết!", "error");
+      showToast("Vui lòng thêm sản phẩm chi tiết!", "info");
       return;
     }
 
     if (productDetails.some((detail) => !detail.name || detail.quantity <= 0 || !detail.price || !detail.directoryPath)) {
       showToast(
-        "Vui lòng điền đầy đủ thông tin cho tất cả sản phẩm chi tiết!", "error"
+        "Vui lòng điền đầy đủ thông tin cho tất cả sản phẩm chi tiết!", "info"
       );
       return;
     }
 
     if (files.length === 0 && initialImages.length === 0) {
-      showToast("Vui lòng thêm ảnh sản phẩm!", "error");
+      showToast("Vui lòng thêm ảnh sản phẩm!", "info");
       return;
     }
 

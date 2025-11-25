@@ -96,6 +96,10 @@ public class AccountController {
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Constants.EMAIL_INVALID);
             }
 
+            if (e.getMessage().equals(Constants.ACCOUNT_NOTFOUND)) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Constants.ACCOUNT_NOTFOUND);
+            }
+
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Constants.VERIFYING_ERROR);
         }
     }

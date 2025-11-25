@@ -3,6 +3,7 @@ import { FaX } from "react-icons/fa6";
 import Loading from "../../../../components/common/loading/Loading";
 import StringDropdown from "../../../../components/common/dropdown/StringDropdown";
 import { updateStatus } from "../../../../api/purchases";
+import { useToast } from "../../../../components/toastProvider/ToastProvider";
 
 interface StatusModalProps {
   purchaseId: number;
@@ -17,6 +18,7 @@ const StatusModal: React.FC<StatusModalProps> = ({
 }) => {
   const [status, setStatus] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const { showToast } = useToast();
 
   const statusOptions = [
     { label: "Chờ duyệt", value: "1" },
@@ -34,16 +36,17 @@ const StatusModal: React.FC<StatusModalProps> = ({
 
   const handleSubmit = () => {
     if (!status) {
-      alert("Vui lòng chọn trạng thái!");
+      showToast("Vui lòng chọn trạng thái!", "info");
       return;
     }
     setLoading(true);
     updateStatus(purchaseId, Number(status))
       .then(() => {
         onClose(true);
+        showToast("Cập nhật trạng thái đơn hàng thành công", "success");
       })
       .catch(() => {
-        console.error("Lỗi khi cập nhật trạng thái đơn hàng");
+        showToast("Lỗi cập nhật trạng thái đơn hàng", "error");
       })
       .finally(() => {
         setLoading(false);
