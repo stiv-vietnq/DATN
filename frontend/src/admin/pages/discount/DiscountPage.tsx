@@ -11,7 +11,7 @@ import BaseTable, {
 import "./DiscountPage.css";
 import Loading from "../../../components/common/loading/Loading";
 import Dropdown from "../../../components/common/dropdown/Dropdown";
-import { searchDiscount } from "../../../api/discount";
+import { deleteDiscountById, searchDiscount } from "../../../api/discount";
 import DiscountModal from "./DiscountModal/DiscountModal";
 
 interface Discounts {
@@ -62,7 +62,7 @@ const DiscountPage = () => {
   };
 
   console.log(discounts);
-  
+
 
   useEffect(() => {
     handleSearch();
@@ -83,8 +83,8 @@ const DiscountPage = () => {
       render: (item: Discounts) =>
         item?.createdDate
           ? new Date(item.createdDate).toLocaleString("vi-VN", {
-              hour12: false,
-            })
+            hour12: false,
+          })
           : "",
     },
     {
@@ -94,8 +94,8 @@ const DiscountPage = () => {
       render: (item: Discounts) =>
         item?.updatedDate
           ? new Date(item.updatedDate).toLocaleString("vi-VN", {
-              hour12: false,
-            })
+            hour12: false,
+          })
           : "",
     },
     {
@@ -105,8 +105,8 @@ const DiscountPage = () => {
       render: (item: Discounts) =>
         item?.expiredDate
           ? new Date(item.expiredDate).toLocaleString("vi-VN", {
-              hour12: false,
-            })
+            hour12: false,
+          })
           : "",
     },
     {
@@ -115,9 +115,8 @@ const DiscountPage = () => {
       width: "15%",
       render: (item: Discounts) => (
         <span
-          className={`status-label ${
-            item.status ? "status-active" : "status-inactive"
-          }`}
+          className={`status-label ${item.status ? "status-active" : "status-inactive"
+            }`}
         >
           {item.status ? "Đang hoạt động" : "Không hoạt động"}
         </span>
@@ -173,12 +172,17 @@ const DiscountPage = () => {
   };
 
   const handleDelete = (id: any) => {
-    try {
-      deleteBrand(id);
-    } catch (err) {
-    } finally {
-      setShowConfirm(false);
-    }
+    deleteDiscountById(id)
+      .then(() => {
+        console.log("Xóa giảm giá thành công");
+        handleSearch();
+      })
+      .catch((error) => {
+        console.error("Lỗi khi xóa giảm giá:", error);
+      })
+      .finally(() => {
+        setShowConfirm(false);
+      });
   };
 
   const handleCloseModal = (shouldReload?: boolean) => {

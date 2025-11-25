@@ -7,7 +7,7 @@ import DateOnePicker from "../../../../components/common/dateRangePicker/DateOne
 import MultiDropdown from "../../../../components/common/dropdown/MultiDropdown";
 import { ProductSearch } from "../../../../api/product";
 import Dropdown from "../../../../components/common/dropdown/Dropdown";
-import { createOrUpdate } from "../../../../api/discount";
+import { createOrUpdate, getDiscountById } from "../../../../api/discount";
 
 interface BrandModalProps {
   discountId?: number | null | string;
@@ -35,8 +35,28 @@ const DiscountModal: React.FC<BrandModalProps> = ({
 
   useEffect(() => {
     if ((mode === "edit" || mode === "view") && discountId) {
+      setLoading(true);
+      getDiscountById(Number(discountId))
+        .then((res) => {
+          const d = res.data;
+
+          setName(d.name || "");
+          setDiscountPercent(String(d.discountPercent || ""));
+          setDate(formatDate(d.expiredDate) || null);
+          setSelectedStatus(d.status);
+          const productIds: string[] = Array.isArray(d.discountProducts)
+            ? d.discountProducts.map((dp: any) => String(dp.product.id))
+            : [];
+
+          console.log(productIds);
+
+          setSelectedValues(productIds);
+        })
+        .catch((err) => console.error("Load discount failed", err))
+        .finally(() => setLoading(false));
     }
   }, [discountId, mode]);
+
 
   useEffect(() => {
     handleGetProducts();
@@ -52,6 +72,19 @@ const DiscountModal: React.FC<BrandModalProps> = ({
       error = "Ngày không được nhỏ hơn hôm nay";
     }
   }
+
+  const formatDate = (dateStr: string | null) => {
+    if (!dateStr) return null;
+
+    const d = new Date(dateStr);
+    if (isNaN(d.getTime())) return null;
+
+    const year = d.getFullYear();
+    const month = String(d.getMonth() + 1).padStart(2, "0");
+    const day = String(d.getDate()).padStart(2, "0");
+
+    return `${year}-${month}-${day}`;
+  };
 
   const handleGetProducts = () => {
     setLoading(true);
@@ -85,27 +118,43 @@ const DiscountModal: React.FC<BrandModalProps> = ({
   };
 
   const handleSubmit = () => {
-    if (!name) {
+
+    if (!name.trim()) {
       alert("Vui lòng nhập tên giảm giá!");
       return;
     }
 
-    const formData = new FormData();
-    if (discountId !== null && discountId !== undefined && discountId !== "") {
-      formData.append("id", String(Number(discountId)));
+    const discountValue = Number(discountPercent);
+    if (isNaN(discountValue) || discountValue < 0 || discountValue > 100) {
+      alert("Phần trăm giảm giá phải là số từ 0 đến 100!");
+      return;
     }
-    formData.append("name", name);
-    formData.append("discountPercent", discountPercent);
-    formData.append("expiredDate", date || "");
-    formData.append(
-      "status",
-      selectedStatus !== null ? String(selectedStatus) : ""
-    );
-    selectedValues.forEach((value) => {
-      formData.append("productIds", value);
-    });
 
-    createOrUpdate(formData).then(() => {
+    if (selectedStatus === null) {
+      alert("Vui lòng chọn trạng thái!");
+      return;
+    }
+
+    if (!date) {
+      alert("Vui lòng chọn Ngày kết thúc giảm giá!");
+      return;
+    }
+
+    if (selectedValues.length === 0) {
+      alert("Vui lòng chọn ít nhất 1 sản phẩm!");
+      return;
+    }
+
+    const payload = {
+      id: discountId ? Number(discountId) : null,
+      name,
+      discountPercent: Number(discountPercent),
+      expiredDate: date,
+      status: selectedStatus,
+      productIds: selectedValues,
+    };
+
+    createOrUpdate(payload).then(() => {
       onClose(true);
     });
   };
@@ -191,6 +240,7 @@ const DiscountModal: React.FC<BrandModalProps> = ({
                 value={selectedValues}
                 onChange={setSelectedValues}
                 options={productOptions}
+                disabled={mode === "view"}
               />
             </div>
           </div>

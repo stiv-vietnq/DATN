@@ -42,7 +42,7 @@ public class DiscountController {
 
     @PostMapping("/admin/updateExpiredDate/{discountId}")
     public ResponseEntity<?> updateExpiredDate(@RequestParam(name = "expiredDate", required = false) String expiredDate,
-                                          @PathVariable Long discountId) {
+                                               @PathVariable Long discountId) {
         try {
             Discount discount = discountService.updateExpiredDate(discountId, expiredDate);
             return ResponseEntity.ok(discount);
@@ -68,6 +68,16 @@ public class DiscountController {
         try {
             List<Discount> discounts = discountService.search(name, status);
             return ResponseEntity.ok(discounts);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Constants.ERROR);
+        }
+    }
+
+    @PostMapping("/admin/delete/{discountId}")
+    public ResponseEntity<?> delete(@PathVariable Long discountId) {
+        try {
+            discountService.delete(discountId);
+            return ResponseEntity.ok("Delete successful");
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Constants.ERROR);
         }

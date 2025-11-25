@@ -15,4 +15,6 @@ public interface DiscountService {
     Discount getById(Long discountId);
 
     List<Discount> search(String name, Boolean status);
+
+    void delete(Long discountId);
 }
