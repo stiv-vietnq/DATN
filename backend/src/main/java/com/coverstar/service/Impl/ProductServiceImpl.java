@@ -131,7 +131,6 @@ public class ProductServiceImpl implements ProductService {
             productDetail.setName(productDetailDTO.getName());
             productDetail.setQuantity(productDetailDTO.getQuantity());
             productDetail.setPrice(productDetailDTO.getPrice());
-            productDetail.setPercentageReduction(productDetailDTO.getPercentageReduction());
             productDetail.setDescription(productDetailDTO.getDescription());
             productDetail.setType(productDetailDTO.getType());
 
@@ -440,11 +439,9 @@ public class ProductServiceImpl implements ProductService {
                 throw new Exception(Constants.PRODUCT_TYPE_NOT_FOUND);
             }
             BigDecimal price = StringUtils.isNotEmpty(productDto.getPrice()) ? new BigDecimal(productDto.getPrice()) : BigDecimal.ZERO;
-            Float percentageReduction = productDto.getPercentageReduction() != null ? Float.parseFloat(productDto.getPercentageReduction()) : 0f;
             product.setProductType(productType);
             product.setSize(productDto.getSize());
             product.setPrice(price);
-            product.setPercentageReduction(percentageReduction);
             product.setCategoryId(Long.valueOf(productDto.getCategoryId()));
             product.setStatus(Boolean.valueOf(productDto.getStatus()));
             product.setDescription(productDto.getDescription());

@@ -1,18 +1,18 @@
 import { useEffect, useState } from "react";
-import { FaEdit, FaEye, FaSearch, FaTrash } from "react-icons/fa";
+import { FaEdit, FaEye, FaSearch, FaToggleOff, FaToggleOn, FaTrash } from "react-icons/fa";
 import { FaPlus } from "react-icons/fa6";
-import { deleteBrand, searchProductType } from "../../../api/brand";
+import { deleteBrand, searchProductType, updateBrandStatus } from "../../../api/brand";
 import ConfirmModal from "../../../components/common/confirmModal/ConfirmModal";
-import Dropdown from "../../../components/common/dropdown/Dropdown";
+import StringDropdown from "../../../components/common/dropdown/StringDropdown";
 import Input from "../../../components/common/input/Input";
+import Loading from "../../../components/common/loading/Loading";
 import Pagination from "../../../components/pagination/Pagination";
 import BaseTable, {
   BaseColumn,
 } from "../../../components/table/BaseTableLayout";
 import BrandModal from "./brandModal/BrandModal";
 import "./BrandPage.css";
-import StringDropdown from "../../../components/common/dropdown/StringDropdown";
-import Loading from "../../../components/common/loading/Loading";
+import { useToast } from "../../../components/toastProvider/ToastProvider";
 
 interface ProductType {
   id: number;
@@ -40,6 +40,9 @@ const BrandPage = () => {
   const [selectedId, setSelectedId] = useState<number | null>(null);
   const [productTypes, setProductTypes] = useState<ProductType[]>([]);
   const [totalItems, setTotalItems] = useState(productTypes?.length);
+  const { showToast } = useToast();
+  const [newStatus, setNewStatus] = useState<boolean>(false);
+  const [newStatusId, setNewStatusId] = useState<number | null>(null);
 
   const handleSearch = () => {
     setLoading(true);
@@ -53,8 +56,8 @@ const BrandPage = () => {
         setProductTypes(response?.data);
         setTotalItems(response?.data.length || 0);
       })
-      .catch((error) => {
-        console.error("Lỗi khi tìm kiếm loại sản phẩm:", error);
+      .catch(() => {
+        showToast("Lỗi lấy dữ liệu thương hiệu", "error");
       })
       .finally(() => {
         setLoading(false);
@@ -80,8 +83,8 @@ const BrandPage = () => {
       render: (item: ProductType) =>
         item?.createdDate
           ? new Date(item.createdDate).toLocaleString("vi-VN", {
-              hour12: false,
-            })
+            hour12: false,
+          })
           : "",
     },
     {
@@ -91,8 +94,8 @@ const BrandPage = () => {
       render: (item: ProductType) =>
         item?.updatedDate
           ? new Date(item.updatedDate).toLocaleString("vi-VN", {
-              hour12: false,
-            })
+            hour12: false,
+          })
           : "",
     },
     { key: "description", label: "Mô tả", width: "35%" },
@@ -102,9 +105,8 @@ const BrandPage = () => {
       width: "10%",
       render: (item: ProductType) => (
         <span
-          className={`status-label ${
-            item.status ? "status-active" : "status-inactive"
-          }`}
+          className={`status-label ${item.status ? "status-active" : "status-inactive"
+            }`}
         >
           {item.status ? "Đang hoạt động" : "Không hoạt động"}
         </span>
@@ -114,7 +116,7 @@ const BrandPage = () => {
       key: "actions",
       label: "Thao tác",
       width: "10%",
-      render: (item: { id: any }) => (
+      render: (item: { id: any; status: boolean }) => (
         <div className="action-buttons">
           <FaEye
             className="action-buttons-icon"
@@ -130,6 +132,19 @@ const BrandPage = () => {
             color="red"
             onClick={() => openConfirm("delete", item?.id)}
           />
+          {item.status ? (
+            <FaToggleOn
+              className="action-buttons-icon"
+              color="green"
+              onClick={() => handleUpdateStatus(item?.id, false)}
+            />
+          ) : (
+            <FaToggleOff
+              className="action-buttons-icon"
+              color="gray"
+              onClick={() => handleUpdateStatus(item?.id, true)}
+            />
+          )}
         </div>
       ),
     },
@@ -160,24 +175,40 @@ const BrandPage = () => {
   };
 
   const handleDelete = (id: any) => {
-    try {
-      deleteBrand(id);
-    } catch (err) {
-    } finally {
-      setShowConfirm(false);
-    }
+    deleteBrand(id)
+      .then(() => {
+        setShowConfirm(false);
+        showToast("Xóa thương hiệu thành công", "success");
+        handleSearch();
+      })
+      .catch(() => {
+        showToast("Lỗi khi xóa thương hiệu", "error");
+      });
   };
 
   const handleCloseModal = (shouldReload?: boolean) => {
     setIsModalOpen(false);
-
     if (shouldReload) {
       handleSearch();
     }
   };
 
-  const handleUpdateStatus = (id: any) => {
-    console.log("Cập nhật trạng thái:", id);
+  const handleUpdateStatus = (id: any, status: boolean) => {
+    setNewStatusId(id);
+    setNewStatus(status);
+    setShowConfirm(true);
+  };
+
+  const confirmUpdateStatus = () => {
+    updateBrandStatus(newStatusId!, newStatus)
+      .then(() => {
+        showToast("Cập nhật trạng thái thương hiệu thành công", "success");
+        setShowConfirm(false);
+        handleSearch();
+      })
+      .catch(() => {
+        showToast("Lỗi cập nhật trạng thái thương hiệu", "error");
+      });
   };
 
   if (loading) return <Loading />;
@@ -257,7 +288,7 @@ const BrandPage = () => {
           onConfirm={() =>
             confirmAction === "delete"
               ? handleDelete(selectedId)
-              : handleUpdateStatus(selectedId)
+              : confirmUpdateStatus()
           }
           onCancel={() => setShowConfirm(false)}
           type="delete"

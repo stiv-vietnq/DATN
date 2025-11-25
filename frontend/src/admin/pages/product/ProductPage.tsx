@@ -14,6 +14,7 @@ import BaseTable, {
 } from "../../../components/table/BaseTableLayout";
 import ProductModal from "./productModal/ProductModal";
 import "./ProductPage.css";
+import { useToast } from "../../../components/toastProvider/ToastProvider";
 
 interface Product {
   id: number;
@@ -68,6 +69,7 @@ const ProductPage = () => {
   const [selectedCategoryId, setSelectedCategoryId] = useState<string | null>(
     null
   );
+  const { showToast } = useToast();
 
   // Phân trang
   const start = (page - 1) * itemsPerPage;
@@ -101,8 +103,8 @@ const ProductPage = () => {
         setProducts(data);
         setTotalItems(data.length);
       })
-      .catch((error) => {
-        console.error("Lỗi khi tìm kiếm sản phẩm:", error);
+      .catch(() => {
+        showToast("Lỗi khi tìm kiếm sản phẩm!", "error");
       })
       .finally(() => {
         setLoading(false);
@@ -114,17 +116,14 @@ const ProductPage = () => {
     getProductTypeByStatus({ status: null })
       .then((response) => {
         const data = response?.data || [];
-        console.log("Thương hiệu hoạt động:", data);
-
         const mappedOptions: Option[] = data.map((item: any) => ({
           label: item.name,
           value: item.id,
         }));
-
         setBrandOptions(mappedOptions);
       })
-      .catch((error) => {
-        console.error("Lỗi khi lấy thương hiệu:", error);
+      .catch(() => {
+        showToast("Lỗi khi lấy thương hiệu!", "error");
       })
       .finally(() => setLoading(false));
   };
@@ -143,8 +142,8 @@ const ProductPage = () => {
 
         setCategoryOptions(mappedOptions);
       })
-      .catch((error) => {
-        console.error("Lỗi khi lấy danh mục:", error);
+      .catch(() => {
+        showToast("Lỗi khi lấy loại sản phẩm!", "error");
       });
   };
 
@@ -176,8 +175,8 @@ const ProductPage = () => {
       render: (item: Product) =>
         item?.createdDate
           ? new Date(item.createdDate).toLocaleString("vi-VN", {
-              hour12: false,
-            })
+            hour12: false,
+          })
           : "",
     },
     {
@@ -187,8 +186,8 @@ const ProductPage = () => {
       render: (item: Product) =>
         item?.updatedDate
           ? new Date(item.updatedDate).toLocaleString("vi-VN", {
-              hour12: false,
-            })
+            hour12: false,
+          })
           : "",
     },
     {
@@ -197,9 +196,8 @@ const ProductPage = () => {
       width: "10%",
       render: (item: Product) => (
         <span
-          className={`status-label ${
-            item?.status ? "status-active" : "status-inactive"
-          }`}
+          className={`status-label ${item?.status ? "status-active" : "status-inactive"
+            }`}
         >
           {item?.status ? "Đang hoạt động" : "Không hoạt động"}
         </span>
@@ -258,12 +256,13 @@ const ProductPage = () => {
   const handleDelete = (id: number) => {
     DeleteProductById(id)
       .then(() => {
+        showToast("Xóa sản phẩm thành công!", "success");
         handleSearchProducts();
+        setShowConfirm(false);
       })
-      .catch((error) => {
-        console.error("Lỗi khi xóa sản phẩm:", error);
+      .catch(() => {
+        showToast("Lỗi khi xóa sản phẩm!", "error");
       });
-    setShowConfirm(false);
   };
 
   const handleUpdateStatus = (id: number) => {

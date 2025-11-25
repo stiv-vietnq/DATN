@@ -18,7 +18,8 @@ public class Constants {
     public static final String ADDRESS_NOT_FOUND = "Address not found";
     public static final String NOT_IMAGE = "Image field cannot be left blank";
     public static final String DUPLICATE_DISCOUNT = "Discount code already exists";
-    public static final String DUPLICATE_PRODUCT_TYPE = "Product Type name already exists";
+    public static final String DUPLICATE_PRODUCT_TYPE = "name";
+    public static final String DUPLICATE_PRODUCT_TYPE_CODE = "code";
     public static final String DUPLICATE_SHIPPING = "Shipping method not found";
     public static final String DUPLICATE_EMAIL = "Email already exists";
     public static final String DUPLICATE_USERNAME = "Username already exists";

@@ -26,3 +26,10 @@ export const getDiscountById = (discountId?: number | null ) => {
 export const deleteDiscountById = (discountId: number) => {
   return api.post(`/discounts/admin/delete/${discountId}`);
 };
+
+export const updateDiscountStatus = (discountId: number, status: boolean) => {
+  return api.post(`/discounts/admin/updateStatus/${discountId}`, null, {
+    params: { status },
+  });
+};
+

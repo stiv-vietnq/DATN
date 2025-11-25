@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
-import { FaEdit, FaEye, FaSearch, FaTrash } from "react-icons/fa";
+import { FaEdit, FaEye, FaSearch, FaToggleOff, FaToggleOn, FaTrash } from "react-icons/fa";
 import { FaPlus } from "react-icons/fa6";
 import { getProductTypeByStatus } from "../../../api/brand";
-import { searchCategory } from "../../../api/category";
+import { deleteCategory, searchCategory } from "../../../api/category";
 import ConfirmModal from "../../../components/common/confirmModal/ConfirmModal";
 import StringDropdown from "../../../components/common/dropdown/StringDropdown";
 import Input from "../../../components/common/input/Input";
@@ -11,6 +11,7 @@ import Pagination from "../../../components/pagination/Pagination";
 import BaseTable, {
   BaseColumn,
 } from "../../../components/table/BaseTableLayout";
+import { useToast } from "../../../components/toastProvider/ToastProvider";
 import "./CategoryPage.css";
 import CategoryModal from "./categoryModal/CategoryModal";
 
@@ -50,22 +51,22 @@ const CategoryPage = () => {
   const [brandOptions, setBrandOptions] = useState<Option[]>([]);
   const [categories, setCategories] = useState<CategoryType[]>([]);
   const [totalItems, setTotalItems] = useState(categories?.length);
+  const { showToast } = useToast();
+  const [newStatus, setNewStatus] = useState<boolean>(false);
+  const [newStatusId, setNewStatusId] = useState<number | null>(null);
 
   const getAllBrands = () => {
     getProductTypeByStatus({ status: null })
       .then((response) => {
         const data = response?.data || [];
-        console.log("Thương hiệu hoạt động:", data);
-
         const mappedOptions: Option[] = data.map((item: any) => ({
           label: item.name,
           value: item.id,
         }));
-
         setBrandOptions(mappedOptions);
       })
-      .catch((error) => {
-        console.error("Lỗi khi lấy thương hiệu:", error);
+      .catch(() => {
+        showToast("Lỗi khi lấy thương hiệu!", "error");
       });
   };
 
@@ -81,9 +82,8 @@ const CategoryPage = () => {
         setCategories(response?.data);
         setTotalItems(response?.data.length || 0);
       })
-      .catch((error) => {
-        console.error("Lỗi khi tìm kiếm danh mục:", error);
-        alert("Không thể tìm kiếm danh mục!");
+      .catch(() => {
+        showToast("Tải dữ liệu loại sản phẩm thất bại!", "error");
       })
       .finally(() => {
         setLoading(false);
@@ -117,8 +117,8 @@ const CategoryPage = () => {
       render: (item: CategoryType) =>
         item?.createdDate
           ? new Date(item.createdDate).toLocaleString("vi-VN", {
-              hour12: false,
-            })
+            hour12: false,
+          })
           : "",
     },
     {
@@ -128,8 +128,8 @@ const CategoryPage = () => {
       render: (item: CategoryType) =>
         item?.updatedDate
           ? new Date(item.updatedDate).toLocaleString("vi-VN", {
-              hour12: false,
-            })
+            hour12: false,
+          })
           : "",
     },
     { key: "description", label: "Mô tả", width: "15%" },
@@ -139,9 +139,8 @@ const CategoryPage = () => {
       width: "10%",
       render: (item: CategoryType) => (
         <span
-          className={`status-label ${
-            item?.status ? "status-active" : "status-inactive"
-          }`}
+          className={`status-label ${item?.status ? "status-active" : "status-inactive"
+            }`}
         >
           {item?.status ? "Đang hoạt động" : "Không hoạt động"}
         </span>
@@ -151,7 +150,7 @@ const CategoryPage = () => {
       key: "actions",
       label: "Thao tác",
       width: "10%",
-      render: (item: { id: any }) => (
+      render: (item: { id: any; status: boolean }) => (
         <div className="action-buttons-category">
           <FaEye
             className="action-buttons-icon-category"
@@ -167,6 +166,19 @@ const CategoryPage = () => {
             color="red"
             onClick={() => openConfirm("delete", item?.id)}
           />
+          {item.status ? (
+            <FaToggleOn
+              className="action-buttons-icon"
+              color="green"
+              onClick={() => handleUpdateStatus(item?.id, false)}
+            />
+          ) : (
+            <FaToggleOff
+              className="action-buttons-icon"
+              color="gray"
+              onClick={() => handleUpdateStatus(item?.id, true)}
+            />
+          )}
         </div>
       ),
     },
@@ -197,13 +209,15 @@ const CategoryPage = () => {
   };
 
   const handleDelete = (id: any) => {
-    try {
-      alert("Đã xóa danh mục thành công!");
-    } catch (err) {
-      alert("Lỗi khi xóa danh mục!");
-    } finally {
-      setShowConfirm(false);
-    }
+    deleteCategory(id)
+      .then(() => {
+        setShowConfirm(false);
+        showToast("Xóa loại sản phẩm thành công", "success");
+        handleSearch();
+      })
+      .catch(() => {
+        showToast("Lỗi khi xóa loại sản phẩm", "error");
+      });
   };
 
   const handleCloseModal = (shouldReload?: boolean) => {
@@ -213,9 +227,18 @@ const CategoryPage = () => {
       handleSearch();
     }
   };
-  const handleUpdateStatus = (id: any) => {
-    console.log("Cập nhật trạng thái:", id);
+  const handleUpdateStatus = (id: any, status: boolean) => {
+    setNewStatus(status);
+    setNewStatusId(id);
+    openConfirm("status", id);
   };
+
+  const confirmUpdateStatus = () => {
+    //   if (newStatusId === null) return;
+    //   // Call API to update status
+    //   // Here we assume there's an API function called updateCategoryStatus
+    //   // You need to implement this function in your API layer  
+  }
 
   if (loading) return <Loading />;
 
@@ -305,7 +328,7 @@ const CategoryPage = () => {
           onConfirm={() =>
             confirmAction === "delete"
               ? handleDelete(selectedId)
-              : handleUpdateStatus(selectedId)
+              : confirmUpdateStatus()
           }
           onCancel={() => setShowConfirm(false)}
           type="delete"

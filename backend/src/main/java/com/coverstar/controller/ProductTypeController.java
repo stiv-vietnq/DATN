@@ -36,9 +36,15 @@ public class ProductTypeController {
             ProductType productType = productTypeService.createOrUpdateProductType(longId, code, name, imageFiles, description, directoryPath);
             return ResponseEntity.ok(productType);
         } catch (Exception e) {
+
             if (e.getMessage().equals(Constants.DUPLICATE_PRODUCT_TYPE)) {
                 return ResponseEntity.status(HttpStatus.CONFLICT).body(Constants.DUPLICATE_PRODUCT_TYPE);
             }
+
+            if (e.getMessage().equals(Constants.DUPLICATE_PRODUCT_TYPE_CODE)) {
+                return ResponseEntity.status(HttpStatus.CONFLICT).body(Constants.DUPLICATE_PRODUCT_TYPE_CODE);
+            }
+
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Constants.ERROR);
         }
     }

@@ -25,3 +25,7 @@ export const getCategorysByProductTypeId = (params: {
 }) => {
   return api.get(`/categories/getCategorysByProductTypeId`, { params });
 };
+
+export const deleteCategory = (categoryId: number) => {
+  return api.post(`/categories/admin/delete/${categoryId}`);
+};

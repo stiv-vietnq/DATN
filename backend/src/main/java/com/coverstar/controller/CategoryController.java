@@ -42,6 +42,10 @@ public class CategoryController {
             return ResponseEntity.ok(category);
         } catch (Exception e) {
 
+            if (e.getMessage().equals(Constants.DUPLICATE_CATEGORY)) {
+                return ResponseEntity.status(HttpStatus.CONFLICT).body(Constants.DUPLICATE_CATEGORY);
+            }
+
             if (e.getMessage().equals(Constants.PRODUCT_TYPE_NOT_FOUND)) {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Constants.PRODUCT_TYPE_NOT_FOUND);
             }

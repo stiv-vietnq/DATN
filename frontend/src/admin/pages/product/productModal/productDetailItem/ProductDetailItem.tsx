@@ -18,7 +18,6 @@ export interface ProductDetail {
     name: string;
     quantity: number;
     price: string;
-    percentageReduction: string;
     description: string;
     type: number | null;
     directoryPath: File | string | null;
@@ -96,23 +95,6 @@ const ProductDetailItem: React.FC<ProductDetailItemProps> = ({
                         value={detail.price}
                         onChange={(e) => onChange(index, "price", e.target.value)}
                         placeholder="Đơn giá..."
-                        style={{ width: "100%" }}
-                        disabled={disabled}
-                    />
-                </div>
-                <div className="modal-field">
-                    <div className="modal-label-name">Giảm giá (%):</div>
-                    <Input
-                        type="number"
-                        value={detail.percentageReduction}
-                        onChange={(e) =>
-                            onChange(
-                                index,
-                                "percentageReduction",
-                                Number(e.target.value)
-                            )
-                        }
-                        placeholder="Giảm giá (%)..."
                         style={{ width: "100%" }}
                         disabled={disabled}
                     />

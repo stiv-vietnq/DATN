@@ -11,6 +11,7 @@ import Input from "../../../../components/common/input/Input";
 import Loading from "../../../../components/common/loading/Loading";
 import Textarea from "../../../../components/common/textarea/Textarea";
 import "./CategoryModal.css";
+import { useToast } from "../../../../components/toastProvider/ToastProvider";
 
 interface CategoryModalProps {
   categoryId?: number | null | string;
@@ -36,6 +37,7 @@ const CategoryModal: React.FC<CategoryModalProps> = ({
   const [selected, setSelected] = useState<string | null>(null);
   const [selectedBrandId, setSelectedBrandId] = useState<string | null>(null);
   const [brandOptions, setBrandOptions] = useState<Option[]>([]);
+  const { showToast } = useToast();
 
   useEffect(() => {
     getAllBrands();
@@ -84,17 +86,22 @@ const CategoryModal: React.FC<CategoryModalProps> = ({
 
   const handleSubmit = async () => {
     if (!name) {
-      alert("Vui lòng nhập tên thương hiệu!");
-      return;
-    }
-
-    if (!file && mode === "add") {
-      alert("Vui lòng chọn ảnh thương hiệu!");
+      showToast("Vui lòng nhập tên loại sản phẩm!", "error");
       return;
     }
 
     if (!selectedBrandId) {
-      alert("Vui lòng chọn thương hiệu cho danh mục!");
+      showToast("Vui lòng chọn thương hiệu cho loại sản phẩm!", "error");
+      return;
+    }
+
+    if (selected === null) {
+      showToast("Vui lòng chọn trạng thái hoạt động!", "error");
+      return;
+    }
+
+    if (!file && mode === "add") {
+      showToast("Vui lòng chọn ảnh loại sản phẩm!", "error");
       return;
     }
 
@@ -111,19 +118,20 @@ const CategoryModal: React.FC<CategoryModalProps> = ({
       formData.append("id", categoryId.toString());
     formData.append("productTypeId", selectedBrandId?.toString() || "");
 
-    try {
-      setLoading(true);
-      await createOrUpdateCategory(formData);
+    createOrUpdateCategory(formData).then(() => {
+      showToast(
+        `${mode === "add" ? "Thêm mới" : "Cập nhật"
+        } loại sản phẩm thành công!`,
+        "success"
+      );
       onClose(true);
-    } catch (error: any) {
+    }).catch((error) => {
       if (error.response?.status === 409) {
-        alert("Tên danh mục đã tồn tại!");
+        showToast("Tên loại sản phẩm đã tồn tại!", "error");
       } else {
-        alert("Lỗi khi gửi dữ liệu!");
+        showToast("Lỗi khi gửi dữ liệu!", "error");
       }
-    } finally {
-      setLoading(false);
-    }
+    });
   };
 
   if (loading) return <Loading />;
@@ -147,14 +155,14 @@ const CategoryModal: React.FC<CategoryModalProps> = ({
         <div className="modal-body">
           <div style={{ display: "flex", gap: "10px" }}>
             <div className="modal-field">
-              <div className="modal-label-name">Tên danh mục:</div>
+              <div className="modal-label-name">Tên loại sản phẩm:</div>
               <Input
                 value={name}
                 onChange={(e) => {
                   const value = e.target.value;
                   setName(value);
                 }}
-                placeholder="Nhập tên danh mục....."
+                placeholder="Nhập tên loại sản phẩm....."
                 style={{ width: "100%" }}
                 disabled={mode === "view"}
               />
@@ -190,17 +198,17 @@ const CategoryModal: React.FC<CategoryModalProps> = ({
           </div>
 
           <div className="modal-field" style={{ marginBottom: "28px" }}>
-            <div className="modal-label-name">Mô tả thương hiệu:</div>
+            <div className="modal-label-name">Mô tả loại sản phẩm:</div>
             <Textarea
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-              placeholder="Nhập mô tả danh mục..."
+              placeholder="Nhập mô tả loại sản phẩm..."
               disabled={mode === "view"}
             />
           </div>
 
           <div className="modal-field">
-            <div className="modal-label-name">Ảnh danh mục:</div>
+            <div className="modal-label-name">Ảnh loại sản phẩm:</div>
             <ImageUpload
               onChange={setFile}
               initialPreview={preview}

@@ -36,3 +36,9 @@ export const getProductTypeByStatus = (params: {
 export const getProductTypeById = (id: number) => {
   return api.get(`/productTypes/getProductsByProductTypeId/${id}`);
 }
+
+export const updateBrandStatus = (brandId: number, status: boolean) => {
+  return api.post(`/productTypes/admin/updateStatus/${brandId}`, null, {
+    params: { status },
+  });
+};

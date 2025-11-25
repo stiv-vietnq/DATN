@@ -13,6 +13,7 @@ import "./ProductModal.css";
 import { GetProductById, ProductCreateOrUpdate } from "../../../../api/product";
 import { getCategorysByProductTypeId } from "../../../../api/category";
 import { getProductTypeByStatus } from "../../../../api/brand";
+import { useToast } from "../../../../components/toastProvider/ToastProvider";
 
 interface ProductModalProps {
   productId?: number | null | string;
@@ -41,7 +42,6 @@ const ProductModal: React.FC<ProductModalProps> = ({
   const [loading, setLoading] = useState(false);
   const [selectedStatus, setSelectedStatus] = useState<boolean | null>(null);
   const [price, setPrice] = useState<string>("");
-  const [percentageReduction, setPercentageReduction] = useState<string>("");
   const [imageIdsToRemove, setImageIdsToRemove] = useState<number[]>([]);
   const [listProductDetailIdRemove, setListProductDetailIdRemove] = useState<
     number[]
@@ -53,10 +53,8 @@ const ProductModal: React.FC<ProductModalProps> = ({
   const [selectedBrand, setSelectedBrand] = useState<Option | null>(null);
   const [selectedCategory, setSelectedCategory] = useState<Option | null>(null);
   const [initialImages, setInitialImages] = useState<ExistingImage[]>([]);
+  const { showToast } = useToast();
 
-  // ==============================
-  // FETCH DATA
-  // ==============================
   useEffect(() => {
     getAllBrands();
     if ((mode === "edit" || mode === "view") && productId) {
@@ -66,12 +64,6 @@ const ProductModal: React.FC<ProductModalProps> = ({
           setName(data?.productName || "");
           setDescription(data?.description || "");
           setSelectedStatus(data?.status || false);
-          setPrice(data?.price ? String(data.price) : "");
-          setPercentageReduction(
-            data?.percentageReduction ? String(data.percentageReduction) : ""
-          );
-
-          // Set selected brand & category (bao gồm id, name, code)
           if (data?.productType) {
             setSelectedBrand({
               id: String(data.productType.id),
@@ -89,7 +81,6 @@ const ProductModal: React.FC<ProductModalProps> = ({
             });
           }
 
-          // Product details
           setProductDetails(data?.productDetails || []);
 
           // Images
@@ -100,8 +91,8 @@ const ProductModal: React.FC<ProductModalProps> = ({
             })) || [];
           setInitialImages(images);
         })
-        .catch((error) => {
-          console.error(error);
+        .catch(() => {
+          showToast("Lỗi khi lấy sản phẩm!", "error");
         });
     }
   }, [productId, mode]);
@@ -118,8 +109,8 @@ const ProductModal: React.FC<ProductModalProps> = ({
         }));
         setBrandOptions(mappedOptions);
       })
-      .catch((error) => {
-        console.error("Lỗi khi lấy thương hiệu:", error);
+      .catch(() => {
+        showToast("Lỗi khi lấy thương hiệu!", "error");
       })
       .finally(() => setLoading(false));
   };
@@ -139,15 +130,55 @@ const ProductModal: React.FC<ProductModalProps> = ({
         }));
         setCategoryOptions(mappedOptions);
       })
-      .catch((error) => {
-        console.error("Lỗi khi lấy danh mục:", error);
+      .catch(() => {
+        showToast("Lỗi khi lấy loại sản phẩm!", "error");
       });
   };
 
-  // ==============================
-  // HANDLE FORM SUBMIT
-  // ==============================
   const handleSubmit = async () => {
+
+    if (!name) {
+      showToast("Vui lòng nhập tên sản phẩm!", "error");
+      return;
+    }
+
+    if (!selectedBrand) {
+      showToast("Vui lòng chọn thương hiệu sản phẩm!", "error");
+      return;
+    }
+
+    if (!selectedCategory) {
+      showToast("Vui lòng chọn loại sản phẩm!", "error");
+      return;
+    }
+
+    if (!selectedStatus) {
+      showToast("Vui lòng chọn trạng thái hoạt động!", "error");
+      return;
+    }
+
+    if (!price) {
+      showToast("Vui lòng nhập giá sản phẩm!", "error");
+      return;
+    }
+
+    if (productDetails.length === 0) {
+      showToast("Vui lòng thêm sản phẩm chi tiết!", "error");
+      return;
+    }
+
+    if (productDetails.some((detail) => !detail.name || detail.quantity <= 0 || !detail.price || !detail.directoryPath)) {
+      showToast(
+        "Vui lòng điền đầy đủ thông tin cho tất cả sản phẩm chi tiết!", "error"
+      );
+      return;
+    }
+
+    if (files.length === 0 && initialImages.length === 0) {
+      showToast("Vui lòng thêm ảnh sản phẩm!", "error");
+      return;
+    }
+
     const formData = new FormData();
     if (mode === "edit" && productId) {
       formData.append("id", productId.toString());
@@ -159,7 +190,6 @@ const ProductModal: React.FC<ProductModalProps> = ({
     if (selectedBrand?.id) formData.append("productTypeId", selectedBrand.id);
     if (selectedCategory?.id) formData.append("categoryId", selectedCategory.id);
 
-    // Nếu muốn lưu luôn name và code vào backend:
     if (selectedBrand) {
       formData.append("productTypeName", selectedBrand.name);
       formData.append("brandCode", selectedBrand.code);
@@ -170,11 +200,6 @@ const ProductModal: React.FC<ProductModalProps> = ({
 
     formData.append("size", "1505");
     if (price) formData.append("price", price);
-    if (percentageReduction)
-      formData.append(
-        "percentageReduction",
-        percentageReduction.replace("%", "").trim()
-      );
     if (selectedStatus !== null && selectedStatus !== undefined)
       formData.append("status", selectedStatus.toString());
 
@@ -197,15 +222,6 @@ const ProductModal: React.FC<ProductModalProps> = ({
         `productDetailDTOS[${index}].price`,
         detail.price.toString()
       );
-      if (
-        detail.percentageReduction !== null &&
-        detail.percentageReduction !== undefined
-      ) {
-        formData.append(
-          `productDetailDTOS[${index}].percentageReduction`,
-          detail.percentageReduction.toString()
-        );
-      }
       formData.append(
         `productDetailDTOS[${index}].description`,
         detail.description
@@ -227,18 +243,18 @@ const ProductModal: React.FC<ProductModalProps> = ({
     }
 
     ProductCreateOrUpdate(formData)
-      .then((response) => {
-        console.log("Success:", response.data);
+      .then(() => {
+        showToast(
+          `Sản phẩm đã được ${mode === "add" ? "thêm mới" : "cập nhật"} thành công!`,
+          "success"
+        );
         onClose(true);
       })
-      .catch((error) => {
-        console.error("Error:", error);
+      .catch(() => {
+        showToast(`Lỗi khi ${mode === "add" ? "thêm mới" : "cập nhật"} sản phẩm!`, "error");
       });
   };
 
-  // ==============================
-  // HANDLERS
-  // ==============================
   const handleAddProductDetail = () => {
     setProductDetails((prev) => [
       ...prev,
@@ -275,9 +291,6 @@ const ProductModal: React.FC<ProductModalProps> = ({
 
   if (loading) return <Loading />;
 
-  // ==============================
-  // RENDER
-  // ==============================
   return (
     <div className="modal-overlay">
       <div className="modal">
@@ -362,16 +375,7 @@ const ProductModal: React.FC<ProductModalProps> = ({
                 placeholder="Nhập đơn giá sản phẩm..."
                 style={{ width: "100%" }}
                 disabled={mode === "view"}
-              />
-            </div>
-            <div className="modal-field">
-              <div className="modal-label-name">Giảm giá sản phẩm:</div>
-              <Input
-                value={percentageReduction}
-                onChange={(e) => setPercentageReduction(e.target.value)}
-                placeholder="Nhập phần trăm giảm giá..."
-                style={{ width: "100%" }}
-                disabled={mode === "view"}
+                type="number"
               />
             </div>
           </div>

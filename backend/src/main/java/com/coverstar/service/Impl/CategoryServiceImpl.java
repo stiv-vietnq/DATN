@@ -25,6 +25,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class CategoryServiceImpl implements CategoryService {
@@ -60,6 +61,7 @@ public class CategoryServiceImpl implements CategoryService {
                 category = categoryRepository.getById(brandOrCategoryDto.getId());
                 category.setUpdatedDate(new Date());
             } else {
+
                 ProductType productType = productTypeService.getProductType(brandOrCategoryDto.getProductTypeId());
 
                 if (productType == null) {
@@ -74,6 +76,14 @@ public class CategoryServiceImpl implements CategoryService {
                 category.setUpdatedDate(new Date());
                 category.setProductType(productType);
             }
+
+            Optional<Category> existing = categoryRepository.findByName(brandOrCategoryDto.getName());
+            if (existing.isPresent()) {
+                if (brandOrCategoryDto.getId() == null || !existing.get().getId().equals(brandOrCategoryDto.getId())) {
+                    throw new Exception(Constants.DUPLICATE_CATEGORY);
+                }
+            }
+
             category.setName(brandOrCategoryDto.getName());
             category.setDescription(brandOrCategoryDto.getDescription());
             category.setStatus(brandOrCategoryDto.getStatus());

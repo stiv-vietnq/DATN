@@ -1,18 +1,18 @@
 import { useEffect, useState } from "react";
-import { FaEdit, FaEye, FaSearch, FaTrash } from "react-icons/fa";
+import { FaEdit, FaEye, FaSearch, FaToggleOff, FaToggleOn, FaTrash } from "react-icons/fa";
 import { FaPlus } from "react-icons/fa6";
-import { deleteBrand, searchProductType } from "../../../api/brand";
+import { deleteDiscountById, searchDiscount, updateDiscountStatus } from "../../../api/discount";
 import ConfirmModal from "../../../components/common/confirmModal/ConfirmModal";
+import Dropdown from "../../../components/common/dropdown/Dropdown";
 import Input from "../../../components/common/input/Input";
+import Loading from "../../../components/common/loading/Loading";
 import Pagination from "../../../components/pagination/Pagination";
 import BaseTable, {
   BaseColumn,
 } from "../../../components/table/BaseTableLayout";
-import "./DiscountPage.css";
-import Loading from "../../../components/common/loading/Loading";
-import Dropdown from "../../../components/common/dropdown/Dropdown";
-import { deleteDiscountById, searchDiscount } from "../../../api/discount";
+import { useToast } from "../../../components/toastProvider/ToastProvider";
 import DiscountModal from "./DiscountModal/DiscountModal";
+import "./DiscountPage.css";
 
 interface Discounts {
   id: number;
@@ -25,6 +25,7 @@ interface Discounts {
 }
 
 const DiscountPage = () => {
+  const { showToast } = useToast();
   const [loading, setLoading] = useState(false);
   const [page, setPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(10);
@@ -40,6 +41,8 @@ const DiscountPage = () => {
   const [selectedId, setSelectedId] = useState<number | null>(null);
   const [discounts, setDiscounts] = useState<Discounts[]>([]);
   const [totalItems, setTotalItems] = useState(discounts?.length);
+  const [newStatus, setNewStatus] = useState<boolean>(false);
+  const [newStatusId, setNewStatusId] = useState<number | null>(null);
 
   const handleSearch = () => {
     setLoading(true);
@@ -53,16 +56,13 @@ const DiscountPage = () => {
         setDiscounts(data);
         setTotalItems(data.length || 0);
       })
-      .catch((error) => {
-        console.error("Lỗi khi tìm kiếm giảm giá:", error);
+      .catch(() => {
+        showToast("Lỗi lấy dữ liệu giảm giá", "error");
       })
       .finally(() => {
         setLoading(false);
       });
   };
-
-  console.log(discounts);
-
 
   useEffect(() => {
     handleSearch();
@@ -126,7 +126,7 @@ const DiscountPage = () => {
       key: "actions",
       label: "Thao tác",
       width: "10%",
-      render: (item: { id: any }) => (
+      render: (item: { status: any; id: any }) => (
         <div className="action-buttons">
           <FaEye
             className="action-buttons-icon"
@@ -142,6 +142,19 @@ const DiscountPage = () => {
             color="red"
             onClick={() => openConfirm("delete", item?.id)}
           />
+          {item.status ? (
+            <FaToggleOn
+              className="action-buttons-icon"
+              color="green"
+              onClick={() => handleUpdateStatus(item?.id, false)}
+            />
+          ) : (
+            <FaToggleOff
+              className="action-buttons-icon"
+              color="gray"
+              onClick={() => handleUpdateStatus(item?.id, true)}
+            />
+          )}
         </div>
       ),
     },
@@ -174,11 +187,11 @@ const DiscountPage = () => {
   const handleDelete = (id: any) => {
     deleteDiscountById(id)
       .then(() => {
-        console.log("Xóa giảm giá thành công");
+        showToast("Xóa giảm giá thành công", "success");
         handleSearch();
       })
-      .catch((error) => {
-        console.error("Lỗi khi xóa giảm giá:", error);
+      .catch(() => {
+        showToast("Lỗi khi xóa giảm giá", "error");
       })
       .finally(() => {
         setShowConfirm(false);
@@ -193,8 +206,20 @@ const DiscountPage = () => {
     }
   };
 
-  const handleUpdateStatus = (id: any) => {
-    console.log("Cập nhật trạng thái:", id);
+  const handleUpdateStatus = (id: any, newStatus: boolean) => {
+    setNewStatus(newStatus);
+    setNewStatusId(id);
+    setShowConfirm(true);
+  };
+
+  const updateDiscountStatusData = (id: any) => {
+    setShowConfirm(false);
+    updateDiscountStatus(id, newStatus).then(() => {
+      showToast("Cập nhật trạng thái giảm giá thành công", "success");
+      handleSearch();
+    }).catch(() => {
+      showToast("Lỗi khi cập nhật trạng thái giảm giá", "error");
+    });
   };
 
   if (loading) return <Loading />;
@@ -275,7 +300,7 @@ const DiscountPage = () => {
           onConfirm={() =>
             confirmAction === "delete"
               ? handleDelete(selectedId)
-              : handleUpdateStatus(selectedId)
+              : updateDiscountStatusData(newStatusId)
           }
           onCancel={() => setShowConfirm(false)}
           type="delete"

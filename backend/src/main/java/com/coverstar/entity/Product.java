@@ -34,9 +34,6 @@ public class Product {
     @Column(name = "price", nullable = false)
     private BigDecimal price;
 
-    @Column(name = "percentage_reduction", nullable = false)
-    private Float percentageReduction;
-
     @Column(name = "created_date", nullable = false)
     @Temporal(TemporalType.TIMESTAMP)
     private Date createdDate;

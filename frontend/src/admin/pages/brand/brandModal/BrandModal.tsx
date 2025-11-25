@@ -6,6 +6,7 @@ import Textarea from "../../../../components/common/textarea/Textarea";
 import ImageUpload from "../../../../components/common/imageUpload/ImageUpload";
 import { createOrUpdateBrand, getBrandById } from "../../../../api/brand";
 import Loading from "../../../../components/common/loading/Loading";
+import { useToast } from "../../../../components/toastProvider/ToastProvider";
 
 interface BrandModalProps {
   brandId?: number | null | string;
@@ -20,6 +21,7 @@ const BrandModal: React.FC<BrandModalProps> = ({ brandId, onClose, mode }) => {
   const [file, setFile] = useState<File | null>(null);
   const [preview, setPreview] = useState<string>("");
   const [loading, setLoading] = useState(false);
+  const { showToast } = useToast();
 
   useEffect(() => {
     if ((mode === "edit" || mode === "view") && brandId) {
@@ -31,9 +33,8 @@ const BrandModal: React.FC<BrandModalProps> = ({ brandId, onClose, mode }) => {
           setCode(data?.code || "");
           if (data?.directoryPath) setPreview(data?.directoryPath);
         })
-        .catch((error) => {
-          console.error(error);
-          alert("Lỗi khi tải dữ liệu thương hiệu!");
+        .catch(() => {
+          showToast("Lỗi lấy dữ liệu thương hiệu", "error");
         });
     }
   }, [brandId, mode]);
@@ -57,13 +58,14 @@ const BrandModal: React.FC<BrandModalProps> = ({ brandId, onClose, mode }) => {
   }, [file]);
 
   const handleSubmit = async () => {
+
     if (!name) {
-      alert("Vui lòng nhập tên thương hiệu!");
+      showToast("Vui lòng nhập tên thương hiệu!", "error");
       return;
     }
 
     if (!file && mode === "add") {
-      alert("Vui lòng chọn ảnh thương hiệu!");
+      showToast("Vui lòng chọn ảnh thương hiệu!", "error");
       return;
     }
 
@@ -78,20 +80,31 @@ const BrandModal: React.FC<BrandModalProps> = ({ brandId, onClose, mode }) => {
     }
     if (mode === "edit" && brandId) formData.append("id", brandId.toString());
 
-    try {
-      setLoading(true);
-      await createOrUpdateBrand(formData);
-      onClose(true);
-    } catch (error: any) {
-      if (error.response?.status === 409) {
-        alert("Tên thương hiệu đã tồn tại!");
-      } else {
-        alert("Lỗi khi gửi dữ liệu!");
-      }
-    } finally {
-      setLoading(false);
-    }
+    createOrUpdateBrand(formData)
+      .then(() => {
+        onClose(true);
+        if (mode === "edit") {
+          showToast("Cập nhật thương hiệu thành công!", "success");
+        } else {
+          showToast("Thêm mới thương hiệu thành công!", "success");
+        }
+      })
+      .catch((error: any) => {
+        if (error.response?.status === 409) {
+          if (error.response?.data?.includes("code")) {
+            showToast("Mã thương hiệu đã tồn tại!", "error");
+          } else if (error.response?.data?.includes("name")) {
+            showToast("Tên thương hiệu đã tồn tại!", "error");
+          }
+        } else {
+          showToast("Lỗi khi gửi dữ liệu!", "error");
+        }
+      })
+      .finally(() => {
+        setLoading(false);
+      });
   };
+
   if (loading) return <Loading />;
 
   return (
@@ -115,7 +128,7 @@ const BrandModal: React.FC<BrandModalProps> = ({ brandId, onClose, mode }) => {
               <div className="modal-label-name">Mã thương hiệu:</div>
               <Input
                 value={code}
-                onChange={() => {}}
+                onChange={() => { }}
                 placeholder="Mã thương hiệu"
                 style={{ width: "100%", cursor: "not-allowed" }}
                 disabled

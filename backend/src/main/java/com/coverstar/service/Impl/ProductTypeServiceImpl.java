@@ -62,19 +62,21 @@ public class ProductTypeServiceImpl implements ProductTypeService {
                                                  String directoryPath) throws Exception {
         ProductType productType = new ProductType();
         try {
-            boolean isNameExist = id == null
-                    ? productTypeRepository.existsByName(name)
-                    : productTypeRepository.existsByNameAndIdNot(name, id);
-
-            if (isNameExist) {
-                throw new Exception(Constants.DUPLICATE_PRODUCT_TYPE);
-            }
-
             if (id != null) {
                 productType = productTypeRepository.findById(id).orElse(null);
                 assert productType != null;
                 productType.setUpdatedDate(new Date());
             } else {
+                boolean isNameExist = productTypeRepository.existsByName(name);
+                boolean isCodeExist = productTypeRepository.existsByCode(code);
+
+                if (isNameExist) {
+                    throw new Exception(Constants.DUPLICATE_PRODUCT_TYPE);
+                }
+
+                if (isCodeExist) {
+                    throw new Exception(Constants.DUPLICATE_PRODUCT_TYPE_CODE);
+                }
                 productType.setCode(code);
                 productType.setCreatedDate(new Date());
                 productType.setUpdatedDate(new Date());

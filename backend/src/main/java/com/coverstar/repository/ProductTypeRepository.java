@@ -21,8 +21,6 @@ public interface ProductTypeRepository extends JpaRepository<ProductType, Long> 
 
     boolean existsByName(String name);
 
-    boolean existsByNameAndIdNot(String name, Long id);
-
     @Query("SELECT b FROM ProductType b WHERE b.id = :id ")
     ProductType findByIdAndType(Long id);
 
@@ -32,4 +30,6 @@ public interface ProductTypeRepository extends JpaRepository<ProductType, Long> 
     List<ProductType> findProductTypesByStatus(
             Boolean status
     );
+
+    boolean existsByCode(String code);
 }
