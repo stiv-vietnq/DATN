@@ -30,4 +30,6 @@ public interface CategoryRepository extends JpaRepository<Category, Long> {
     List<Category> findAllByProductTypeId(Long id);
 
     Optional<Category> findByName(String name);
+
+    List<Category> findByNameContainingIgnoreCase(String message);
 }

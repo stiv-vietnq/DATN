@@ -32,4 +32,6 @@ public interface ProductTypeRepository extends JpaRepository<ProductType, Long> 
     );
 
     boolean existsByCode(String code);
+
+    List<ProductType> findByNameContainingIgnoreCase(String message);
 }

@@ -66,6 +66,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                         "/account/**",
                         "/carts/**",
                         "/momo/**",
+                        "/chat/**",
+                        "/ws-chat/**",
                         "/vnPay/**",
                         "/images/**"
                 ).permitAll()

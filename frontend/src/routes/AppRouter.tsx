@@ -21,6 +21,7 @@ import appRoutes from "./admin-routes/appRoutes";
 import Address from "../pages/user/address/Address";
 import ChangePassword from "../pages/user/change-password/ChangePassword";
 import PurchasesSuccess from "../pages/purchase/purchasesSuccess/PurchasesSuccess";
+import ChatBox from "../pages/chat/ChatBox";
 
 export default function AppRouter() {
   return (
@@ -31,6 +32,7 @@ export default function AppRouter() {
         <Route path="/products" element={<Products />} />
         <Route path="/product-detail/:id" element={<ProductDetail />} />
         <Route path="/top-products" element={<TopProduct />} />
+        <Route path="/chat" element={<ChatBox />} />
         <Route path="/user" element={<User />}>
           <Route path="profile" element={<Profile />} />
           <Route path="address" element={<Address />} />
