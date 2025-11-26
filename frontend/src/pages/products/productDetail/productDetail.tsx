@@ -13,7 +13,7 @@ import {
 import { useNavigate, useParams } from "react-router-dom";
 import { createOrUpdateCart } from "../../../api/cart";
 import { createComment } from "../../../api/comment";
-import { GetProductById } from "../../../api/product";
+import { getDiscountedPrice, GetProductById } from "../../../api/product";
 import Breadcrumb from "../../../components/breadcrumb/Breadcrumb";
 import Input from "../../../components/common/input/Input";
 import Loading from "../../../components/common/loading/Loading";
@@ -21,20 +21,20 @@ import Textarea from "../../../components/common/textarea/Textarea";
 import Banner from "./Banner";
 import CommentAvatar from "./commentAvatar/CommentAvatar";
 import "./productDetail.css";
+import { useToast } from "../../../components/toastProvider/ToastProvider";
 
 interface ProductDetailType {
   id: number;
-  productId: number;
+  productId: string;
   name: string;
   quantity: number;
   price: number;
-  percentageReduction: number;
   directoryPath: string;
   description: string;
 }
 
 interface Product {
-  id: number;
+  id: string;
   productName: string;
   price: number;
   description: string | null;
@@ -42,7 +42,6 @@ interface Product {
   createdDate: string;
   updatedDate: string;
   quantitySold: number;
-  percentageReduction: number;
   numberOfVisits: number;
   productType?: { id: number; name: string; directoryPath?: string };
   categoryId?: string;
@@ -79,14 +78,17 @@ export default function ProductDetail() {
   const [rating, setRating] = useState(0);
   const [files, setFiles] = useState<File[]>([]);
   const navigate = useNavigate();
+  const [discountedPrice, setDiscountedPrice] = useState<number | null>(null);
+  const { showToast } = useToast();
 
-  const handleFileChange = (e: { target: { files: any; }; }) => {
+  const handleFileChange = (e: { target: { files: any } }) => {
     setFiles([...e.target.files]);
   };
 
   useEffect(() => {
     if (id) {
       getById(String(id));
+      handleGetDiscountedPrice(String(id));
     }
   }, [id]);
 
@@ -97,8 +99,8 @@ export default function ProductDetail() {
         const data = response?.data;
         setProductData(data);
       })
-      .catch((error) => {
-        console.error(error);
+      .catch(() => {
+        showToast("Vui lòng liên hệ quản trị viên", "error");
       })
       .finally(() => {
         setLoading(false);
@@ -117,6 +119,16 @@ export default function ProductDetail() {
       }
     }
   }, [productData]);
+
+  const handleGetDiscountedPrice = async (productId: string) => {
+    try {
+      const response = await getDiscountedPrice(productId);
+      const data = response?.data;
+      setDiscountedPrice(data);
+    } catch (error) {
+      showToast("Vui lòng liên hệ quản trị viên", "error");
+    }
+  };
 
   const handleNext = () => {
     if (!productData?.images) return;
@@ -158,8 +170,6 @@ export default function ProductDetail() {
       formData.append("files", file);
     });
 
-    console.log(formData);
-
     createComment(formData)
       .then(() => {
         setName("");
@@ -170,8 +180,8 @@ export default function ProductDetail() {
         setFiles([]);
         getById(String(id));
       })
-      .catch((error) => {
-        console.error("Lỗi khi gửi bình luận:", error);
+      .catch(() => {
+        showToast("Vui lòng liên hệ quản trị viên", "error");
       });
   };
 
@@ -182,21 +192,17 @@ export default function ProductDetail() {
   const handleAddToCart = async () => {
     setLoading(true);
     if (!selectedDetail) {
-      alert("Vui lòng chọn chi tiết sản phẩm!");
+      showToast("Vui lòng chọn chi tiết sản phẩm!", "info");
       return;
     }
 
     try {
       const userId = Number(localStorage.getItem("userId") || "0");
-      if (!userId) {
-        alert("Vui lòng đăng nhập để thêm vào giỏ hàng!");
-        return;
-      }
 
       const quantity = 1;
       const total =
-        selectedDetail.price *
-        (1 - (selectedDetail.percentageReduction || 0) / 100) *
+        (selectedDetail?.price || 0) *
+        (1 - (discountedPrice || 0) / 100) *
         quantity;
 
       const cartDto = {
@@ -208,32 +214,27 @@ export default function ProductDetail() {
       };
 
       createOrUpdateCart(cartDto);
-      navigate("/cart");
     } catch (error) {
+      showToast("Vui lòng liên hệ quản trị viên", "error");
     } finally {
       setLoading(false);
+      navigate("/cart");
     }
   };
 
   const handleBuyNow = () => {
     setLoading(true);
     if (!selectedDetail) {
-      alert("Vui lòng chọn chi tiết sản phẩm!");
+      showToast("Vui lòng chọn chi tiết sản phẩm!", "info");
       return;
     }
 
     try {
       const userId = Number(localStorage.getItem("userId") || "0");
-      if (!userId) {
-        alert("Vui lòng đăng nhập để thêm vào giỏ hàng!");
-        return;
-      }
 
       const quantity = 1;
       const total =
-        selectedDetail.price *
-        (1 - (selectedDetail.percentageReduction || 0) / 100) *
-        quantity;
+        selectedDetail.price * (1 - (discountedPrice || 0) / 100) * quantity;
 
       const cartDto = {
         productDetailId: String(selectedDetail.id),
@@ -250,8 +251,7 @@ export default function ProductDetail() {
     } finally {
       setLoading(false);
     }
-  }
-
+  };
 
   if (loading) return <Loading />;
 
@@ -282,8 +282,9 @@ export default function ProductDetail() {
                 {productData?.images?.map((img, index) => (
                   <div
                     key={img.id}
-                    className={`thumbnail-item ${selectedImageId === img.id ? "active" : ""
-                      }`}
+                    className={`thumbnail-item ${
+                      selectedImageId === img.id ? "active" : ""
+                    }`}
                     onClick={() => {
                       setSelectedImage(img.directoryPath);
                       setSelectedImageId(img.id);
@@ -300,30 +301,31 @@ export default function ProductDetail() {
             <div className="product-right">
               {/* Giá */}
               <div className="product-price">
-                {selectedDetail?.percentageReduction &&
-                  selectedDetail.percentageReduction > 0 ? (
+                {discountedPrice && discountedPrice > 0 ? (
                   <>
                     {/* Giá sau khi giảm */}
                     <span className="current">
                       {(
-                        selectedDetail.price *
-                        (1 - selectedDetail.percentageReduction / 100)
+                        (selectedDetail?.price || 0) *
+                        (1 - (discountedPrice || 0) / 100)
                       ).toLocaleString()}{" "}
                       ₫
                     </span>
 
                     {/* Giá gốc */}
                     <span className="old">
-                      {selectedDetail.price.toLocaleString()} ₫
+                      {(selectedDetail?.price || 0).toLocaleString()} ₫
                     </span>
                   </>
                 ) : (
                   <span className="current">
                     {(
-                      selectedDetail?.price ?? productData?.price ?? 0
-                    ).toLocaleString()} ₫
+                      selectedDetail?.price ??
+                      productData?.price ??
+                      0
+                    ).toLocaleString()}{" "}
+                    ₫
                   </span>
-
                 )}
               </div>
 
@@ -336,8 +338,9 @@ export default function ProductDetail() {
                   {productData?.productDetails?.map((d) => (
                     <div
                       key={d.id}
-                      className={`option-item ${selectedDetail?.id === d.id ? "selected" : ""
-                        }`}
+                      className={`option-item ${
+                        selectedDetail?.id === d.id ? "selected" : ""
+                      }`}
                       onClick={() => setSelectedDetail(d)}
                     >
                       <span>{d.name}</span>
@@ -357,11 +360,10 @@ export default function ProductDetail() {
               <div className="product-vote-main">
                 <div className="option-title-vote">{t("comment.rating")}: </div>
                 <div className="vote-number">
-                  {(productData?.evaluate ? productData.evaluate.toFixed(1) : "0")}
-                  <FaStar
-                    className="star small"
-                    style={{ color: "#f8b400" }}
-                  />
+                  {productData?.evaluate
+                    ? productData.evaluate.toFixed(1)
+                    : "0"}
+                  <FaStar className="star small" style={{ color: "#f8b400" }} />
                 </div>
               </div>
 
@@ -562,8 +564,9 @@ export default function ProductDetail() {
               {productData?.images?.map((img, index) => (
                 <div
                   key={img.id}
-                  className={`modal-thumbnail-item ${selectedImageId === img.id ? "active" : ""
-                    }`}
+                  className={`modal-thumbnail-item ${
+                    selectedImageId === img.id ? "active" : ""
+                  }`}
                   onClick={() => {
                     setSelectedImage(img.directoryPath);
                     setSelectedImageId(img.id);

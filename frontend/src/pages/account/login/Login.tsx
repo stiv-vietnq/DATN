@@ -7,6 +7,7 @@ import Input from "../../../components/common/input/Input";
 import Loading from "../../../components/common/loading/Loading";
 import PasswordInput from "../../../components/common/passwordInput/PasswordInput";
 import "./Login.css";
+import { useToast } from "../../../components/toastProvider/ToastProvider";
 
 export default function Login() {
   const navigate = useNavigate();
@@ -14,12 +15,23 @@ export default function Login() {
   const [pw, setPw] = useState("");
   const [usernameOrEmail, setUsernameOrEmail] = useState("");
   const [loading, setLoading] = useState(false);
+  const { showToast } = useToast();
 
   const handleChange = (e: React.FormEvent<HTMLInputElement>) => {
     setPw(e.currentTarget.value);
   };
 
   const handleLogin = () => {
+    if (!usernameOrEmail) {
+      showToast("Vui lòng nhập tên đăng nhập hoặc email!!!!", "info");
+      return;
+    }
+
+    if (!pw) {
+      showToast("Vui lòng nhập mật khẩu!!!!", "info");
+      return;
+    }
+
     setLoading(true);
     login({ usernameOrEmail: usernameOrEmail, password: pw })
       .then((response) => {
@@ -43,7 +55,24 @@ export default function Login() {
           navigate("/");
         }
       })
-      .catch(() => {
+      .catch((err) => {
+        if (err.response && err.response.status === 401) {
+          showToast("Tên đăng nhập hoặc mật khẩu không đúng!", "error");
+        }
+
+        if (
+          err.response &&
+          err.response.status === 400 &&
+          err.response.data === "ACCOUNT_NOTFOUND"
+        ) {
+          showToast("Tên đăng nhập hoặc mật khẩu không đúng!", "error");
+        }
+
+        if (err.response && err.response.status === 500) {
+          showToast("Xảy ra lỗi máy chủ, vui long thử lại sau!", "error");
+        }
+      })
+      .finally(() => {
         setLoading(false);
       });
   };

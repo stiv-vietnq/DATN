@@ -8,6 +8,7 @@ import PasswordInput from "../../../components/common/passwordInput/PasswordInpu
 import { validateFields } from "../../../utils/Validation";
 import Loading from "../../../components/common/loading/Loading";
 import { register } from "../../../api/auth";
+import { useToast } from "../../../components/toastProvider/ToastProvider";
 
 interface FormErrors {
   firstName?: string;
@@ -19,7 +20,6 @@ interface FormErrors {
 }
 
 export default function Register() {
-
   const navigate = useNavigate();
   const { t } = useTranslation();
   const [firstName, setFirstName] = useState("");
@@ -30,6 +30,7 @@ export default function Register() {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [errors, setErrors] = useState<FormErrors>({});
   const [loading, setLoading] = useState(false);
+  const { showToast } = useToast();
 
   const handleSubmit = (e: React.FormEvent<HTMLButtonElement>) => {
     e.preventDefault();
@@ -97,6 +98,10 @@ export default function Register() {
         repeatPassword: confirmPassword,
       })
         .then(() => {
+          showToast(
+            "Đăng ký thành công! Vui lòng kiểm tra email để xác thực tài khoản.",
+            "success"
+          );
           setLoading(false);
           navigate("/verify");
         })
@@ -108,19 +113,26 @@ export default function Register() {
 
             if (status === 409) {
               if (message === "DUPLICATE_EMAIL") {
-                alert("Email đã tồn tại. Vui lòng dùng email khác!");
+                showToast(
+                  "Email đã tồn tại. Vui lòng dùng email khác!",
+                  "info"
+                );
               } else if (message === "DUPLICATE_USERNAME") {
-                alert("Tên đăng nhập đã tồn tại. Vui lòng chọn tên khác!");
-              } else {
-                alert("Tên đăng nhập hoặc email đã tồn tại!");
+                showToast(
+                  "Tên đăng nhập đã tồn tại. Vui lòng chọn tên khác!",
+                  "info"
+                );
               }
             } else if (status === 400) {
-              alert("Dữ liệu không hợp lệ. Vui lòng kiểm tra lại form!");
+              showToast(
+                "Dữ liệu không hợp lệ. Vui lòng kiểm tra lại form!",
+                "info"
+              );
             } else {
-              alert("Đăng ký thất bại. Vui lòng thử lại sau!");
+              showToast("Đăng ký thất bại. Vui lòng thử lại sau!", "info");
             }
           } else {
-            alert("Không thể kết nối đến máy chủ!");
+            showToast("Không thể kết nối đến máy chủ!", "error");
           }
         });
     }
@@ -149,8 +161,7 @@ export default function Register() {
   return (
     <div className="page-content">
       <div className="register-container">
-        <div className="register-logo">
-        </div>
+        <div className="register-logo"></div>
         <div className="register-form">
           <div className="register-title">{t("register")}</div>
           <div className="form-container">
@@ -210,7 +221,9 @@ export default function Register() {
             <div className="social-register">
               <div className="register">
                 <div>{t("renavigate_login")}</div>
-                <div className="login-link" onClick={handleClick}>{t("login")}</div>
+                <div className="login-link" onClick={handleClick}>
+                  {t("login")}
+                </div>
               </div>
               <div className="forgot-password-register">
                 <div onClick={handleForgotPassword}>{t("forgot_password")}</div>
