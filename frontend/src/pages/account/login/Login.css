@@ -47,10 +47,10 @@
     font-size: 12px;
     text-align: left;
     margin-top: 5px;
+}
 
-    &:hover {
-        color: darkorchid;
-    }
+.login-forgot-password:hover {
+    color: darkorchid;
 }
 
 .divider {

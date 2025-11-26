@@ -25,7 +25,8 @@ const Button = ({
 }: ButtonProps) => {
     return (
         <button
-            type={type}
+            type={type ?? "button"}
+
             onClick={onClick}
             className={`btn btn-${variant} ${className}`}
             disabled={disabled}

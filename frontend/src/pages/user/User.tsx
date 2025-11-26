@@ -5,12 +5,44 @@ import { FaReceipt, FaUser } from "react-icons/fa6";
 import { NavLink, Outlet, useLocation, useNavigate } from "react-router-dom";
 import logo from "../../assets/quickbuyshop.png";
 import "./User.css";
+import Loading from "../../components/common/loading/Loading";
+import { getUserProfile } from "../../api/user";
 
 const User = () => {
   const { t } = useTranslation();
   const [openMenu, setOpenMenu] = useState<string | null>(null);
   const navigate = useNavigate();
   const location = useLocation();
+  const userId = localStorage.getItem("userId");
+  const [loading, setLoading] = useState(false);
+  const [preview, setPreview] = useState<string>("");
+  const [firstName, setFirstName] = useState<string>("");
+  const [lastName, setLastName] = useState<string>("");
+
+  useEffect(() => {
+    handleGetProfile();
+  }, [userId]);
+
+  const handleGetProfile = () => {
+    setLoading(true);
+    getUserProfile(Number(userId))
+      .then((res) => {
+        const data = res?.data;
+
+        if (data?.directoryPath) {
+          setPreview(data?.directoryPath);
+        }
+        if (data?.firstName) {
+          setFirstName(data?.firstName);
+        }
+        if (data?.lastName) {
+          setLastName(data?.lastName);
+        }
+      })
+      .finally(() => setLoading(false));
+  };
+
+  const fullname = `${lastName} ${firstName}`;
 
   const toggleMenu = (menuName: string) => {
     if (openMenu === menuName) {
@@ -61,16 +93,18 @@ const User = () => {
     }
   }, [location.pathname]);
 
+  if (loading) { return <Loading />; }
+
   return (
     <div className="main-content">
       <div className="user-container">
         <div className="user-header">
           <div className="user-title">
             <div className="user-avatar">
-              <img src={logo} alt="User Avatar" />
+              <img src={preview || logo} alt="User Avatar" />
             </div>
             <div className="user-text">
-              <div className="user-name">vietnq</div>
+              <div className="user-name">{fullname}</div>
               <div className="user-edit">
                 <FaEdit size={12} />
                 Chỉnh sửa

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { use, useEffect, useState } from "react";
 import "./AddressPopup.css";
 import { useTranslation } from "react-i18next";
 import Input from "../../../../components/common/input/Input";
@@ -10,11 +10,13 @@ import {
 } from "../../../../api/location";
 import Textarea from "../../../../components/common/textarea/Textarea";
 import { createOrUpdateAddress } from "../../../../api/address";
+import Loading from "../../../../components/common/loading/Loading";
+import { useToast } from "../../../../components/toastProvider/ToastProvider";
 
 interface AddressPopupProps {
     onClose: () => void;
     onSuccess?: () => void;
-    addressData?: any; 
+    addressData?: any;
 }
 
 interface Option {
@@ -39,8 +41,8 @@ const AddressPopup: React.FC<AddressPopupProps> = ({ onClose, onSuccess, address
     const [type, setType] = useState<number>(1);
     const [loading, setLoading] = useState(false);
     const [disabled, setDisabled] = useState(false);
+    const { showToast } = useToast();
 
-    // Load provinces
     useEffect(() => {
         getAllProvinces().then((response) => {
             const options = response.data.map((province: any) => ({
@@ -49,6 +51,7 @@ const AddressPopup: React.FC<AddressPopupProps> = ({ onClose, onSuccess, address
             }));
             setProvinceOptions(options);
         });
+        setDisabled(true);
     }, []);
 
     useEffect(() => {
@@ -102,10 +105,59 @@ const AddressPopup: React.FC<AddressPopupProps> = ({ onClose, onSuccess, address
         }
     }, [addressData]);
 
-    // Handle save (thêm mới hoặc update)
+    const isValidInternationalPhone = (phone: string) => {
+        const regex = /^\+\d{4,15}$/;
+        return regex.test(phone.trim());
+    };
+
     const handleSave = () => {
+
+        if (!name.trim()) {
+            showToast("Vui lòng nhập tên địa chỉ", "info");
+            return;
+        }
+
+        if (!phoneNumber.trim()) {
+            showToast("Vui lòng nhập số điện thoại", "info");
+            return;
+        }
+
+        if (!isValidInternationalPhone(phoneNumber)) {
+            showToast(
+                "Số điện thoại không hợp lệ. Định dạng quốc tế bắt đầu bằng + và 4–15 chữ số",
+                "info"
+            );
+            return;
+        }
+
+        if (phoneNumber.trim().length > 15) {
+            showToast("Số điện thoại tối đa 15 chữ số", "info");
+            return;
+        }
+
+        if (!address.trim()) {
+            showToast("Vui lòng nhập địa chỉ", "info");
+            return;
+        }
+
+        if (!selectedProvinceId) {
+            showToast("Vui lòng chọn tỉnh/thành phố", "info");
+            return;
+        }
+
+        if (!selectedDistrictId) {
+            showToast("Vui lòng chọn quận/huyện", "info");
+            return;
+        }
+
+        if (!selectedWardId) {
+            showToast("Vui lòng chọn phường/xã", "info");
+            return;
+        }
+
+        setLoading(true);
         const payload = {
-            id: addressData?.id, // Nếu update
+            id: addressData?.id,
             fullName: name,
             phoneNumber,
             address,
@@ -122,11 +174,16 @@ const AddressPopup: React.FC<AddressPopupProps> = ({ onClose, onSuccess, address
             .then(() => {
                 onClose();
                 if (onSuccess) onSuccess();
+                setLoading(false);
+                showToast(`${addressData ? "Cập nhật" : "Thêm mới"} địa chỉ thành công`, "success");
             })
             .catch((error) => {
-                console.error(error);
+                showToast(error.response?.data?.message || "Đã có lỗi xảy ra", "error");
+                setLoading(false);
             });
     };
+
+    if (loading) { return <Loading />; }
 
     return (
         <div className="address-popup-overlay">

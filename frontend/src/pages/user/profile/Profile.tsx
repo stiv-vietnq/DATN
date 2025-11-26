@@ -5,6 +5,7 @@ import "./Profile.css";
 import { FaUser } from "react-icons/fa";
 import { getUserProfile, updateUserProfile } from "../../../api/user";
 import Loading from "../../../components/common/loading/Loading";
+import { useToast } from "../../../components/toastProvider/ToastProvider";
 
 interface ProfileData {
   firstName: string;
@@ -32,6 +33,7 @@ export default function Profile() {
   const [profile, setProfile] = useState<ProfileData | null>(null);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [loading, setLoading] = useState(false);
+  const { showToast } = useToast();
 
   useEffect(() => {
     handleGetProfile();
@@ -103,12 +105,31 @@ export default function Profile() {
       .finally(() => setLoading(false));
   };
 
+  const validateDateOfBirth = () => {
+    if (!year || month === "00" || day === "00") return null;
+
+    const dateStr = `${year}-${month.padStart(2, "0")}-${day.padStart(2, "0")}`;
+    const selectedDate = new Date(dateStr);
+
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    if (selectedDate > today) {
+      showToast("Ngày sinh không được lớn hơn ngày hiện tại!", "info");
+      return "error";
+    }
+
+    return dateStr;
+  };
+
   const handleSave = () => {
     setLoading(true);
-    const dateOfBirth = `${year}/${month.padStart(2, "0")}/${day.padStart(
-      2,
-      "0"
-    )}`;
+    const dob = validateDateOfBirth();
+    if (dob === "error") {
+      setLoading(false);
+      return;
+    }
+    const dateOfBirth = dob;
     updateUserProfile({
       id: Number(userId),
       firstName,
@@ -119,8 +140,10 @@ export default function Profile() {
       file: selectedFile || null,
     })
       .then(() => {
-        alert("Cập nhật thành công!");
+        showToast("Cập nhật thành công!!!", "success");
         handleGetProfile();
+      }).catch(() => {
+        showToast("Cập nhật thất bại, vui lòng thử lại sau!!!", "error");
       })
       .finally(() => setLoading(false));
   };

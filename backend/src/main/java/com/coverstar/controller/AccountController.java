@@ -218,17 +218,13 @@ public class AccountController {
     public ResponseEntity<?> updateAccount(@RequestParam("id") Long id,
                                            @RequestParam("firstName") String firstName,
                                            @RequestParam("lastName") String lastName,
-                                           @RequestParam("dateOfBirth") String dateOfBirth,
-                                           @RequestParam("sex") Integer sex,
-                                           @RequestParam("phoneNumber") String phoneNumber,
+                                           @RequestParam(value = "dateOfBirth", required = false) String dateOfBirth,
+                                           @RequestParam(value = "sex", required = false) Integer sex,
+                                           @RequestParam(value = "phoneNumber", required = false) String phoneNumber,
                                            @RequestParam(value = "file", required = false) MultipartFile imageFiles) {
         try {
             AccountUpdateDto accountUpdateDto = new AccountUpdateDto(id, firstName, lastName, dateOfBirth,
                     sex, phoneNumber, imageFiles);
-
-            if (!accountUpdateDto.isValidFile()) {
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Constants.OVER_CAPACITY);
-            }
 
             AccountUpdateDto account = accountService.updateAccount(accountUpdateDto);
             return ResponseEntity.ok(account);

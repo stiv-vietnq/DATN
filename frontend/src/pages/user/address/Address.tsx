@@ -6,6 +6,7 @@ import { deleteAddressById, getAddressesByUserId, updateDefaultAddress } from ".
 import AddressItem from "./AddressItem";
 import ConfirmModal from "../../../components/common/confirmModal/ConfirmModal";
 import Loading from "../../../components/common/loading/Loading";
+import { useToast } from "../../../components/toastProvider/ToastProvider";
 
 interface Address {
     id: number;
@@ -22,12 +23,13 @@ export default function Address() {
     const { t } = useTranslation();
     const [loading, setLoading] = useState(false);
     const [showPopup, setShowPopup] = useState(false);
-    const [editingAddress, setEditingAddress] = useState<Address | null>(null); // thêm state để lưu địa chỉ đang edit
+    const [editingAddress, setEditingAddress] = useState<Address | null>(null);
     const userId = localStorage.getItem("userId");
     const [showConfirm, setShowConfirm] = useState(false);
     const [addresses, setAddresses] = useState<Address[]>([]);
     const [selectedAddressId, setSelectedAddressId] = useState<number | null>(null);
     const [confirmAction, setConfirmAction] = useState<"setDefault" | "delete" | null>(null);
+    const { showToast } = useToast();
 
     useEffect(() => {
         handleSearch();
@@ -46,11 +48,11 @@ export default function Address() {
         deleteAddressById(addressId)
             .then(() => {
                 setShowConfirm(false);
+                showToast("Xóa địa chỉ thành công", "success");
                 handleSearch();
             })
             .catch((error) => {
-                console.error("Lỗi khi xóa địa chỉ:", error);
-                alert("Không thể xóa địa chỉ!");
+                showToast(error.response?.data?.message || "Không thể xóa địa chỉ!", "error");
             });
     };
 
@@ -58,10 +60,11 @@ export default function Address() {
         updateDefaultAddress(addressId, 1)
             .then(() => {
                 setShowConfirm(false);
+                showToast("Thiết lập địa chỉ mặc định thành công", "success");
                 handleSearch();
             })
             .catch((error) => {
-                console.error("Lỗi khi thiết lập địa chỉ mặc định:", error);
+                showToast(error.response?.data?.message || "Không thể thiết lập địa chỉ mặc định!", "error");
             });
     };
 
@@ -75,7 +78,7 @@ export default function Address() {
                     <button
                         className="address-add-button"
                         onClick={() => {
-                            setEditingAddress(null); // Thêm mới thì null
+                            setEditingAddress(null);
                             setShowPopup(true);
                         }}
                     >

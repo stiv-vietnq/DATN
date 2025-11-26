@@ -3,22 +3,21 @@ import {
   FaBoxesStacked,
   FaCartShopping,
   FaMobileScreen,
-  FaSliders,
   FaTrademark,
-  FaUser,
+  FaUser
 } from "react-icons/fa6";
 import BrandPage from "../../admin/pages/brand/BrandPage";
 import CategoryPage from "../../admin/pages/category/CategoryPage";
 import AnalyticsPage from "../../admin/pages/dashboard/AnalyticsPage";
 import DashboardPageLayout from "../../admin/pages/dashboard/DashboardPageLayout";
+import ProductStatistics from "../../admin/pages/dashboard/ProductStatistics";
 import PurchasesDashboardPage from "../../admin/pages/dashboard/PurchasesDashboardPage";
+import SummaryStatistics from "../../admin/pages/dashboard/SummaryStatistics";
+import DiscountPage from "../../admin/pages/discount/DiscountPage";
 import ProductPage from "../../admin/pages/product/ProductPage";
+import PurchasePage from "../../admin/pages/purchase/PurchasePage";
 import UserPage from "../../admin/pages/user/UserPage";
 import { RouteType } from "./config";
-import SummaryStatistics from "../../admin/pages/dashboard/SummaryStatistics";
-import PurchasePage from "../../admin/pages/purchase/PurchasePage";
-import ProductStatistics from "../../admin/pages/dashboard/ProductStatistics";
-import DiscountPage from "../../admin/pages/discount/DiscountPage";
 
 const appRoutes: RouteType[] = [
   {
@@ -121,16 +120,7 @@ const appRoutes: RouteType[] = [
       displayText: "Quản lý giảm giá",
       icon: <FaDiscord />,
     },
-  },
-  {
-    path: "sliders",
-    element: <UserPage />,
-    state: "sliders",
-    sidebarProps: {
-      displayText: "Quản lý slider",
-      icon: <FaSliders />,
-    },
-  },
+  }
 ];
 
 export default appRoutes;

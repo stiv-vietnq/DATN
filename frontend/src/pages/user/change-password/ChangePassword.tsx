@@ -5,6 +5,7 @@ import { validateFields } from "../../../utils/Validation";
 import "./ChangePassword.css";
 import { changePassword } from "../../../api/user";
 import Loading from "../../../components/common/loading/Loading";
+import { useToast } from "../../../components/toastProvider/ToastProvider";
 
 interface FormErrors extends Partial<Record<string, string>> {
   oldPassword?: string;
@@ -19,6 +20,7 @@ export default function ChangePassword() {
   const [oldPassword, setOldPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmNewPassword, setConfirmNewPassword] = useState("");
+  const { showToast } = useToast();
 
   const handleSubmit = (e: React.FormEvent<HTMLButtonElement>) => {
     e.preventDefault();
@@ -51,7 +53,10 @@ export default function ChangePassword() {
     ];
 
     const errors = validateFields(rules, t);
-    setErrors(errors);
+    if (Object.keys(errors).length > 0) {
+      Object.values(errors).forEach((msg) => showToast(msg, "error"));
+      return;
+    }
     if (Object.keys(errors).length === 0) {
       setLoading(true);
       changePassword({
@@ -90,7 +95,6 @@ export default function ChangePassword() {
               onChange={(e) => setOldPassword(e.target.value)}
               placeholder={t("enter_old_password")}
               width="100%"
-              error={errors.password}
             />
           </div>
         </div>
@@ -105,7 +109,6 @@ export default function ChangePassword() {
               onChange={(e) => setNewPassword(e.target.value)}
               placeholder={t("enter_new_password")}
               width="100%"
-              error={errors.password}
             />
           </div>
         </div>
@@ -123,7 +126,6 @@ export default function ChangePassword() {
               onChange={(e) => setConfirmNewPassword(e.target.value)}
               placeholder={t("enter_confirm_new_password")}
               width="100%"
-              error={errors.password}
             />
           </div>
         </div>

@@ -15,6 +15,7 @@ import RatingFilter from "./ratingFilter/RatingFilter";
 import { getProductTypeByStatus } from "../../api/brand";
 import { getCategorysByProductTypeId } from "../../api/category";
 import { ProductSearch } from "../../api/product";
+import { useNavigate } from "react-router-dom";
 
 interface OptionBrand {
   id: number;
@@ -53,6 +54,7 @@ export default function Products() {
     views: "asc",
   });
   const [showAll, setShowAll] = useState(false);
+  const navigate = useNavigate();
 
   const itemsPerPage = 50;
   const [currentPage, setCurrentPage] = useState(1);
@@ -180,6 +182,10 @@ export default function Products() {
 
   const handleItemClick = (index: number) => {
     setActiveIndexType(index);
+  };
+
+    const handleViewProductDetail = (id: number) => {
+    navigate(`/product-detail/${id}`);
   };
 
   const visibleCompanies = showAllBrands
@@ -372,7 +378,7 @@ export default function Products() {
         <div className="products-container-list">
           <div className="products-data-list">
             {currentProducts.map((product) => (
-              <div className="product-card" key={product.id}>
+              <div className="product-card" key={product.id}  onClick={() => product?.id && handleViewProductDetail(product.id)}>
                 {product.percentageReduction && (
                   <div className="discount-badge">
                     -{product.percentageReduction}%

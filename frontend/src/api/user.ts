@@ -19,7 +19,7 @@ export const updateUserProfile = (data: {
   id: number;
   firstName: string;
   lastName: string;
-  dateOfBirth: string;
+  dateOfBirth: string | null;
   sex: number;
   phoneNumber: string;
   file?: File | null;
@@ -28,7 +28,9 @@ export const updateUserProfile = (data: {
   formData.append("id", String(data.id));
   formData.append("firstName", data.firstName);
   formData.append("lastName", data.lastName);
-  formData.append("dateOfBirth", data.dateOfBirth);
+  if (data.dateOfBirth !== null) {
+    formData.append("dateOfBirth", data.dateOfBirth);
+  }
   formData.append("sex", String(data.sex));
   formData.append("phoneNumber", data.phoneNumber);
   if (data.file) {

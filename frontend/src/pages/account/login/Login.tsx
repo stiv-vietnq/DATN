@@ -21,7 +21,9 @@ export default function Login() {
     setPw(e.currentTarget.value);
   };
 
-  const handleLogin = () => {
+  const handleLogin = (e?: any) => {
+    e?.preventDefault();
+    e?.stopPropagation();
     if (!usernameOrEmail) {
       showToast("Vui lòng nhập tên đăng nhập hoặc email!!!!", "info");
       return;
@@ -71,8 +73,7 @@ export default function Login() {
         if (err.response && err.response.status === 500) {
           showToast("Xảy ra lỗi máy chủ, vui long thử lại sau!", "error");
         }
-      })
-      .finally(() => {
+
         setLoading(false);
       });
   };
@@ -118,7 +119,7 @@ export default function Login() {
               width="100%"
             />
 
-            <Button width="100%" variant="login-often" onClick={handleLogin}>
+            <Button width="100%" variant="login-often" onClick={(e) => handleLogin(e)} type="button">
               {t("login")}
             </Button>
 

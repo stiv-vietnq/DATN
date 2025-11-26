@@ -4,6 +4,7 @@ import Button from "../../../components/common/button/Button";
 import "./Products.css";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
+import Loading from "../../../components/common/loading/Loading";
 
 interface Product {
   id?: number;
@@ -70,6 +71,9 @@ export default function Products() {
     return (value / 1_000_000).toFixed(1).replace(/\.0$/, "") + "M";
   }
 
+  if (loading) {
+    return <Loading />;
+  }
   return (
     <div className="product-content">
       <div className="product-title">{t("home.product.title")}</div>

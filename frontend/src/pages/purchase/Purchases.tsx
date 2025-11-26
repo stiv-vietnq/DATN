@@ -4,7 +4,8 @@ import { FaEdit } from "react-icons/fa";
 import { FaX } from "react-icons/fa6";
 import { useLocation, useNavigate } from "react-router-dom";
 import {
-    getAddressByUserIdAndIsDefault
+    getAddressByUserIdAndIsDefault,
+    getAddressesByUserId
 } from "../../api/address";
 import { createMomoPayment } from "../../api/momo";
 import { createPurchase, PurchaseDto, PurchaseItemDto } from "../../api/purchases";
@@ -162,14 +163,16 @@ export default function Purchases() {
                         <h3>Giỏ hàng</h3>
                         {selectedItems.map((item) => (
                             <div key={item.id} className="cart-item">
-                                <img
-                                    src={item.productDetail.directoryPath}
-                                    alt={item.productDetail.name}
-                                    className="cart-img"
-                                />
-                                <div>
-                                    <div className="cart-name">{item.productDetail.name}</div>
-                                    <div className="cart-info">
+                                <div className="cart-item-info">
+                                    <img
+                                        src={item.productDetail.directoryPath}
+                                        alt={item.productDetail.name}
+                                        className="cart-img"
+                                    />
+                                </div>
+                                <div style={{ width: '80%' }}>
+                                    <div className="cart-name" style={{ marginBottom: '20px' }}>{item.productDetail.name}</div>
+                                    <div className="cart-info" style={{ display: 'flex', justifyContent: 'space-between' }}>
                                         <div className="cart-quantity">Số lượng: {item.quantity}</div>
                                         <div className="cart-total-purchase">Giá: {item.total}</div>
                                     </div>
@@ -218,11 +221,22 @@ const InfoTab = ({
     setInfo: (val: PurchaseDto) => void;
     onNext: () => void;
 }) => {
+    interface Address {
+        id: number;
+        fullName: string;
+        phoneNumber: string;
+        address: string;
+        provinceId: string;
+        districtId: string;
+        wardId: string;
+        defaultValue: number;
+    }
     const { t } = useTranslation();
     const [addressData, setAddressData] = useState<any>(null);
     const [addressId, setAddressId] = useState<number | null>(null);
     const [showAddressPopup, setShowAddressPopup] = useState(false);
     const userId = Number(localStorage.getItem("userId"));
+    const [addresses, setAddresses] = useState<Address[]>([]);
 
     useEffect(() => {
         getAddressByUserIdAndIsDefault(userId).then((res) => {
@@ -230,11 +244,19 @@ const InfoTab = ({
             setAddressData(data);
             setAddressId(data?.id || 0);
         });
+        handleSearch();
     }, [userId]);
 
     const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
         const { value } = e.target;
         setInfo({ ...info, description: value });
+    };
+
+    const handleSearch = () => {
+        if (userId) {
+            getAddressesByUserId(Number(userId))
+                .then((res) => setAddresses(res.data));
+        }
     };
 
     return (
@@ -294,7 +316,29 @@ const InfoTab = ({
                                 <FaX onClick={() => setShowAddressPopup(false)} />
                             </div>
                         </div>
-                        <div className="address-popup-content">vietnq</div>
+                        <div className="address-popup-content-list">
+                            {addresses.map((addr) => (
+                                <div
+                                    key={addr.id}
+                                    className={`address-item-popup ${addressId === addr.id ? "selected" : ""}`}
+                                    onClick={() => {
+                                        setAddressId(addr.id);
+                                        setAddressData(addr);
+                                        setShowAddressPopup(false);
+                                    }}
+                                >
+                                    <div className="address-header-item">
+                                        <div className="address-info-item">
+                                            <div className="address-info-name">{addr.fullName}</div>
+                                            <div className="address-info-phone">{addr.phoneNumber}</div>
+                                        </div>
+                                        <div className="address-body-item" style={{ textAlign: 'left' }}>
+                                            <AddressItem addr={addr} />
+                                        </div>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
                     </div>
                 </div>
             )}

@@ -12,6 +12,7 @@ import Button from '../../common/button/Button';
 import Loading from '../../common/loading/Loading';
 import NavbarSearch from '../../common/navbarSearch/NavbarSearch';
 import './Header.css';
+import { getUserProfile } from '../../../api/user';
 
 interface CartItem {
     id: number;
@@ -28,13 +29,15 @@ export default function Header() {
     const [loading, setLoading] = useState(false);
     const token = localStorage.getItem("tokenWeb");
     const userId = localStorage.getItem("userId");
-    const fullname = localStorage.getItem("firstName") + " " + localStorage.getItem("lastName");
+    const fullname = localStorage.getItem("lastName") + " " + localStorage.getItem("firstName");
     const navigate = useNavigate();
     const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
     const [cartItems, setCartItems] = useState<CartItem[]>([]);
+    const [preview, setPreview] = useState<string>("");
 
     useEffect(() => {
         handleGetAllCartsByUserId();
+        handleGetProfile();
     }, [userId]);
 
     const getLanguageLabel = () => {
@@ -67,6 +70,19 @@ export default function Header() {
         localStorage.removeItem("username");
         setShowLogoutConfirm(false);
         handleNavigate("/login");
+    };
+
+    const handleGetProfile = () => {
+        setLoading(true);
+        getUserProfile(Number(userId))
+            .then((res) => {
+                const data = res?.data;
+
+                if (data?.directoryPath) {
+                    setPreview(data?.directoryPath);
+                }
+            })
+            .finally(() => setLoading(false));
     };
 
     const handleGetAllCartsByUserId = () => {
@@ -143,10 +159,17 @@ export default function Header() {
                                         <div>
                                             <div className="navbar-container-account-item">
                                                 <div className="avatar">
-                                                    <img
-                                                        src="https://i.pravatar.cc/300"
-                                                        alt="Avatar"
-                                                    />
+                                                    {preview ? (
+                                                        <img
+                                                            src={preview}
+                                                            alt="Avatar"
+                                                        />
+                                                    ) : (
+                                                        <img
+                                                            src="https://i.pravatar.cc/300"
+                                                            alt="Avatar"
+                                                        />
+                                                    )}
                                                 </div>
                                                 <div className="username">
                                                     {fullname}

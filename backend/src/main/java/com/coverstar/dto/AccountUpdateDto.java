@@ -16,8 +16,6 @@ import java.util.Date;
 @NoArgsConstructor
 public class AccountUpdateDto {
 
-    private static final long MAX_FILE_SIZE = 1 * 1024 * 1024;
-
     private Long id;
 
     private String firstName;
@@ -32,17 +30,4 @@ public class AccountUpdateDto {
 
     private MultipartFile imageFiles;
 
-
-    public boolean isValidFile() {
-        if (imageFiles != null) {
-            if (imageFiles.getSize() > MAX_FILE_SIZE) {
-                return false;
-            }
-        }
-        String contentType = imageFiles.getContentType();
-        if (contentType == null || !contentType.startsWith("image/")) {
-            return false;
-        }
-        return true;
-    }
 }
