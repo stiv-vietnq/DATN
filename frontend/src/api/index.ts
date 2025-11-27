@@ -1,5 +1,6 @@
 // src/api.ts
 import axios from "axios";
+import { Navigate } from "react-router-dom";
 
 const api = axios.create({
   baseURL: import.meta.env.VITE_BACKEND_API_BASE,
@@ -23,8 +24,29 @@ api.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response?.status === 401) {
-      console.warn("Token expired or unauthorized!");
+      localStorage.removeItem("userId");
       localStorage.removeItem("tokenWeb");
+      localStorage.removeItem("username");
+      localStorage.removeItem("role");
+      localStorage.removeItem("firstName");
+      localStorage.removeItem("lastName");
+      window.location.href = "/login";
+    }
+    return Promise.reject(error);
+  }
+);
+
+api.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error.response?.status === 403) {
+      alert("Bạn không đủ quyền truy cập, vui lòng đăng nhập lại!");
+      localStorage.removeItem("userId");
+      localStorage.removeItem("tokenWeb");
+      localStorage.removeItem("username");
+      localStorage.removeItem("role");
+      localStorage.removeItem("firstName");
+      localStorage.removeItem("lastName");
       window.location.href = "/login";
     }
     return Promise.reject(error);

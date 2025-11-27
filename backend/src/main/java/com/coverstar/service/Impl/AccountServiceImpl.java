@@ -107,11 +107,13 @@ public class AccountServiceImpl implements AccountService {
                     .map(GrantedAuthority::getAuthority)
                     .findFirst()
                     .orElse(null);
-            SecretKey KEY = Keys.secretKeyFor(SignatureAlgorithm.HS256);
-            String token = Jwts.builder().setSubject(userDetails.getUsername()).setIssuedAt(new Date())
-                    .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60 * 10))
+            String token = Jwts.builder()
+                    .setSubject(userDetails.getUsername())
+                    .setIssuedAt(new Date())
+                    .setExpiration(new Date(System.currentTimeMillis() + Constants.JWT_EXPIRATION_MS))
                     .claim("role", role)
-                    .signWith(SignatureAlgorithm.HS256, KEY).compact();
+                    .signWith(Constants.JWT_SECRET_KEY, SignatureAlgorithm.HS256)
+                    .compact();
             Map<String, String> response = new HashMap<>();
             response.put("id", userDetails.getId().toString());
             response.put("token", token);

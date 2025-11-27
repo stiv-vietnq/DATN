@@ -1,5 +1,10 @@
 package com.coverstar.constant;
 
+import io.jsonwebtoken.security.Keys;
+
+import javax.crypto.SecretKey;
+import java.nio.charset.StandardCharsets;
+
 public class Constants {
     public static final String ERROR = "An error occurred while creating the account";
     public static final String VALID_VERIFICATION = "Valid verification code. Account has been activated.";
@@ -41,6 +46,11 @@ public class Constants {
     public static final String PRODUCT_TYPE_NOT_FOUND = "Product Type not found";
     public static final String PRODUCT_DETAIL_NOT_FOUND = "ProductDetail not found";
     public static final String DUPLICATE_CATEGORY = "Category name already exists";
+    public static final long JWT_EXPIRATION_MS = 1000 * 60 * 30;
+    public static final String JWT_SECRET_STRING = "mysupersecretkeythatismorethan32bytes!";
+
+    // Chuyển sang SecretKey dùng cho HS256
+    public static final SecretKey JWT_SECRET_KEY = Keys.hmacShaKeyFor(JWT_SECRET_STRING.getBytes(StandardCharsets.UTF_8));
 
 
     public static final class Number {

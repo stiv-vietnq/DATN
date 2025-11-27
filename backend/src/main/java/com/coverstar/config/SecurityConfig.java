@@ -14,6 +14,7 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.filter.CorsFilter;
@@ -38,8 +39,10 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http
-                .cors().disable()
+                .cors()
+                .and()
                 .csrf().disable()
+                .addFilterBefore(new JwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class)
                 .authorizeRequests()
                 .antMatchers(
                         "/webjars/**",
@@ -54,8 +57,6 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                         "/products/search/**",
                         "/unlock-account/**",
                         "/categories/getAllCategory/**",
-                        "/productTypes/**",
-                        "/products/**",
                         "/categories/**",
                         "/discounts/**",
                         "/purchases/**",
@@ -71,6 +72,15 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                         "/vnPay/**",
                         "/images/**"
                 ).permitAll()
+                .antMatchers(
+                        "/productTypes/**",
+                        "/products/**"
+                )
+                .hasRole("MEMBER")
+                .antMatchers(
+                        "/dashboards/**"
+                )
+                .hasRole("ADMIN")
                 .anyRequest().authenticated();
     }
 
