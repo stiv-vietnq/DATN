@@ -8,7 +8,7 @@
 .container__slider {
   position: relative;
   width: 100%;
-  height: 30vh;
+  height: 60vh;
   overflow: hidden;
   display: flex;
   align-items: center;
@@ -17,7 +17,7 @@
 
 .slider__track {
   display: flex;
-  transition: transform 0.8s ease;
+  transition: transform 0.5s ease-in-out; /* mượt hơn */
   width: 100%;
   height: 100%;
 }
@@ -133,7 +133,7 @@
   }
 
   .container__slider {
-    height: 30vh;
+    height: 35vh;
   }
 
   .slider-title-item {

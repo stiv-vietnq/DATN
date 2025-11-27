@@ -40,14 +40,13 @@ api.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response?.status === 403) {
-      alert("Bạn không đủ quyền truy cập, vui lòng đăng nhập lại!");
       localStorage.removeItem("userId");
       localStorage.removeItem("tokenWeb");
       localStorage.removeItem("username");
       localStorage.removeItem("role");
       localStorage.removeItem("firstName");
       localStorage.removeItem("lastName");
-      window.location.href = "/login";
+      window.location.href = "/no-access";
     }
     return Promise.reject(error);
   }

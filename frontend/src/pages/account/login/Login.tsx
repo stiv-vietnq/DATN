@@ -62,6 +62,10 @@ export default function Login() {
           showToast("Tên đăng nhập hoặc mật khẩu không đúng!", "error");
         }
 
+        if (err.response && err.response.status === 403) {
+          showToast("Bạn không có quyền truy cập!", "error");
+        }
+
         if (
           err.response &&
           err.response.status === 400 &&

@@ -1,4 +1,4 @@
-import { useEffect, useState, type ReactNode, isValidElement } from "react";
+import { useEffect, useState, useRef, type ReactNode, isValidElement } from "react";
 import { FaChevronLeft, FaChevronRight } from "react-icons/fa6";
 import "./Slider.css";
 
@@ -7,67 +7,96 @@ interface SliderProps {
 }
 
 export default function Slider({ children }: SliderProps) {
-  const [activeIndex, setActiveIndex] = useState(0);
-  const [timer, setTimer] = useState<NodeJS.Timeout | null>(null);
   const totalSlides = children.length;
 
-  // Tự động chuyển slide
+  // Clone đầu và cuối để tạo infinite
+  const slides = [children[totalSlides - 1], ...children, children[0]];
+
+  const [activeIndex, setActiveIndex] = useState(1); // start từ slide thực đầu tiên
+  const [isTransitioning, setIsTransitioning] = useState(true);
+
+  const intervalRef = useRef<NodeJS.Timeout | null>(null);
+
+  const nextSlide = () => {
+    setActiveIndex((prev) => prev + 1);
+    setIsTransitioning(true);
+  };
+
+  const prevSlide = () => {
+    setActiveIndex((prev) => prev - 1);
+    setIsTransitioning(true);
+  };
+
+  const startAutoSlide = () => {
+    stopAutoSlide(); // tránh tạo nhiều interval
+    intervalRef.current = setInterval(() => {
+      nextSlide();
+    }, 3000);
+  };
+
+  const stopAutoSlide = () => {
+    if (intervalRef.current) {
+      clearInterval(intervalRef.current);
+      intervalRef.current = null;
+    }
+  };
+
+  // Khởi tạo auto slide
   useEffect(() => {
-    const id = setInterval(() => {
-      setActiveIndex((prev) => (prev + 1) % totalSlides);
-    }, 3000);
-    setTimer(id);
-    return () => clearInterval(id);
-  }, [totalSlides]);
+    startAutoSlide();
+    return () => stopAutoSlide();
+  }, []);
 
-  // Chuyển ảnh thủ công
-  const handlePrev = () => {
-    setActiveIndex((prev) => (prev - 1 + totalSlides) % totalSlides);
+  // Xử lý khi chuyển slide clone
+  const handleTransitionEnd = () => {
+    if (activeIndex === 0) {
+      // nếu đang ở clone cuối, nhảy sang slide cuối thực
+      setIsTransitioning(false);
+      setActiveIndex(totalSlides);
+    } else if (activeIndex === totalSlides + 1) {
+      // nếu đang ở clone đầu, nhảy về slide đầu thực
+      setIsTransitioning(false);
+      setActiveIndex(1);
+    }
   };
 
-  const handleNext = () => {
-    setActiveIndex((prev) => (prev + 1) % totalSlides);
-  };
-
-  // Dừng tự động khi hover
-  const pause = () => {
-    if (timer) clearInterval(timer);
-  };
-
-  const resume = () => {
-    const id = setInterval(() => {
-      setActiveIndex((prev) => (prev + 1) % totalSlides);
-    }, 3000);
-    setTimer(id);
+  // Click vào dot hoặc title
+  const goToSlide = (index: number) => {
+    setActiveIndex(index + 1); // vì index thực bắt đầu từ 1
+    setIsTransitioning(true);
   };
 
   return (
     <div className="slider">
       <div
         className="container__slider"
-        onMouseEnter={pause}
-        onMouseLeave={resume}
+        onMouseEnter={stopAutoSlide}
+        onMouseLeave={startAutoSlide}
       >
         <div
           className="slider__track"
-          style={{ transform: `translateX(-${activeIndex * 100}%)` }}
+          style={{
+            transform: `translateX(-${activeIndex * 100}%)`,
+            transition: isTransitioning ? "transform 0.5s ease-in-out" : "none",
+          }}
+          onTransitionEnd={handleTransitionEnd}
         >
-          {children.map((item, i) => (
+          {slides.map((item, i) => (
             <div className="slider__item" key={i}>
               {item}
             </div>
           ))}
         </div>
 
-        <button className="slider__btn-prev" onClick={handlePrev}>
+        <button className="slider__btn-prev" onClick={prevSlide}>
           <FaChevronLeft />
         </button>
-        <button className="slider__btn-next" onClick={handleNext}>
+        <button className="slider__btn-next" onClick={nextSlide}>
           <FaChevronRight />
         </button>
       </div>
 
-      {/* ----- Tên thương hiệu (hoặc "tên của t" 😄) ----- */}
+      {/* Titles */}
       <div className="container__slider__titles">
         {children.map((child, index) => {
           if (!isValidElement(child)) return null;
@@ -77,11 +106,11 @@ export default function Slider({ children }: SliderProps) {
             <div
               key={index}
               className={
-                activeIndex === index
+                activeIndex - 1 === index
                   ? "slider-title-item slider-title-item-active"
                   : "slider-title-item"
               }
-              onClick={() => setActiveIndex(index)}
+              onClick={() => goToSlide(index)}
             >
               {title}
             </div>
@@ -89,17 +118,17 @@ export default function Slider({ children }: SliderProps) {
         })}
       </div>
 
-      {/* ----- Các dot nhỏ ----- */}
+      {/* Dots */}
       <div className="container__slider__links">
         {children.map((_, i) => (
           <button
             key={i}
             className={
-              activeIndex === i
+              activeIndex - 1 === i
                 ? "container__slider__links-small container__slider__links-small-active"
                 : "container__slider__links-small"
             }
-            onClick={() => setActiveIndex(i)}
+            onClick={() => goToSlide(i)}
           ></button>
         ))}
       </div>
