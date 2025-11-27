@@ -54,17 +54,6 @@ public class ProductServiceImpl implements ProductService {
     private final static String IMAGE_BASE_URL = "/images/";
     private final static String SERVER_PORT = "http://localhost:";
 
-//    @Autowired
-//    private ShippingMethodRepository shippingMethodRepository;
-
-//    @Lazy
-//    @Autowired
-//    private CategoryService categoryService;
-//
-//    @Lazy
-//    @Autowired
-//    private CategoryRepository categoryRepository;
-
     @Autowired
     private UserVisitRepository userVisitRepository;
 
@@ -136,7 +125,6 @@ public class ProductServiceImpl implements ProductService {
             productDetail.setQuantity(productDetailDTO.getQuantity());
             productDetail.setPrice(productDetailDTO.getPrice());
             productDetail.setDescription(productDetailDTO.getDescription());
-            productDetail.setType(productDetailDTO.getType());
 
             productDetail = productDetailRepository.save(productDetail);
 
@@ -468,7 +456,6 @@ public class ProductServiceImpl implements ProductService {
             }
             BigDecimal price = StringUtils.isNotEmpty(productDto.getPrice()) ? new BigDecimal(productDto.getPrice()) : BigDecimal.ZERO;
             product.setProductType(productType);
-            product.setSize(productDto.getSize());
             product.setPrice(price);
             product.setCategoryId(Long.valueOf(productDto.getCategoryId()));
             product.setStatus(Boolean.valueOf(productDto.getStatus()));

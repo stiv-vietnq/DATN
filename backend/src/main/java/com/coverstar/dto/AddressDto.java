@@ -36,5 +36,4 @@ public class AddressDto implements Serializable {
 
     private int type;
 
-    private String map;
 }

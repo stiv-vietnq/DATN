@@ -70,7 +70,11 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                         "/chat/**",
                         "/ws-chat/**",
                         "/vnPay/**",
-                        "/images/**"
+                        "/images/**",
+                        "/dashboards/**",
+                        "/productTypes/**",
+                        "/categories/**",
+                        "/products/**"
                 ).permitAll()
                 .antMatchers(
                         "/productTypes/**",
@@ -78,7 +82,10 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 )
                 .hasRole("MEMBER")
                 .antMatchers(
-                        "/dashboards/**"
+                        "/dashboards/**",
+                        "/productTypes/**",
+                        "/categories/**",
+                        "/products/**"
                 )
                 .hasRole("ADMIN")
                 .anyRequest().authenticated();

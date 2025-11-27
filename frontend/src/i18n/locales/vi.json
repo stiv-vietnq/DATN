@@ -179,5 +179,11 @@
   "delivered": "Đã giao hàng",
   "cancelled": "Đã hủy",
   "all": "Tất cả",
-  "purchase-success":"Mua hàng thành công"
+  "purchase-success":"Mua hàng thành công",
+  "verification_successful":"Xác thực thành công!!!",
+  "verification_failed":"Xác thực thất bại!!!",
+  "invalid_username_or_password":"Tên đăng nhập hoặc mật khẩu không đúng!",
+  "access_denied":"Bạn không có quyền truy cập!",
+  "server_error":"Xảy ra lỗi máy chủ, vui lòng thử lại sau!",
+  "unknown_user_role":"Vai trò người dùng không xác định!"
 }

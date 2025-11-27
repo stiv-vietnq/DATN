@@ -73,12 +73,24 @@ const ProductModal: React.FC<ProductModalProps> = ({
             fetchCategoriesByProductTypeId(String(data.productType.id));
           }
 
-          if (data?.category) {
-            setSelectedCategory({
-              id: String(data.category.id),
-              name: data.category.name,
-              code: data.category.code,
-            });
+          if (data?.categoryId) {
+            const id = String(data.categoryId);
+
+            const foundCategory = categoryOptions.find((c) => c.id === id);
+
+            if (foundCategory) {
+              setSelectedCategory(foundCategory);
+            } else {
+              setSelectedCategory({
+                id: id,
+                name: "",
+                code: "",
+              });
+            }
+          }
+
+          if (data?.price) {
+            setPrice(String(data.price));
           }
 
           setProductDetails(data?.productDetails || []);
@@ -136,7 +148,6 @@ const ProductModal: React.FC<ProductModalProps> = ({
   };
 
   const handleSubmit = async () => {
-
     if (!name) {
       showToast("Vui lòng nhập tên sản phẩm!", "info");
       return;
@@ -167,9 +178,18 @@ const ProductModal: React.FC<ProductModalProps> = ({
       return;
     }
 
-    if (productDetails.some((detail) => !detail.name || detail.quantity <= 0 || !detail.price || !detail.directoryPath)) {
+    if (
+      productDetails.some(
+        (detail) =>
+          !detail.name ||
+          detail.quantity <= 0 ||
+          !detail.price ||
+          !detail.directoryPath
+      )
+    ) {
       showToast(
-        "Vui lòng điền đầy đủ thông tin cho tất cả sản phẩm chi tiết!", "info"
+        "Vui lòng điền đầy đủ thông tin cho tất cả sản phẩm chi tiết!",
+        "info"
       );
       return;
     }
@@ -180,6 +200,7 @@ const ProductModal: React.FC<ProductModalProps> = ({
     }
 
     const formData = new FormData();
+
     if (mode === "edit" && productId) {
       formData.append("id", productId.toString());
     }
@@ -187,26 +208,28 @@ const ProductModal: React.FC<ProductModalProps> = ({
     formData.append("productName", name);
     formData.append("description", description);
 
-    if (selectedBrand?.id) formData.append("productTypeId", selectedBrand.id);
-    if (selectedCategory?.id) formData.append("categoryId", selectedCategory.id);
+    formData.append("productTypeId", selectedBrand.id.toString());
+    formData.append("brandCode", selectedBrand.code);
 
-    if (selectedBrand) {
-      formData.append("productTypeName", selectedBrand.name);
-      formData.append("brandCode", selectedBrand.code);
-    }
-    if (selectedCategory) {
-      formData.append("categoryName", selectedCategory.name);
-    }
+    formData.append("categoryId", selectedCategory.id.toString());
+    formData.append("status", selectedStatus.toString());
+    formData.append("price", price.toString());
 
-    formData.append("size", "1505");
-    if (price) formData.append("price", price);
-    if (selectedStatus !== null && selectedStatus !== undefined)
-      formData.append("status", selectedStatus.toString());
+    files.forEach((file) => {
+      formData.append("images", file);
+    });
 
-    files.forEach((file) => formData.append("images", file));
-    if (imageIdsToRemove.length > 0) {
-      formData.append("imageIdsToRemove", JSON.stringify(imageIdsToRemove));
-    }
+    formData.append(
+      "imageIdsToRemove",
+      imageIdsToRemove.length > 0 ? imageIdsToRemove.join(",") : ""
+    );
+
+    formData.append(
+      "listProductDetailIdRemove",
+      listProductDetailIdRemove.length > 0
+        ? listProductDetailIdRemove.join(",")
+        : ""
+    );
 
     productDetails.forEach((detail, index) => {
       formData.append(
@@ -226,32 +249,31 @@ const ProductModal: React.FC<ProductModalProps> = ({
         `productDetailDTOS[${index}].description`,
         detail.description
       );
-      formData.append(`productDetailDTOS[${index}].type`, "");
-      if (detail.directoryPath) {
-        formData.append(
-          `productDetailDTOS[${index}].imageFile`,
-          detail.directoryPath
-        );
-      }
-    });
 
-    if (listProductDetailIdRemove.length > 0) {
-      formData.append(
-        "listProductDetailIdRemove",
-        JSON.stringify(listProductDetailIdRemove)
-      );
-    }
+       if (detail.imageFile instanceof File) {
+    formData.append(`productDetailDTOS[${index}].imageFile`, detail.imageFile);
+  } 
+  // Nếu giữ ảnh cũ → gửi directoryPath để backend khỏi xóa
+  else if (detail.directoryPath) {
+    formData.append(`productDetailDTOS[${index}].imageFilePath`, detail.directoryPath);
+  }
+    });
 
     ProductCreateOrUpdate(formData)
       .then(() => {
         showToast(
-          `Sản phẩm đã được ${mode === "add" ? "thêm mới" : "cập nhật"} thành công!`,
+          `Sản phẩm đã được ${
+            mode === "add" ? "thêm mới" : "cập nhật"
+          } thành công!`,
           "success"
         );
         onClose(true);
       })
       .catch(() => {
-        showToast(`Lỗi khi ${mode === "add" ? "thêm mới" : "cập nhật"} sản phẩm!`, "error");
+        showToast(
+          `Lỗi khi ${mode === "add" ? "thêm mới" : "cập nhật"} sản phẩm!`,
+          "error"
+        );
       });
   };
 

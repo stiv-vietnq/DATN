@@ -30,7 +30,7 @@ public class ShopUtil {
     ) throws MessagingException {
         try {
             if (account != null) {
-                if (account.isNotificationPurchase() && type == 1) {
+                if (type == 1) {
                     Map<String, Object> maps = new HashMap<>();
                     maps.put("fullName", account.getFirstName() + " " + account.getLastName());
                     maps.put("orderTitle", orderTitle);
@@ -44,7 +44,7 @@ public class ShopUtil {
                     mailService.sendEmailPurchase(mail);
                 }
 
-                if (account.isNotificationDiscount() && type == 2) {
+                if (type == 2) {
                     Map<String, Object> maps = new HashMap<>();
                     maps.put("fullName", account.getFirstName() + " " + account.getLastName());
                     maps.put("orderTitle", orderTitle);

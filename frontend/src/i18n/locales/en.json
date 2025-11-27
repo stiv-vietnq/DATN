@@ -179,5 +179,11 @@
   "delivered": "Delivered",
   "cancelled": "Cancelled",
   "all": "All",
-  "purchase-success":"Purchase Successful"
+  "purchase-success":"Purchase Successful",
+  "verification_successful":"Verification Successful!!!",
+  "verification_failed":"Verification Failed!!!",
+  "invalid_username_or_password":"Invalid username or password!",
+  "access_denied":"Access denied!",
+  "server_error":"Server error, please try again later!",
+  "unknown_user_role":"Unknown user role!"
 }

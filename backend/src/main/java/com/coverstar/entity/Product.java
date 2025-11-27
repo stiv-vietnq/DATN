@@ -51,9 +51,6 @@ public class Product {
     @Column(name = "status", nullable = false)
     private Boolean status;
 
-    @Column(name = "size")
-    private String size;
-
     @Column(name = "description", columnDefinition = "nvarchar(510)")
     private String description;
 

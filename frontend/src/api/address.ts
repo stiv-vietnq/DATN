@@ -10,7 +10,6 @@ export const createOrUpdateAddress = (addressData: {
     wardId: number;
     userId: number;
     type: number;
-    map?: string;
 }) => {
     return api.post("/address/createOrUpdateAddress", addressData);
 };

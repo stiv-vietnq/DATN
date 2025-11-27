@@ -19,12 +19,10 @@ public class CreateOrUpdateProduct implements Serializable {
     private String brandCode;
     private String productName;
     private String productTypeId;
-    private String size;
     private String price;
     private String description;
     private String imageIdsToRemove;
     private String listProductDetailIdRemove;
-//    private List<String> shippingMethodIds;
     private String categoryId;
     private String status;
     private List<MultipartFile> images;

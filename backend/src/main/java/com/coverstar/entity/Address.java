@@ -50,9 +50,6 @@ public class Address implements Serializable {
     @Column(name = "type")
     private Integer type;
 
-    @Column(name = "map")
-    private String map;
-
     @Column(name = "created_date")
     private Date createdDate;
 

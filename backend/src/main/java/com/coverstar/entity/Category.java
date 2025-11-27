@@ -39,10 +39,4 @@ public class Category {
 
     @Column(name = "description", columnDefinition = "nvarchar(500)")
     private String description;
-
-    @Column(name = "number_of_visits")
-    private Long numberOfVisits;
-
-    @Column(name = "quantity_sold")
-    private Long quantitySold;
 }

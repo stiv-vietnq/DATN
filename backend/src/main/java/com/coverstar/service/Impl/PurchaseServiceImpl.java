@@ -100,8 +100,6 @@ public class PurchaseServiceImpl implements PurchaseService {
                     productRepository.save(product);
 
                     Category category = categoryService.getCategoryById(product.getCategoryId());
-                    if (category.getQuantitySold() == null) category.setQuantitySold(0L);
-                    category.setQuantitySold(category.getQuantitySold() + itemDto.getQuantity());
                     categoryRepository.save(category);
 
                     PurchaseItem item = new PurchaseItem();

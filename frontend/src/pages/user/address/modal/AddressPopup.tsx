@@ -167,7 +167,6 @@ const AddressPopup: React.FC<AddressPopupProps> = ({ onClose, onSuccess, address
             wardId: selectedWardId ? Number(selectedWardId) : 0,
             userId: userId ? Number(userId) : 1,
             type,
-            map: "",
         };
 
         createOrUpdateAddress(payload)

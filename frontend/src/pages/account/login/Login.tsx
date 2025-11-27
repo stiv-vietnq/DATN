@@ -52,18 +52,20 @@ export default function Login() {
         localStorage.setItem("firstName", firstName);
         localStorage.setItem("lastName", lastName);
         if (role === "ROLE_ADMIN") {
-          navigate("/admin/brands");
-        } else {
+          navigate("/admin/dashboard/default");
+        } else if (role === "ROLE_MEMBER") {
           navigate("/");
+        } else {
+          showToast(t("unknown_user_role"), "error");
         }
       })
       .catch((err) => {
         if (err.response && err.response.status === 401) {
-          showToast("Tên đăng nhập hoặc mật khẩu không đúng!", "error");
+          showToast(t("invalid_username_or_password"), "error");
         }
 
         if (err.response && err.response.status === 403) {
-          showToast("Bạn không có quyền truy cập!", "error");
+          showToast(t("access_denied"), "error");
         }
 
         if (
@@ -71,11 +73,11 @@ export default function Login() {
           err.response.status === 400 &&
           err.response.data === "ACCOUNT_NOTFOUND"
         ) {
-          showToast("Tên đăng nhập hoặc mật khẩu không đúng!", "error");
+          showToast(t("invalid_username_or_password"), "error");
         }
 
         if (err.response && err.response.status === 500) {
-          showToast("Xảy ra lỗi máy chủ, vui long thử lại sau!", "error");
+          showToast(t("server_error"), "error");
         }
 
         setLoading(false);

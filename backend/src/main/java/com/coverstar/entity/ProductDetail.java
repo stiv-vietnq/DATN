@@ -50,9 +50,6 @@ public class ProductDetail implements Serializable {
     @Column(name = "directory_path")
     private String directoryPath;
 
-    @Column(name = "type")
-    private Integer type;
-
     @Column(name = "description")
     private String description;
 }

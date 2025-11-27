@@ -41,7 +41,6 @@ public class AddressServiceImpl implements AddressService {
             address.setDistrictId(addressDto.getDistrictId());
             address.setWardId(addressDto.getWardId());
             address.setType(addressDto.getType());
-            address.setMap(addressDto.getMap());
             return addressRepository.save(address);
         } catch (Exception e) {
             e.fillInStackTrace();

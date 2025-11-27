@@ -21,6 +21,7 @@ export interface ProductDetail {
     description: string;
     type: number | null;
     directoryPath: File | string | null;
+    imageFile?: File | null;  
 }
 
 const ProductDetailItem: React.FC<ProductDetailItemProps> = ({
