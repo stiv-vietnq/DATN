@@ -74,6 +74,12 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                         "/dashboards/**",
                         "/productTypes/**",
                         "/categories/**",
+                        "/products/**",
+                        "/dashboards/**",
+                        "/productTypes/**",
+                        "/categories/**",
+                        "/products/**",
+                        "/productTypes/**",
                         "/products/**"
                 ).permitAll()
                 .antMatchers(

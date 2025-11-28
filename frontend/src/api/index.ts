@@ -36,20 +36,20 @@ api.interceptors.response.use(
   }
 );
 
-api.interceptors.response.use(
-  (response) => response,
-  (error) => {
-    if (error.response?.status === 403) {
-      localStorage.removeItem("userId");
-      localStorage.removeItem("tokenWeb");
-      localStorage.removeItem("username");
-      localStorage.removeItem("role");
-      localStorage.removeItem("firstName");
-      localStorage.removeItem("lastName");
-      window.location.href = "/no-access";
-    }
-    return Promise.reject(error);
-  }
-);
+// api.interceptors.response.use(
+//   (response) => response,
+//   (error) => {
+//     if (error.response?.status === 403) {
+//       localStorage.removeItem("userId");
+//       localStorage.removeItem("tokenWeb");
+//       localStorage.removeItem("username");
+//       localStorage.removeItem("role");
+//       localStorage.removeItem("firstName");
+//       localStorage.removeItem("lastName");
+//       window.location.href = "/no-access";
+//     }
+//     return Promise.reject(error);
+//   }
+// );
 
 export default api;

@@ -27,7 +27,7 @@ public class ProductDetail implements Serializable {
     @Column(name = "product_id", nullable = false)
     private String productId;
 
-    @Column(name = "name", nullable = false)
+    @Column(name = "name", nullable = false, columnDefinition = "NVARCHAR(255)")
     private String name;
 
     @Column(name = "quantity", nullable = false)
@@ -50,6 +50,6 @@ public class ProductDetail implements Serializable {
     @Column(name = "directory_path")
     private String directoryPath;
 
-    @Column(name = "description")
+    @Column(name = "description", columnDefinition = "NVARCHAR(1000)")
     private String description;
 }

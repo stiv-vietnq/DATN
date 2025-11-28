@@ -29,7 +29,7 @@ public class ProductTypeController {
                                                        @RequestParam("description") String description,
                                                        @RequestParam(value = "directoryPath", required = false) String directoryPath) {
         try {
-            Long longId = null;
+                Long longId = null;
             if (StringUtils.isNotEmpty(id)) {
                 longId = Long.parseLong(id);
             }

@@ -113,7 +113,16 @@ public class ProductTypeServiceImpl implements ProductTypeService {
         try {
             String name = productTypeSearchDto.getName();
             Boolean status = productTypeSearchDto.getStatus();
-            return productTypeRepository.findProductTypesByConditions(name, status);
+            List<ProductType> productTypes = productTypeRepository.findProductTypesByConditions(name, status);
+            for (ProductType productType : productTypes) {
+                String relativePath = productType.getDirectoryPath();
+
+                if (relativePath != null && relativePath.startsWith(imageDirectory)) {
+                    relativePath = relativePath.replace(imageDirectory, SERVER_PORT + serverPort + IMAGE_BASE_URL);
+                    productType.setDirectoryPath(relativePath);
+                }
+            }
+            return productTypes;
         } catch (Exception e) {
             e.fillInStackTrace();
             throw e;
@@ -124,14 +133,14 @@ public class ProductTypeServiceImpl implements ProductTypeService {
     public ProductType getProductType(Long id) {
         try {
             ProductType productType = productTypeRepository.findById(id).orElse(null);
-//            if (productType != null) {
-//                String relativePath = productType.getDirectoryPath();
-//
-//                if (relativePath != null && relativePath.startsWith(imageDirectory)) {
-//                    relativePath = relativePath.replace(imageDirectory, SERVER_PORT + serverPort + IMAGE_BASE_URL);
-//                    productType.setDirectoryPath(relativePath);
-//                }
-//            }
+            if (productType != null) {
+                String relativePath = productType.getDirectoryPath();
+
+                if (relativePath != null && relativePath.startsWith(imageDirectory)) {
+                    relativePath = relativePath.replace(imageDirectory, SERVER_PORT + serverPort + IMAGE_BASE_URL);
+                    productType.setDirectoryPath(relativePath);
+                }
+            }
             return productType;
         } catch (Exception e) {
             e.fillInStackTrace();
