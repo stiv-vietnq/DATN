@@ -25,7 +25,7 @@ export const ProductCreateOrUpdate = (data: FormData) => {
     });
 };
 
-export const GetProductById = (productId?: number | null | string) => {
+export const GetProductById = (productId?: null | string) => {
     return api.get(`/products/getProduct/${productId}`);
 };
 

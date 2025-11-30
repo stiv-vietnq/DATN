@@ -185,5 +185,6 @@
   "invalid_username_or_password":"Tên đăng nhập hoặc mật khẩu không đúng!",
   "access_denied":"Bạn không có quyền truy cập!",
   "server_error":"Xảy ra lỗi máy chủ, vui lòng thử lại sau!",
-  "unknown_user_role":"Vai trò người dùng không xác định!"
+  "unknown_user_role":"Vai trò người dùng không xác định!",
+  "admin_page":"Trang quản trị"
 }

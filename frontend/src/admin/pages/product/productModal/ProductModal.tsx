@@ -58,7 +58,7 @@ const ProductModal: React.FC<ProductModalProps> = ({
   useEffect(() => {
     getAllBrands();
     if ((mode === "edit" || mode === "view") && productId) {
-      GetProductById(productId)
+      GetProductById(String(productId))
         .then((response) => {
           const data = response?.data;
           setName(data?.productName || "");
@@ -250,13 +250,18 @@ const ProductModal: React.FC<ProductModalProps> = ({
         detail.description
       );
 
-       if (detail.imageFile instanceof File) {
-    formData.append(`productDetailDTOS[${index}].imageFile`, detail.imageFile);
-  } 
-  // Nếu giữ ảnh cũ → gửi directoryPath để backend khỏi xóa
-  else if (detail.directoryPath) {
-    formData.append(`productDetailDTOS[${index}].imageFilePath`, detail.directoryPath);
-  }
+      if (detail.imageFile instanceof File) {
+        formData.append(
+          `productDetailDTOS[${index}].imageFile`,
+          detail.imageFile
+        );
+      }
+      else if (detail.directoryPath) {
+        formData.append(
+          `productDetailDTOS[${index}].imageFilePath`,
+          detail.directoryPath
+        );
+      }
     });
 
     ProductCreateOrUpdate(formData)

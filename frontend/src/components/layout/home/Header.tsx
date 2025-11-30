@@ -34,6 +34,7 @@ export default function Header() {
     const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
     const [cartItems, setCartItems] = useState<CartItem[]>([]);
     const [preview, setPreview] = useState<string>("");
+    const role = localStorage.getItem("role");
 
     useEffect(() => {
         handleGetAllCartsByUserId();
@@ -178,6 +179,9 @@ export default function Header() {
                                                 <ul className="user-popup">
                                                     <li onClick={() => handleNavigate("/user/profile")}>{t('my_account')}</li>
                                                     <li onClick={() => handleNavigate("/user/purchases")}>{t('my_purchases')}</li>
+                                                    {role === "ROLE_ADMIN" && (
+                                                        <li onClick={() => handleNavigate("/admin/dashboard/default")}>{t('admin_page')}</li>
+                                                    )}
                                                     <li onClick={() => setShowLogoutConfirm(true)}>{t('logout')}</li>
                                                 </ul>
                                             </div>
