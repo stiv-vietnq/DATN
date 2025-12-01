@@ -7,7 +7,7 @@ export default defineConfig({
   server: {
     host: '0.0.0.0',
     port: 4200,
-    open: '/home'
+    open: '/login'
   },
   preview: {
     host: '0.0.0.0',

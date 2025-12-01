@@ -46,9 +46,6 @@ public class PurchaseServiceImpl implements PurchaseService {
     private ProductDetailRepository productDetailRepository;
 
     @Autowired
-    private DiscountService discountService;
-
-    @Autowired
     private AccountService accountService;
 
     @Autowired
@@ -119,10 +116,10 @@ public class PurchaseServiceImpl implements PurchaseService {
                 purchases.add(purchase);
             }
 
-            String orderTitle = "Người gửi xác nhận đơn hàng.";
-            String subject = "Đặt hàng thành công.";
-            Account account = accountService.findById(purchaseDtos.get(0).getUserId());
-            ShopUtil.sendMailPurchaseOrDiscount(account, orderTitle, subject, mailService, 1);
+//            String orderTitle = "Người gửi xác nhận đơn hàng.";
+//            String subject = "Đặt hàng thành công.";
+//            Account account = accountService.findById(purchaseDtos.get(0).getUserId());
+//            ShopUtil.sendMailPurchaseOrDiscount(account, orderTitle, subject, mailService, 1);
 
             return purchases;
         } catch (Exception e) {
@@ -167,9 +164,6 @@ public class PurchaseServiceImpl implements PurchaseService {
                     Product product = productService.getProductById(item.getProduct().getId());
                     ProductDetail productDetail = productDetailRepository.getById(item.getProductDetail().getId());
 
-                    if (product.getQuantitySold() < item.getQuantity()) {
-                        throw new Exception(Constants.ERROR);
-                    }
                     product.setQuantitySold(product.getQuantitySold() - item.getQuantity());
                     productRepository.save(product);
 
@@ -193,7 +187,7 @@ public class PurchaseServiceImpl implements PurchaseService {
 
             if (!orderTitle.isEmpty()) {
                 Account account = accountService.findById(purchase.getUserId());
-                ShopUtil.sendMailPurchaseOrDiscount(account, orderTitle, subject, mailService, 1);
+//                ShopUtil.sendMailPurchaseOrDiscount(account, orderTitle, subject, mailService, 1);
             }
 
             purchase.setStatus(status);

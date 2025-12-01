@@ -1,0 +1,82 @@
+/* NotificationLabel.css */
+.notification-label {
+  position: relative;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.notification-label .unread-badge {
+  margin-left: 5px;
+  background: red;
+  color: white;
+  border-radius: 50%;
+  padding: 2px 6px;
+  font-size: 12px;
+}
+
+.notification-popup {
+  position: absolute;
+  top: 25px;
+  right: 0;
+  width: 500px;
+  background: #fff;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+  padding: 10px;
+  max-height: 400px;
+  overflow-y: auto;
+  z-index: 100;
+}
+
+.notification-popup-empty {
+  color: #777;
+  text-align: center;
+}
+
+.notification-item {
+  padding: 10px;
+  border-bottom: 1px solid #eee;
+  cursor: pointer;
+  transition: background 0.2s;
+  text-align: left;
+}
+
+.notification-item:hover {
+  background: #f0f0f0;
+}
+
+.notification-item.read {
+  color: #999;
+}
+
+.notification-item p {
+  margin: 0;
+}
+
+.notification-item p.unread {
+  font-weight: bold;
+  color: #000;
+}
+
+.notification-item small {
+  color: #999;
+  font-size: 12px;
+}
+
+.no {
+  font-size: 24px;
+  text-align: center;
+  margin-bottom: 10px;
+  font-weight: 500;
+  text-transform: uppercase;
+}
+
+.navbar-container-account-item {
+    color: black;
+    position: relative;
+
+    &:hover {
+        cursor: pointer;
+        color: #5661f5;
+    }
+}

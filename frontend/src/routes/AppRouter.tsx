@@ -23,6 +23,7 @@ import Purchase from "../pages/user/purchase/Purchase";
 import ChangePassword from "../pages/user/change-password/ChangePassword";
 import { renderRoutes } from "./RenderRoutes";
 import appRoutes from "./admin-routes/appRoutes";
+import NotificationBell from "../pages/notification/NotificationBell";
 
 export default function AppRouter() {
   return (

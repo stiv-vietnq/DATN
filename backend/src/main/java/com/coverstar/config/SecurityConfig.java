@@ -56,7 +56,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                         "/images/**",
                         "/chat/**",
                         "/payments/vnpayPayment",
-                        "/ws-chat/**")
+                        "/notifications/**",
+                        "/ws/**")
                 .permitAll()
                 .antMatchers(
                         "/productTypes/**",
