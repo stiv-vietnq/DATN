@@ -150,7 +150,7 @@ public class PurchaseServiceImpl implements PurchaseService {
     }
 
     @Override
-    public Purchase updateStatus(Long id, Integer status) throws Exception {
+    public Purchase updateStatus(Long id, Integer status, String cancellationReason, Boolean cancelledByAdmin) throws Exception {
         try {
             Purchase purchase = purchaseRepository.findById(id)
                     .orElseThrow(() -> new Exception(Constants.PURCHASE_NOT_FOUND));
@@ -176,7 +176,8 @@ public class PurchaseServiceImpl implements PurchaseService {
                     productDetail.setQuantity(productDetail.getQuantity() + item.getQuantity());
                     productDetailRepository.save(productDetail);
                 }
-
+                purchase.setCancellationReason(cancellationReason);
+                purchase.setCancelledByAdmin(cancelledByAdmin);
                 orderTitle = "Người gửi đã xác nhận đơn hàng bị hủy.";
                 subject = "Hủy đơn hàng thành công.";
             } else if (status == 2) {

@@ -58,9 +58,13 @@ public class PurchaseController {
     }
 
     @PostMapping("/updateStatus/{id}")
-    public ResponseEntity<?> updateStatus(@PathVariable Long id, @RequestParam Integer status) {
+    public ResponseEntity<?> updateStatus(@PathVariable Long id,
+                                          @RequestParam Integer status,
+                                          @RequestParam String cancellationReason,
+                                          @RequestParam Boolean cancelledByAdmin
+                                          ) {
         try {
-            Purchase purchase = purchaseService.updateStatus(id, status);
+            Purchase purchase = purchaseService.updateStatus(id, status, cancellationReason, cancelledByAdmin);
             return ResponseEntity.ok(purchase);
         } catch (Exception e) {
 

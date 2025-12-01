@@ -1,8 +1,9 @@
 import api from "./index";
 
 export interface PurchaseItemDto {
+  addressId: number | null;
   productId: string;
-  productDetailId: number;
+  productDetailId: number | null;
   quantity: number;
   total: string;
   totalAfterDiscount: string;
@@ -34,9 +35,9 @@ export const getPurchaseByUserId = (
   });
 };
 
-export const updateStatus = (id: number, status: number) => {
+export const updateStatus = (id: number, status: number, cancellationReason: string, cancelledByAdmin: boolean) => {
   return api.post(`/purchases/updateStatus/${id}`, null, {
-    params: { status },
+    params: { status, cancellationReason, cancelledByAdmin },
   });
 };
 

@@ -118,7 +118,7 @@
   margin-bottom: 8px;
   text-transform: uppercase;
   text-align: right;
-  border-bottom: 1px solid #ccc;
+  border-bottom: 1px solid #eee;
   padding: 10px;
 }
 
@@ -175,10 +175,10 @@
   font-size: 16px;
   font-weight: 600;
   margin-top: 12px;
-  padding: 0 10px 10px 10px;
-  display: flex;
-  align-items: center;
+  padding: 0 10px 15px 10px;
+  text-align: right;
   justify-content: flex-end;
+  border-bottom: 1px solid #ccc;
   gap: 15px;
 }
 
@@ -226,4 +226,38 @@
     background-color: #c70a1f;
     border-color: #c70a1f;
   }
+}
+
+.order-total-label {
+  font-size: 16px;
+  font-weight: 600;
+  text-align: right;
+}
+
+.order-total-amount {
+  color: #dc3545;
+  font-weight: 700;
+  font-size: 22px;
+}
+
+.order-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.cancellation-reason {
+  font-size: 14px;
+  color: #888;
+}
+
+.order-total-label-1 {
+  font-size: 16px;
+  font-weight: 600;
+  margin-top: 12px;
+  padding: 0 10px 10px 10px;
+  text-align: right;
+  justify-content: flex-end;
+  gap: 15px;
+  width: 100%;
 }

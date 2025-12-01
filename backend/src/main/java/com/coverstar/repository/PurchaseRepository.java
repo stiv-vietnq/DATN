@@ -25,7 +25,7 @@ public interface PurchaseRepository extends JpaRepository<Purchase, Long> {
             "WHERE (:userId IS NULL OR a.userId = :userId) " +
             "AND (:paymentMethod IS NULL OR a.paymentMethod LIKE CONCAT('%', :paymentMethod, '%')) " +
             "AND (:status IS NULL OR a.status = :status) " +
-            "ORDER BY a.createdDate DESC")
+            "ORDER BY a.id ASC")
     List<Purchase> findAllByUserIdAndPaymentMethodContainingAndStatus(
             @Param("userId") Long userId,
             @Param("paymentMethod") String paymentMethod,

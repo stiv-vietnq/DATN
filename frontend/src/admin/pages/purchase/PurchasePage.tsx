@@ -30,6 +30,7 @@ export interface Purchase {
   createdDate: string;
   updatedDate: string;
   total: number;
+  cancellationReason?: string;
 }
 
 const PurchasePage = () => {
@@ -122,7 +123,7 @@ const PurchasePage = () => {
     {
       key: "paymentMethod",
       label: "Phương thức thanh toán",
-      width: "15%",
+      width: "10%",
       render: (item: Purchase) => (
         <span>
           {paymentMethodOptions[
@@ -153,7 +154,8 @@ const PurchasePage = () => {
             })
           : "",
     },
-    { key: "description", label: "Mô tả", width: "20%" },
+    { key: "description", label: "Mô tả", width: "10%" },
+    { key: "cancellationReason", label: "Lý do hủy", width: "15%" },
     {
       key: "status",
       label: "Trạng thái",

@@ -10,7 +10,7 @@ public interface PurchaseService {
 
     Purchase updateFirstWave(Long id, Long addressId) throws Exception;
 
-    Purchase updateStatus(Long id, Integer status) throws Exception;
+    Purchase updateStatus(Long id, Integer status, String cancellationReason, Boolean cancelledByAdmin) throws Exception;
 
     List<Purchase> getPurchaseByUserId(Long userId, String productName, String status);
 

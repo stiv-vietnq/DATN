@@ -17,6 +17,7 @@ const StatusModal: React.FC<StatusModalProps> = ({
   onClose,
 }) => {
   const [status, setStatus] = useState<string | null>(null);
+  const [cancelReason, setCancelReason] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const { showToast } = useToast();
 
@@ -25,7 +26,14 @@ const StatusModal: React.FC<StatusModalProps> = ({
     { label: "Đã duyệt", value: "2" },
     { label: "Đang xử lý", value: "3" },
     { label: "Hoàn thành", value: "4" },
-    { label: "Đã hủy", value: "5" },
+    { label: "Hủy", value: "5" },
+  ];
+
+  const cancelReasonOptions = [
+    { label: "Khách hàng yêu cầu", value: "Khách hàng yêu cầu" },
+    { label: "Hết hàng", value: "Hết hàng" },
+    { label: "Thông tin thanh toán sai", value: "Thông tin thanh toán sai" },
+    { label: "Khác", value: "Khác" },
   ];
 
   useEffect(() => {
@@ -39,8 +47,14 @@ const StatusModal: React.FC<StatusModalProps> = ({
       showToast("Vui lòng chọn trạng thái!", "info");
       return;
     }
+
+    if (status === "5" && !cancelReason) {
+      showToast("Vui lòng chọn lý do hủy đơn!", "info");
+      return;
+    }
+
     setLoading(true);
-    updateStatus(purchaseId, Number(status))
+    updateStatus(purchaseId, Number(status), cancelReason || "", true)
       .then(() => {
         onClose(true);
         showToast("Cập nhật trạng thái đơn hàng thành công", "success");
@@ -76,6 +90,17 @@ const StatusModal: React.FC<StatusModalProps> = ({
               placeholder={null}
             />
           </div>
+
+          {status === "5" && (
+            <div className="modal-field" style={{ marginTop: "10px" }}>
+              <StringDropdown
+                value={cancelReason}
+                onChange={setCancelReason}
+                options={cancelReasonOptions}
+                placeholder="Chọn lý do hủy"
+              />
+            </div>
+          )}
         </div>
 
         <div className="modal-actions">

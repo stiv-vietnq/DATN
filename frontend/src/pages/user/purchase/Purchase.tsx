@@ -1,12 +1,10 @@
-import { useEffect, useState } from "react";
-import "./Purchase.css";
-import { getPurchaseByUserId, updateStatus } from "../../../api/purchases";
-import Input from "../../../components/common/input/Input";
-import Button from "../../../components/common/button/Button";
-import ConfirmModal from "../../../components/common/confirmModal/ConfirmModal";
 import { t } from "i18next";
+import { useEffect, useState } from "react";
+import { getPurchaseByUserId, updateStatus } from "../../../api/purchases";
+import CancelOrderModal from "../../../components/common/cancelOrderModalProps/CancelOrderModalProps";
+import Input from "../../../components/common/input/Input";
+import "./Purchase.css";
 
-// Interface cho từng sản phẩm trong đơn hàng
 export interface OrderItem {
   id: number;
   productId: number;
@@ -33,6 +31,8 @@ export interface Order {
   createdDate: string;
   updatedDate: string;
   total: number;
+  cancellationReason?: string;
+  cancelledByAdmin?: boolean;
   purchaseItems: OrderItem[];
 }
 
@@ -43,6 +43,12 @@ export default function UserPurchases() {
   const userId = localStorage.getItem("userId");
   const [showConfirm, setShowConfirm] = useState(false);
   const [selectedId, setSelectedId] = useState<number>(0);
+
+  const reasons = [
+    { value: "out_of_stock", label: "Hết hàng" },
+    { value: "customer_request", label: "Khách yêu cầu" },
+    { value: "payment_issue", label: "Vấn đề thanh toán" },
+  ];
 
   const tabs = [
     { key: "", label: t('all') },
@@ -87,8 +93,8 @@ export default function UserPurchases() {
     }
   };
 
-  const handleCancelOrder = (orderId: number) => {
-    updateStatus(orderId, 5)
+  const handleCancelOrder = (orderId: number, reason: string) => {
+    updateStatus(orderId, 5, reason, false)
       .then(() => {
         setShowConfirm(false);
         fetchOrders();
@@ -101,7 +107,6 @@ export default function UserPurchases() {
 
   return (
     <div className="purchases-container">
-      {/* TABS */}
       <div className="tabs-container">
         {tabs.map((tab) => (
           <div
@@ -159,10 +164,18 @@ export default function UserPurchases() {
               </div>
 
               <div className="order-total">
-                <div>
-                  {t('total_price_1')}: <span className="order-total-amount">{order.purchaseItems
-                    ?.reduce((sum, item) => sum + Number(item.total), 0)}
-                    ₫</span>
+                <div className="order-actions">
+                  {order.status === 5 && (
+                    <div className="cancellation-reason">
+                      {t('cancelled_by')} {order.cancelledByAdmin ? t('admin') : t('yourself')}
+                      {order.cancellationReason && ` - ${t('reason')}: ${order.cancellationReason}`}
+                    </div>
+                  )}
+                  <div className={order.status === 1 ? "order-total-label-1" : "order-total-label"}>
+                    {t('total_price_1')}: <span className="order-total-amount">{order.purchaseItems
+                      ?.reduce((sum, item) => sum + Number(item.total), 0)}
+                      ₫</span>
+                  </div>
                 </div>
                 {order.status === 1 && (
                   <div>
@@ -177,7 +190,6 @@ export default function UserPurchases() {
                     </button>
                   </div>
                 )}
-
               </div>
             </div>
           ))
@@ -185,14 +197,10 @@ export default function UserPurchases() {
       </div>
 
       {showConfirm && (
-        <ConfirmModal
-          title={t("confirm_cancel_order")}
-          message={t("are_you_sure_cancel_order")}
-          onConfirm={() =>
-            handleCancelOrder(selectedId)
-          }
+        <CancelOrderModal
+          reasons={reasons}
+          onConfirm={(reason) => handleCancelOrder(selectedId, reason)}
           onCancel={() => setShowConfirm(false)}
-          type="delete"
         />
       )}
     </div>

@@ -56,4 +56,10 @@ public class Purchase implements Serializable {
     @OneToMany(mappedBy = "purchase", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonManagedReference
     private List<PurchaseItem> purchaseItems = new ArrayList<>();
+
+    @Column(name = "cancellation_reason", columnDefinition = "nvarchar(255)")
+    private String cancellationReason;
+
+    @Column(name = "cancelled_by_admin")
+    private Boolean cancelledByAdmin;
 }

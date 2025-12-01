@@ -52,47 +52,44 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                         "/sign-in/**",
                         "/assets/**",
                         "/forgot-password/**",
-                        "/vnPay/vnpay-payment",
-                        "/dashboards/**",
-                        "/products/search/**",
                         "/unlock-account/**",
-                        "/categories/getAllCategory/**",
-                        "/categories/**",
-                        "/discounts/**",
-                        "/purchases/**",
-                        "/comments/**",
-                        "/admin/**",
+                        "/images/**",
+                        "/chat/**",
+                        "/payments/vnpayPayment",
+                        "/ws-chat/**")
+                .permitAll()
+                .antMatchers(
+                        "/productTypes/**",
+                        "/products/**",
+                        "/vnPay/**",
+                        "/momo/**",
                         "/address/**",
                         "/locations/**",
-                        "/account/**",
                         "/carts/**",
+                        "/account/**",
+                        "/comments/**",
+                        "/purchases/**",
+                        "/discounts/**",
+                        "/categories/**",
+                        "/payments/vnpayPayment"
+                ).hasRole("MEMBER")
+                .antMatchers(
+                        "/dashboards/**",
+                        "/productTypes/**",
+                        "/categories/**",
+                        "/products/**",
+                        "/carts/**",
+                        "/purchases/**",
+                        "/admin/**",
+                        "/assets/**",
+                        "/address/**",
+                        "/locations/**",
                         "/momo/**",
-                        "/chat/**",
-                        "/ws-chat/**",
                         "/vnPay/**",
-                        "/images/**",
-                        "/dashboards/**",
-                        "/productTypes/**",
-                        "/categories/**",
-                        "/products/**",
-                        "/dashboards/**",
-                        "/productTypes/**",
-                        "/categories/**",
-                        "/products/**",
-                        "/productTypes/**",
-                        "/products/**"
-                ).permitAll()
-                .antMatchers(
-                        "/productTypes/**",
-                        "/products/**"
-                )
-                .hasRole("MEMBER")
-                .antMatchers(
-                        "/dashboards/**",
-                        "/productTypes/**",
-                        "/categories/**",
-                        "/products/**"
-                )
+                        "/comments/**",
+                        "/purchases/**",
+                        "/account/**",
+                        "/discounts/**")
                 .hasRole("ADMIN")
                 .anyRequest().authenticated();
     }

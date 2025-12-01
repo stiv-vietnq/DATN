@@ -3,17 +3,16 @@ import { useTranslation } from "react-i18next";
 import { FaEdit } from "react-icons/fa";
 import { FaX } from "react-icons/fa6";
 import { useLocation, useNavigate } from "react-router-dom";
-import {
-    getAddressByUserIdAndIsDefault,
-    getAddressesByUserId
-} from "../../api/address";
+import { getAddressByUserIdAndIsDefault, getAddressesByUserId } from "../../api/address";
+import { deleteCart } from "../../api/cart";
 import { createMomoPayment } from "../../api/momo";
 import { createPurchase, PurchaseDto, PurchaseItemDto } from "../../api/purchases";
 import Loading from "../../components/common/loading/Loading";
+import Textarea from "../../components/common/textarea/Textarea";
+import { useToast } from "../../components/toastProvider/ToastProvider";
 import AddressItem from "../user/address/AddressItem";
-import PaymentTab from "./paymentTab/PaymentTab";
 import "./Purchases.css";
-import { deleteCart } from "../../api/cart";
+import { createMomoPaymentMomo, submitOrderVnPay } from "../../api/payment";
 
 interface ProductDetail {
     name: string;
@@ -35,9 +34,19 @@ interface CartItem {
     updatedDate: string;
 }
 
+interface Address {
+    id: number;
+    fullName: string;
+    phoneNumber: string;
+    address: string;
+    provinceId: string;
+    districtId: string;
+    wardId: string;
+    defaultValue: number;
+}
+
 export default function Purchases() {
     const [loading, setLoading] = useState(false);
-    const [step, setStep] = useState(1);
     const [customerInfo, setCustomerInfo] = useState<PurchaseDto>({
         userId: Number(localStorage.getItem("userId")),
         discountId: null,
@@ -47,120 +56,216 @@ export default function Purchases() {
         items: [],
     });
 
+    const [addressData, setAddressData] = useState<Address | null>(null);
+    const [addressId, setAddressId] = useState<number | null>(null);
+    const [showAddressPopup, setShowAddressPopup] = useState(false);
+    const [addresses, setAddresses] = useState<Address[]>([]);
+
     const location = useLocation();
     const selectedItems: CartItem[] = location.state?.selectedItems || [];
     const navigate = useNavigate();
+    const userId = Number(localStorage.getItem("userId"));
+    const { t } = useTranslation();
+    const { showToast } = useToast();
 
     useEffect(() => {
-        if (selectedItems.length > 0) {
-            const items: PurchaseItemDto[] = selectedItems.map((item) => ({
-                productId: item.productDetail.productId || '',
-                productDetailId: item.productDetail.id || 0,
-                quantity: item.quantity,
-                total: String(item.total),
-                totalAfterDiscount: String(item.total),
-            }));
-            setCustomerInfo((prev) => ({ ...prev, items }));
-        }
-    }, [selectedItems]);
+        if (userId) {
+            getAddressesByUserId(userId).then((res) => {
+                const addresses: Address[] = res.data;
 
-    const handleBuyNow = () => {
-        setLoading(true);
-        createPurchase([customerInfo]).then(() => {
-            if (customerInfo.paymentMethod === "cod") {
-                const itemIds = selectedItems.map((item) => item.id);
-                if (itemIds.length > 0) {
-                    handleDeleteCartItem(itemIds);
-                }
-                navigate("/purchases-success");
-            }
-            setLoading(false);
-        }).catch(() => {
-            setLoading(false);
-        });
-    };
+                const defaultAddress = addresses.find(addr => addr.defaultValue === 1);
 
-    const handleOnlinePayment = () => {
-        handleBuyNow();
-        if (customerInfo.paymentMethod === "vnpay") {
-            const itemIds = selectedItems.map((item) => item.id);
-            if (itemIds.length > 0) {
-                handleDeleteCartItem(itemIds);
-            }
-        } else if (customerInfo.paymentMethod === "momo") {
-            createMomoPayment(
-                String(selectedItems.reduce((acc, item) => acc + item.total, 0))
-            ).then((res) => {
-                const payUrl = res?.data?.payUrl;
-                if (payUrl) {
-                    window.location.href = payUrl;
+                if (defaultAddress) {
+                    setAddressData(defaultAddress);
+                    setAddressId(defaultAddress.id);
+                    setCustomerInfo((prev) => ({ ...prev, addressId: defaultAddress.id }));
                 }
-                const itemIds = selectedItems.map((item) => item.id);
-                if (itemIds.length > 0) {
-                    handleDeleteCartItem(itemIds);
-                }
-            }).catch((err) => {
-                console.error("Error creating Momo payment:", err);
+                setAddresses(addresses);
             });
-        } else if (customerInfo.paymentMethod === "paypal") {
-            const itemIds = selectedItems.map((item) => item.id);
-            if (itemIds.length > 0) {
-                handleDeleteCartItem(itemIds);
+        }
+        if (selectedItems.length > 0) {
+                const items: PurchaseItemDto[] = selectedItems.map((item) => ({
+                    addressId: addressId || null,
+                    productId: item.productDetail.productId || "",
+                    productDetailId: item.productDetail.id || null,
+                    quantity: item.quantity,
+                    total: String(item.total),
+                    totalAfterDiscount: String(item.total),
+                }));
+                setCustomerInfo((prev) => ({ ...prev, items }));
             }
-        }
-    }
-
-    const renderStepContent = () => {
-        switch (step) {
-            case 1:
-                return (
-                    <InfoTab
-                        info={customerInfo}
-                        setInfo={setCustomerInfo}
-                        onNext={() => setStep(2)}
-                    />
-                );
-            case 2:
-                return (
-                    <PaymentTab
-                        onBack={() => setStep(1)}
-                        selectedPayment={customerInfo.paymentMethod}
-                        setSelectedPayment={(method: string) =>
-                            setCustomerInfo((prev) => ({ ...prev, paymentMethod: method }))
-                        }
-                        onCODPayment={() => { handleBuyNow() }}
-                        onOnlinePayment={() => { handleOnlinePayment() }}
-                    />
-
-                );
-            default:
-                return null;
-        }
-    };
+    }, [userId, selectedItems]);    
 
     const handleDeleteCartItem = (itemIds: number[]) => {
         setLoading(true);
         deleteCart(itemIds)
-            .then()
-            .catch((error) => {
-                console.error("Error deleting cart items:", error);
-            }).finally(() => {
-                setLoading(false);
-            });
+            .catch((err) => console.error("Error deleting cart items:", err))
+            .finally(() => setLoading(false));
+    };
+
+    const handleBuyNow = () => {
+        if (!customerInfo.paymentMethod) {
+            showToast(t("select_payment_method"), "info");
+            return;
+        }
+        setLoading(true);
+        createPurchase([customerInfo])
+            .then(() => {
+                const itemIds = selectedItems.map((item) => item.id);
+                if (customerInfo.paymentMethod === "cod") {
+                    if (itemIds.length > 0) handleDeleteCartItem(itemIds);
+                    navigate("/purchases-success");
+                } else if (customerInfo.paymentMethod === "momo") {
+                    createMomoPaymentMomo(
+                        String(selectedItems.reduce((acc, item) => acc + item.total, 0))
+                    ).then((res) => {
+                        const payUrl = res?.data?.payUrl;
+                        if (payUrl) window.location.href = payUrl;
+                        if (itemIds.length > 0) handleDeleteCartItem(itemIds);
+                    });
+                } else if (customerInfo.paymentMethod === "vnpay") {
+                    submitOrderVnPay(
+                        "Payment for order",
+                        String(selectedItems.reduce((acc, item) => acc + item.total, 0))
+                    ).then((res) => {
+                        const payUrl = res?.data;
+                        if (payUrl) window.location.href = payUrl;
+                        if (itemIds.length > 0) handleDeleteCartItem(itemIds);
+                    });
+                } else if (customerInfo.paymentMethod === "paypal") {
+                    if (itemIds.length > 0) handleDeleteCartItem(itemIds);
+                } else {
+                    showToast(t("payment_method_not_supported"), "error");
+                }
+            })
+            .catch((err) => console.error("Error creating purchase:", err))
+            .finally(() => setLoading(false));
+    };
+
+    const handleDescriptionChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+        const { value } = e.target;
+        setCustomerInfo({ ...customerInfo, description: value });
+    };
+
+    const handleSelectAddress = (addr: Address) => {
+        setAddressId(addr.id);
+        setAddressData(addr);
+        setCustomerInfo({ ...customerInfo, addressId: addr.id });
+        setShowAddressPopup(false);
+    };
+
+    const handleNavigateAddress = () => {
+        navigate("/user/address");
     }
 
     if (loading) return <Loading />;
+
     return (
         <div className="main-content-cart">
             <div className="purchases-main">
                 <div className="checkout-container">
                     <div className="checkout-left">
-                        <StepHeader step={step} />
-                        {renderStepContent()}
+                        <div className="info-title">{t("customer_info")}</div>
+                        <div className="form-grid description-box">
+                            <div className="description-label">{t("shipping_address")}</div>
+                            <div className="address-item-box">
+                                {addressData ? (
+                                    <div className="address-header-item" style={{ color: "#ccc" }}>
+                                        <div className="address-info-item">
+                                            <div className="address-info-name">{addressData.fullName}</div>
+                                            <div className="address-info-phone" style={{ color: "#ccc" }}>
+                                                {addressData.phoneNumber}
+                                            </div>
+                                        </div>
+                                        <div className="address-body-item" style={{ textAlign: "left" }}>
+                                            <AddressItem addr={addressData} />
+                                        </div>
+                                    </div>
+                                ) : (
+                                    <div className="address-header-item" style={{ color: "#999" }}>
+                                        {t("please_add_address")}{" "}
+                                        <a onClick={handleNavigateAddress} style={{ color: "#007bff", textDecoration: "underline", cursor: "pointer" }}>
+                                            {t("add_now")}
+                                        </a>
+                                    </div>
+                                )}
+
+                                {addressData && (
+                                    <div
+                                        className="change-address-link"
+                                        style={{ cursor: "pointer" }}
+                                        onClick={() => setShowAddressPopup(true)}
+                                    >
+                                        <FaEdit /> {t('edit')}
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+
+                        <div className="form-grid description-box">
+                            <div className="description-label">{t("payment_method")}:</div>
+                            <select
+                                value={customerInfo.paymentMethod}
+                                onChange={(e) =>
+                                    setCustomerInfo({ ...customerInfo, paymentMethod: e.target.value })
+                                }
+                            >
+                                <option value="">{t("select_payment_method")}</option>
+                                <option value="cod">{t("payment_cod")}</option>
+                                <option value="momo">{t("payment_momo")}</option>
+                                <option value="vnpay">{t("payment_vnpay")}</option>
+                                <option value="paypal">{t("payment_paypal")}</option>
+                            </select>
+                        </div>
+
+                        <div className="form-grid description-box" style={{ width: '97%' }}>
+                            <div className="description-label">{t("note")}</div>
+                            <Textarea
+                                placeholder={t("description_placeholder")}
+                                value={customerInfo.description}
+                                onChange={handleDescriptionChange}
+                            />
+                        </div>
+
+                        <button className="btn next" onClick={handleBuyNow}>
+                            {t("payment")}
+                        </button>
+
+                        {showAddressPopup && (
+                            <div className="address-popup-overlay">
+                                <div className="address-popup">
+                                    <div className="address-popup-header">
+                                        <div className="address-popup-title">{t("select_address_title")}</div>
+                                        <div className="address-popup-close">
+                                            <FaX onClick={() => setShowAddressPopup(false)} />
+                                        </div>
+                                    </div>
+                                    <div className="address-popup-content-list">
+                                        {addresses.map((addr) => (
+                                            <div
+                                                key={addr.id}
+                                                className={`address-item-popup ${addressId === addr.id ? "selected" : ""}`}
+                                                onClick={() => handleSelectAddress(addr)}
+                                            >
+                                                <div className="address-header-item">
+                                                    <div className="address-info-item">
+                                                        <div className="address-info-name">{addr.fullName}</div>
+                                                        <div className="address-info-phone">{addr.phoneNumber}</div>
+                                                    </div>
+                                                    <div className="address-body-item" style={{ textAlign: "left" }}>
+                                                        <AddressItem addr={addr} />
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                            </div>
+                        )}
                     </div>
 
                     <div className="checkout-right">
-                        <h3>Giỏ hàng</h3>
+                        <div className="info-title">{t("product")}</div>
                         {selectedItems.map((item) => (
                             <div key={item.id} className="cart-item">
                                 <div className="cart-item-info">
@@ -171,16 +276,18 @@ export default function Purchases() {
                                     />
                                 </div>
                                 <div style={{ width: '80%' }}>
-                                    <div className="cart-name" style={{ marginBottom: '20px' }}>{item.productDetail.name}</div>
+                                    <div className="cart-name" style={{ marginBottom: '20px' }}>
+                                        {item.productDetail.name}
+                                    </div>
                                     <div className="cart-info" style={{ display: 'flex', justifyContent: 'space-between' }}>
-                                        <div className="cart-quantity">Số lượng: {item.quantity}</div>
-                                        <div className="cart-total-purchase">Giá: {item.total}</div>
+                                        <div className="cart-quantity">{t("quantity")}: {item.quantity}</div>
+                                        <div className="cart-total-purchase">{t("price")}: {item.total}</div>
                                     </div>
                                 </div>
                             </div>
                         ))}
                         <div className="cart-total">
-                            <span>Tổng cộng:</span>
+                            <span>{t("total_price")}: </span>
                             <strong>
                                 {selectedItems.reduce((acc, item) => acc + item.total, 0).toLocaleString()}đ
                             </strong>
@@ -191,157 +298,3 @@ export default function Purchases() {
         </div>
     );
 }
-
-// ----- Step Header -----
-const StepHeader = ({ step }: { step: number }) => {
-    const { t } = useTranslation();
-    return (
-        <div className="step-header">
-            {[t("info"), t("buy")].map((label, index) => (
-                <div key={index} className="step-item">
-                    <div className={`step-circle ${step >= index + 1 ? "active" : ""}`}>
-                        {index + 1}
-                    </div>
-                    <p className={`step-label ${step >= index + 1 ? "active" : ""}`}>
-                        {label}
-                    </p>
-                </div>
-            ))}
-        </div>
-    );
-};
-
-// ----- Info Tab -----
-const InfoTab = ({
-    info,
-    setInfo,
-    onNext,
-}: {
-    info: PurchaseDto;
-    setInfo: (val: PurchaseDto) => void;
-    onNext: () => void;
-}) => {
-    interface Address {
-        id: number;
-        fullName: string;
-        phoneNumber: string;
-        address: string;
-        provinceId: string;
-        districtId: string;
-        wardId: string;
-        defaultValue: number;
-    }
-    const { t } = useTranslation();
-    const [addressData, setAddressData] = useState<any>(null);
-    const [addressId, setAddressId] = useState<number | null>(null);
-    const [showAddressPopup, setShowAddressPopup] = useState(false);
-    const userId = Number(localStorage.getItem("userId"));
-    const [addresses, setAddresses] = useState<Address[]>([]);
-
-    useEffect(() => {
-        getAddressByUserIdAndIsDefault(userId).then((res) => {
-            const data = res?.data;
-            setAddressData(data);
-            setAddressId(data?.id || 0);
-        });
-        handleSearch();
-    }, [userId]);
-
-    const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-        const { value } = e.target;
-        setInfo({ ...info, description: value });
-    };
-
-    const handleSearch = () => {
-        if (userId) {
-            getAddressesByUserId(Number(userId))
-                .then((res) => setAddresses(res.data));
-        }
-    };
-
-    return (
-        <div>
-            <div className="info-title">{t("customer_info")}</div>
-
-            <div className="form-grid description-box">
-                <div className="description-label">Địa chỉ nhận hàng:</div>
-                <div className="address-item-box">
-                    <div className="address-header-item" style={{ color: "#ccc" }}>
-                        <div className="address-info-item">
-                            <div className="address-info-name">{addressData?.fullName}</div>
-                            <div className="address-info-phone" style={{ color: "#ccc" }}>
-                                {addressData?.phoneNumber}
-                            </div>
-                        </div>
-                        <div className="address-body-item" style={{ textAlign: "left" }}>
-                            <AddressItem addr={addressData} />
-                        </div>
-                    </div>
-                    <div
-                        className="change-address-link"
-                        style={{ cursor: "pointer" }}
-                        onClick={() => setShowAddressPopup(true)}
-                    >
-                        <FaEdit /> Sửa
-                    </div>
-                </div>
-            </div>
-
-            <div className="form-grid description-box">
-                <div className="description-label">Ghi chú:</div>
-                <textarea
-                    name="description"
-                    placeholder={t("description_placeholder")}
-                    value={info.description}
-                    onChange={handleChange}
-                ></textarea>
-            </div>
-
-            <button
-                className="btn next"
-                onClick={() => {
-                    setInfo({ ...info, addressId: addressId || 0 });
-                    onNext();
-                }}
-            >
-                {t("next_1")}
-            </button>
-
-            {showAddressPopup && (
-                <div className="address-popup-overlay">
-                    <div className="address-popup">
-                        <div className="address-popup-header">
-                            <div className="address-popup-title">Chọn địa chỉ nhận hàng</div>
-                            <div className="address-popup-close">
-                                <FaX onClick={() => setShowAddressPopup(false)} />
-                            </div>
-                        </div>
-                        <div className="address-popup-content-list">
-                            {addresses.map((addr) => (
-                                <div
-                                    key={addr.id}
-                                    className={`address-item-popup ${addressId === addr.id ? "selected" : ""}`}
-                                    onClick={() => {
-                                        setAddressId(addr.id);
-                                        setAddressData(addr);
-                                        setShowAddressPopup(false);
-                                    }}
-                                >
-                                    <div className="address-header-item">
-                                        <div className="address-info-item">
-                                            <div className="address-info-name">{addr.fullName}</div>
-                                            <div className="address-info-phone">{addr.phoneNumber}</div>
-                                        </div>
-                                        <div className="address-body-item" style={{ textAlign: 'left' }}>
-                                            <AddressItem addr={addr} />
-                                        </div>
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
-                    </div>
-                </div>
-            )}
-        </div>
-    );
-};
