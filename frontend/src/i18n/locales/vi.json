@@ -205,5 +205,7 @@
   "cancelled_by": "Được hủy bởi",
   "reason": "Lý do",
   "admin": "quản trị viên",
-  "yourself": "chính bạn"
+  "yourself": "chính bạn",
+  "delivered_successfully": "GIAO HÀNG THÀNH CÔNG",
+  "updated_latest": "Cập nhật mới nhất"
 }

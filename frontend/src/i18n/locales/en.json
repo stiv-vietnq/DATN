@@ -205,5 +205,7 @@
   "cancelled_by": "Cancelled by",
   "reason": "Reason",
   "admin": "admin",
-  "yourself": "yourself"
+  "yourself": "yourself",
+  "delivered_successfully": "DELIVERED SUCCESSFULLY",
+  "updated_latest": "Updated Latest"
 }
