@@ -13,4 +13,6 @@ public class NotificationRequest {
     private Long userId;
     private String title;
     private String message;
+    private String failReason;
+    private String type;
 }

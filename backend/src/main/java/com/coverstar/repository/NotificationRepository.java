@@ -14,4 +14,10 @@ public interface NotificationRepository extends JpaRepository<Notification, Long
 
     @Query("SELECT COUNT(n) FROM Notification n WHERE n.userId = :userId AND n.isRead = false")
     long countByUserIdAndReadIsFalse(Long userId);
+
+    @Query("SELECT n FROM Notification n WHERE n.type = :order ORDER BY n.createdAt DESC")
+    List<Notification> findAllByOrderByCreatedAtDesc(String order);
+
+    @Query("SELECT COUNT(n) FROM Notification n WHERE n.type = :order AND n.isRead = false")
+    long countByUserIdAndTypeAndReadIsFalse(String order);
 }

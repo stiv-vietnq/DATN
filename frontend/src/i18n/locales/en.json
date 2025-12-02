@@ -207,5 +207,6 @@
   "admin": "admin",
   "yourself": "yourself",
   "delivered_successfully": "DELIVERED SUCCESSFULLY",
-  "updated_latest": "Updated Latest"
+  "updated_latest": "Updated Latest",
+  "purchase-notify": "Order Notification"
 }

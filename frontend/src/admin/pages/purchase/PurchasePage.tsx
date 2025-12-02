@@ -49,6 +49,9 @@ const PurchasePage = () => {
   const [selectedPurchaseId, setSelectedPurchaseId] = useState<number | null>(
     null
   );
+  const [selectedPurchaseUserId, setSelectedPurchaseUserId] = useState<
+    number | null
+  >(null);
   const [selectedPurchaseStatus, setSelectedPurchaseStatus] = useState<
     number | null
   >(null);
@@ -203,7 +206,7 @@ const PurchasePage = () => {
             <FaExchangeAlt
               className="action-buttons-icon"
               color="orange"
-              onClick={() => handleUpdateStatus(item.id, item.status)}
+              onClick={() => handleUpdateStatus(item.id, item.status, item.userId)}
               style={{ cursor: "pointer" }}
               title="Chuyển trạng thái"
             />
@@ -213,9 +216,10 @@ const PurchasePage = () => {
     },
   ];
 
-  const handleUpdateStatus = (id: number, status: number) => {
+  const handleUpdateStatus = (id: number, status: number, userId: number) => {
     setSelectedPurchaseId(id);
     setSelectedPurchaseStatus(status);
+    setSelectedPurchaseUserId(userId);
     setModalOpen(true);
   };
 
@@ -283,6 +287,7 @@ const PurchasePage = () => {
         <StatusModal
           purchaseId={selectedPurchaseId}
           currentStatus={selectedPurchaseStatus}
+          purchaseUserId={selectedPurchaseUserId}
           onClose={(shouldReload) => {
             setModalOpen(false);
             setSelectedPurchaseId(null);

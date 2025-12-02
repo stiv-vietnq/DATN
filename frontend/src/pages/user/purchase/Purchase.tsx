@@ -6,6 +6,7 @@ import Input from "../../../components/common/input/Input";
 import "./Purchase.css";
 import { FaCalendarAlt } from "react-icons/fa";
 import Loading from "../../../components/common/loading/Loading";
+import { sendNotification } from "../../../api/notification";
 
 export interface OrderItem {
   id: number;
@@ -106,6 +107,13 @@ export default function UserPurchases() {
         setShowConfirm(false);
         fetchOrders();
         setLoading(false);
+        sendNotification({
+          userId: Number(userId) || 0,
+          type: "ORDER",
+          title: "Thông báo đơn hàng mới",
+          message: `Đơn hàng của bạn đã bị hủy bởi người dùng. Lý do: ${reason}`,
+          failReason: "Đơn hàng bị hủy"
+        });
       })
       .catch((error) => {
         console.error("Error cancelling order:", error);

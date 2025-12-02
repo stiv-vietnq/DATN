@@ -42,7 +42,6 @@ const MultiImageUpload: React.FC<MultiImageUploadProps> = ({
         reader.onload = () => {
           newPreviews.push(reader.result as string);
           if (newPreviews.length === files.length) {
-            debugger;
             setPreviews([
               ...existingImages.map((img) => img.url),
               ...newPreviews,

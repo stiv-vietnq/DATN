@@ -12,7 +12,8 @@ import Textarea from "../../components/common/textarea/Textarea";
 import { useToast } from "../../components/toastProvider/ToastProvider";
 import AddressItem from "../user/address/AddressItem";
 import "./Purchases.css";
-import { createMomoPaymentMomo, submitOrderVnPay } from "../../api/payment";
+import { createMomoPaymentMomo, createPayment, submitOrderVnPay } from "../../api/payment";
+import { sendNotification } from "../../api/notification";
 
 interface ProductDetail {
     name: string;
@@ -84,17 +85,17 @@ export default function Purchases() {
             });
         }
         if (selectedItems.length > 0) {
-                const items: PurchaseItemDto[] = selectedItems.map((item) => ({
-                    addressId: addressId || null,
-                    productId: item.productDetail.productId || "",
-                    productDetailId: item.productDetail.id || null,
-                    quantity: item.quantity,
-                    total: String(item.total),
-                    totalAfterDiscount: String(item.total),
-                }));
-                setCustomerInfo((prev) => ({ ...prev, items }));
-            }
-    }, [userId, selectedItems]);    
+            const items: PurchaseItemDto[] = selectedItems.map((item) => ({
+                addressId: addressId || null,
+                productId: item.productDetail.productId || "",
+                productDetailId: item.productDetail.id || null,
+                quantity: item.quantity,
+                total: String(item.total),
+                totalAfterDiscount: String(item.total),
+            }));
+            setCustomerInfo((prev) => ({ ...prev, items }));
+        }
+    }, [userId, selectedItems]);
 
     const handleDeleteCartItem = (itemIds: number[]) => {
         setLoading(true);
@@ -103,43 +104,86 @@ export default function Purchases() {
             .finally(() => setLoading(false));
     };
 
-    const handleBuyNow = () => {
+    const handleBuyNow = async () => {
         if (!customerInfo.paymentMethod) {
             showToast(t("select_payment_method"), "info");
             return;
         }
         setLoading(true);
-        createPurchase([customerInfo])
-            .then(() => {
-                const itemIds = selectedItems.map((item) => item.id);
-                if (customerInfo.paymentMethod === "cod") {
-                    if (itemIds.length > 0) handleDeleteCartItem(itemIds);
-                    navigate("/purchases-success");
-                } else if (customerInfo.paymentMethod === "momo") {
-                    createMomoPaymentMomo(
-                        String(selectedItems.reduce((acc, item) => acc + item.total, 0))
-                    ).then((res) => {
-                        const payUrl = res?.data?.payUrl;
-                        if (payUrl) window.location.href = payUrl;
-                        if (itemIds.length > 0) handleDeleteCartItem(itemIds);
-                    });
-                } else if (customerInfo.paymentMethod === "vnpay") {
-                    submitOrderVnPay(
-                        "Payment for order",
-                        String(selectedItems.reduce((acc, item) => acc + item.total, 0))
-                    ).then((res) => {
-                        const payUrl = res?.data;
-                        if (payUrl) window.location.href = payUrl;
-                        if (itemIds.length > 0) handleDeleteCartItem(itemIds);
-                    });
-                } else if (customerInfo.paymentMethod === "paypal") {
-                    if (itemIds.length > 0) handleDeleteCartItem(itemIds);
+
+        const itemIds = selectedItems.map((item) => item.id);
+        const totalVND = selectedItems.reduce((acc, item) => acc + item.total, 0);
+        const VND_TO_USD_RATE = 26375.5;
+        const totalUSD = (totalVND / VND_TO_USD_RATE).toFixed(2);
+        let paymentSuccess = false;
+        let failReason = "";
+
+        try {
+            if (customerInfo.paymentMethod === "cod") {
+                paymentSuccess = true;
+                failReason = "Thanh toán khi nhận hàng";
+            } else if (customerInfo.paymentMethod === "momo") {
+                const res = await createMomoPaymentMomo(String(totalVND));
+                if (res?.data?.payUrl) {
+                    window.location.href = res.data.payUrl;
+                    failReason = "Thanh toán MoMo thành công";
+                    return;
                 } else {
-                    showToast(t("payment_method_not_supported"), "error");
+                    paymentSuccess = false;
                 }
-            })
-            .catch((err) => console.error("Error creating purchase:", err))
-            .finally(() => setLoading(false));
+            } else if (customerInfo.paymentMethod === "vnpay") {
+                const res = await submitOrderVnPay("Payment for order", String(totalVND));
+                if (res?.data) {
+                    window.location.href = res.data;
+                    failReason = "Thanh toán VNPay thành công";
+                    return;
+                } else {
+                    paymentSuccess = false;
+                }
+            } else if (customerInfo.paymentMethod === "paypal") {
+                const res = await createPayment("paypal", totalUSD, "USD", "Payment for order");
+                if (res?.data) {
+                    window.location.href = res.data;
+                    failReason = "Thanh toán PayPal thành công";
+                    return;
+                } else {
+                    paymentSuccess = false;
+                }
+            } else {
+                showToast(t("payment_method_not_supported"), "error");
+                paymentSuccess = false;
+            }
+
+            if (paymentSuccess) {
+                await createPurchase([customerInfo]);
+                if (itemIds.length > 0) handleDeleteCartItem(itemIds);
+                const message = `Có đơn hàng mới vào lúc ${new Date().toLocaleString()}, vui lòng kiểm tra đơn hàng.`;
+                await sendNotification({
+                    userId: userId || 0,
+                    type: "ORDER",
+                    title: "Thông báo đơn hàng mới",
+                    message: message,
+                    failReason: failReason
+                });
+                navigate("/purchases-success");
+            } else {
+                const message = `Thanh toán thất bại, đơn hàng của bạn đặt không thành công.`;
+                await sendNotification({
+                    userId: userId || 0,
+                    type: "ORDER_FAILED",
+                    title: "Thông báo đơn hàng",
+                    message: message,
+                    failReason: "Thanh toán thất bại"
+                });
+                showToast("Thanh toán không thành công", "error");
+                navigate("/purchase-notify");
+            }
+        } catch (err) {
+            showToast("Đã xảy ra lỗi khi mua hàng", "error");
+            navigate("/purchase-notify");
+        } finally {
+            setLoading(false);
+        }
     };
 
     const handleDescriptionChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {

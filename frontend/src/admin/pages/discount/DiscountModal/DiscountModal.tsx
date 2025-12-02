@@ -9,6 +9,7 @@ import Input from "../../../../components/common/input/Input";
 import Loading from "../../../../components/common/loading/Loading";
 import { useToast } from "../../../../components/toastProvider/ToastProvider";
 import "./DiscountModal.css";
+import { sendNotification } from "../../../../api/notification";
 
 interface BrandModalProps {
   discountId?: number | null | string;
@@ -47,7 +48,7 @@ const DiscountModal: React.FC<BrandModalProps> = ({
           setDate(formatDate(d.expiredDate) || null);
           setSelectedStatus(d.status);
           const productIds: string[] = Array.isArray(d.discountProducts)
-            ? d.discountProducts.map((dp: any) => String(dp.product.id))
+            ? d.discountProducts.map((dp: any) => String(dp.productId))
             : [];
 
           setSelectedValues(productIds);
@@ -157,6 +158,18 @@ const DiscountModal: React.FC<BrandModalProps> = ({
     };
 
     createOrUpdate(payload).then(() => {
+      const productNames = productOptions
+        .filter((p) => selectedValues.includes(p.value))
+        .map((p) => p.label)
+        .join(", ");
+      const message = `Có các sản phẩm mới được giảm giá: ${productNames}`;
+      sendNotification({
+        userId: localStorage.getItem("userId") ? Number(localStorage.getItem("userId")) : 0,
+        type: "DISCOUNT",
+        title: "Thông báo giảm giá sản phẩm",
+        message: message,
+        failReason: ""
+      }).then().catch();
       onClose(true);
       if (mode === "edit") {
         showToast("Cập nhật mã giảm giá thành công!", "success");

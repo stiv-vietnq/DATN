@@ -87,7 +87,6 @@ const AnalyticsPage = () => {
     <div style={{ padding: "20px" }}>
       <div style={{ width: "90%", margin: "0 auto" }}>
         <div className="dashboard-header">
-          <div className="dashboard-header-title">Thông kê truy cập</div>
           <div
             style={{
               width: "250px",

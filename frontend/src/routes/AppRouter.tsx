@@ -23,7 +23,7 @@ import Purchase from "../pages/user/purchase/Purchase";
 import ChangePassword from "../pages/user/change-password/ChangePassword";
 import { renderRoutes } from "./RenderRoutes";
 import appRoutes from "./admin-routes/appRoutes";
-import NotificationBell from "../pages/notification/NotificationBell";
+import PurchasesFailed from "../pages/purchase/PurchasesFailed/PurchasesFailed";
 
 export default function AppRouter() {
   return (
@@ -51,7 +51,6 @@ export default function AppRouter() {
         <Route path="/products" element={<Products />} />
         <Route path="/product-detail/:id" element={<ProductDetail />} />
         <Route path="/top-products" element={<TopProduct />} />
-
         <Route path="/user" element={<User />}>
           <Route path="profile" element={<Profile />} />
           <Route path="address" element={<Address />} />
@@ -70,6 +69,7 @@ export default function AppRouter() {
         <Route path="/cart" element={<Cart />} />
         <Route path="/purchases" element={<Purchases />} />
         <Route path="/purchases-success" element={<PurchasesSuccess />} />
+        <Route path="/purchase-notify" element={<PurchasesFailed />} />
       </Route>
 
       <Route

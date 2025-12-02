@@ -201,17 +201,13 @@ const ProductStatistics = () => {
     <div style={{ padding: "20px" }}>
       <div style={{ width: "100%", margin: "0 auto" }}>
         <div className="dashboard-header">
-          <div className="dashboard-header-title-product">
-            Thống kê sản phẩm
-          </div>
           <div className="dashboard-header-content-product">
             <div
               style={{
                 display: "flex",
                 gap: "10px",
-                justifyContent: "end",
+                justifyContent: "start",
                 alignItems: "center",
-                marginBottom: "-28px",
               }}
             >
               {selected === "1" && (

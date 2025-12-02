@@ -5,13 +5,13 @@ import { useLocation, useNavigate } from "react-router-dom";
 import appRoutes from "../../../routes/admin-routes/appRoutes";
 import { RouteType } from "../../../routes/admin-routes/config";
 import Button from "../../common/button/Button";
+import NotificationLabel from "../../../pages/notification/NotificationBell";
 
 const Topbar = () => {
   const { pathname } = useLocation();
   const navigate = useNavigate();
 
   const findRouteByPath = (routes: RouteType[], pathname: string) => {
-    debugger;
     for (const route of routes) {
       if (`/admin/${route.path}` === pathname) return route;
 
@@ -57,10 +57,13 @@ const Topbar = () => {
           {currentRoute?.sidebarProps?.displayText || "Trang quản trị"}
         </Typography>
 
-        <Typography variant="h6">
+        <Typography variant="h6" sx={{ display: "flex", alignItems: "center", gap: "20px" }}>
           <Button onClick={() => handleNavigateToHome()} className="btn btn-primary">
             Xem trang người dùng
           </Button>
+          <div style={{ position: "relative"}}>
+            <NotificationLabel />
+          </div>
         </Typography>
       </Toolbar>
     </AppBar>

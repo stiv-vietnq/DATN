@@ -1,0 +1,66 @@
+.pf-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 40vh;
+    background-color: #f8d7da; 
+    margin-top: 80px;
+}
+
+.pf-card {
+    background: #fff;
+    border-radius: 12px;
+    padding: 30px 40px;
+    text-align: center;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+    max-width: 400px;
+}
+
+.pf-icon {
+    font-size: 50px;
+    color: #dc3545; /* đỏ báo lỗi */
+    margin-bottom: 20px;
+}
+
+.pf-card h2 {
+    margin-bottom: 15px;
+    color: #dc3545;
+}
+
+.pf-card p {
+    margin-bottom: 25px;
+    color: #555;
+}
+
+.pf-actions {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+}
+
+.pf-btn {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: all 0.2s ease;
+}
+
+.pf-btn.primary {
+    background-color: #dc3545;
+    color: white;
+}
+
+.pf-btn.primary:hover {
+    background-color: #c82333;
+}
+
+.pf-btn:not(.primary) {
+    background-color: #f1f1f1;
+    color: #333;
+}
+
+.pf-btn:not(.primary):hover {
+    background-color: #e2e2e2;
+}

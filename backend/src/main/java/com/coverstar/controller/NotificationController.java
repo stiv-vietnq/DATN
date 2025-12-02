@@ -21,22 +21,21 @@ public class NotificationController {
 
     @PostMapping("/send")
     public ResponseEntity<Notification> send(@RequestBody NotificationRequest req) {
-        Notification saved = service.createAndPush(req.getUserId(), req.getTitle(), req.getMessage());
+        Notification saved = service.createAndPush(req);
         return ResponseEntity.ok(saved);
     }
 
-
     @GetMapping("/user/{userId}")
-    public ResponseEntity<List<Notification>> getByUser(@PathVariable Long userId) {
-        return ResponseEntity.ok(service.findByUser(userId));
+    public ResponseEntity<List<Notification>> getByUser(@PathVariable Long userId,
+                                                        @RequestParam(required = false) String role) {
+        return ResponseEntity.ok(service.findByUser(userId, role));
     }
-
 
     @GetMapping("/user/{userId}/unread-count")
-    public ResponseEntity<Long> unreadCount(@PathVariable Long userId) {
-        return ResponseEntity.ok(service.countUnread(userId));
+    public ResponseEntity<Long> unreadCount(@PathVariable Long userId,
+                                            @RequestParam(required = false) String role) {
+        return ResponseEntity.ok(service.countUnread(userId, role));
     }
-
 
     @PostMapping("/mark-read")
     public ResponseEntity<Notification> markRead(@RequestBody MarkReadRequest req) {

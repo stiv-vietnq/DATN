@@ -4,16 +4,19 @@ import Loading from "../../../../components/common/loading/Loading";
 import StringDropdown from "../../../../components/common/dropdown/StringDropdown";
 import { updateStatus } from "../../../../api/purchases";
 import { useToast } from "../../../../components/toastProvider/ToastProvider";
+import { sendNotification } from "../../../../api/notification";
 
 interface StatusModalProps {
   purchaseId: number;
   currentStatus?: number | null;
+  purchaseUserId: number | null;
   onClose: (shouldReload?: boolean) => void;
 }
 
 const StatusModal: React.FC<StatusModalProps> = ({
   purchaseId,
   currentStatus,
+  purchaseUserId,
   onClose,
 }) => {
   const [status, setStatus] = useState<string | null>(null);
@@ -57,6 +60,13 @@ const StatusModal: React.FC<StatusModalProps> = ({
     updateStatus(purchaseId, Number(status), cancelReason || "", true)
       .then(() => {
         onClose(true);
+        sendNotification({
+          userId: Number(purchaseUserId) || 0,
+          type: "ORDER",
+          title: "Thông báo đơn hàng bị hủy",
+          message: `Đơn hàng của bạn đã bị hủy bởi quản trị viên. Lý do: ${cancelReason}`,
+          failReason: "Đơn hàng bị hủy"
+        });
         showToast("Cập nhật trạng thái đơn hàng thành công", "success");
       })
       .catch(() => {

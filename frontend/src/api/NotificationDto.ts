@@ -2,6 +2,8 @@ export interface Notification {
   id: number;
   userId: number;
   message: string;
-  isRead: boolean;
+  read: boolean;
   createdAt: string;
+  failReason?: string;
+  type?: string;
 }

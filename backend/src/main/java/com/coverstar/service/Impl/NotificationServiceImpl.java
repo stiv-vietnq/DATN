@@ -1,5 +1,6 @@
 package com.coverstar.service.Impl;
 
+import com.coverstar.dto.NotificationRequest;
 import com.coverstar.entity.Notification;
 import com.coverstar.repository.NotificationRepository;
 import com.coverstar.service.NotificationService;
@@ -21,28 +22,35 @@ public class NotificationServiceImpl implements NotificationService {
     private SimpMessagingTemplate messagingTemplate;
 
     @Transactional
-    public Notification createAndPush(Long userId, String title, String message) {
+    public Notification createAndPush(NotificationRequest req) {
         Notification n = Notification.builder()
-                .userId(userId)
-                .title(title)
-                .message(message)
+                .userId(req.getUserId())
+                .title(req.getTitle())
+                .message(req.getMessage())
+                .failReason(req.getFailReason())
+                .type(req.getType())
+                .isRead(false)
+                .createdAt(new Date())
                 .build();
-        n.setCreatedAt(new Date());
-
 
         Notification saved = repo.save(n);
 
-        messagingTemplate.convertAndSend("/topic/notifications/" + userId, saved);
+        messagingTemplate.convertAndSend("/topic/notifications/" + req.getUserId(), saved);
         return saved;
     }
 
-
-    public List<Notification> findByUser(Long userId) {
+    public List<Notification> findByUser(Long userId, String role) {
+        if ("ROLE_ADMIN".equalsIgnoreCase(role)) {
+            return repo.findAllByOrderByCreatedAtDesc("ORDER");
+        }
         return repo.findByUserIdOrderByCreatedAtDesc(userId);
     }
 
 
-    public long countUnread(Long userId) {
+    public long countUnread(Long userId, String role) {
+        if ("ROLE_ADMIN".equalsIgnoreCase(role)) {
+            return repo.countByUserIdAndTypeAndReadIsFalse("ORDER");
+        }
         return repo.countByUserIdAndReadIsFalse(userId);
     }
 

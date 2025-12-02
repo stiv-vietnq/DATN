@@ -18,12 +18,12 @@
   position: absolute;
   top: 25px;
   right: 0;
-  width: 500px;
+  width: 750px;
   background: #fff;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   border-radius: 8px;
   padding: 10px;
-  max-height: 400px;
+  max-height: 750px;
   overflow-y: auto;
   z-index: 100;
 }
@@ -53,9 +53,10 @@
   margin: 0;
 }
 
-.notification-item p.unread {
-  font-weight: bold;
+.notification-item div.unread {
+  font-weight: 500;
   color: #000;
+  font-size: 18px;
 }
 
 .notification-item small {
@@ -72,11 +73,60 @@
 }
 
 .navbar-container-account-item {
-    color: black;
-    position: relative;
+  color: black;
+  position: relative;
 
-    &:hover {
-        cursor: pointer;
-        color: #5661f5;
-    }
+  &:hover {
+    cursor: pointer;
+    color: #5661f5;
+  }
+}
+
+.notification-wrapper {
+  position: relative;
+  display: inline-block;
+  cursor: pointer;
+}
+
+
+.unread-badge {
+  position: absolute;
+  top: -4px;
+  right: -12px;
+  background-color: #ee4d2d;
+  color: white;
+  font-size: 8px;
+  font-weight: 600;
+  padding: 2px;
+
+  border-radius: 999px;
+  min-width: 13px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
+}
+
+.unread-badge::after {
+  content: "";
+}
+
+.noti-row {
+  display: block;
+  padding: 6px 0;
+}
+
+.noti-row.has-reason {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.fail-reason {
+  color: #ee4d2d;
+  font-size: 13px;
+  font-style: italic;
+  opacity: 0.9;
 }
