@@ -132,7 +132,16 @@ export default function Purchases() {
     const VND_TO_USD_RATE = 26375.5;
     const totalUSD = (totalVND / VND_TO_USD_RATE).toFixed(2);
     let paymentSuccess = false;
-    await createPurchase([customerInfo]);
+    await createPurchase([customerInfo])
+      .then(() => {
+        if (itemIds.length > 0) handleDeleteCartItem(itemIds);
+      })
+      .catch(() => {
+        showToast("Đã xảy ra lỗi khi tạo đơn hàng", "error");
+        setLoading(false);
+        navigate("/purchase-notify");
+        return;
+      });
 
     try {
       if (customerInfo.paymentMethod === "cod") {
@@ -174,8 +183,6 @@ export default function Purchases() {
         paymentSuccess = false;
       }
       if (paymentSuccess) {
-        if (itemIds.length > 0) handleDeleteCartItem(itemIds);
-
         if (customerInfo.paymentMethod === "cod") {
           const message = `Có đơn hàng mới vào lúc ${new Date().toLocaleString()}, vui lòng kiểm tra đơn hàng.`;
 
