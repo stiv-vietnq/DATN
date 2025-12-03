@@ -208,5 +208,16 @@
   "yourself": "chính bạn",
   "delivered_successfully": "GIAO HÀNG THÀNH CÔNG",
   "updated_latest": "Cập nhật mới nhất",
-  "purchase-notify": "Thông báo đặt hàng"
+  "purchase-notify": "Thông báo đặt hàng",
+  "purchase-notify-message": "Đơn hàng của bạn đã được đặt thành công! Chúng tôi sẽ xử lý và giao hàng trong thời gian sớm nhất.",
+  "purchase_success": "Đặt Hàng Thành Công!!!",
+  "view_order": "Xem đơn hàng",
+  "go_home": "Quay về trang chủ",
+  "purchase_failed": "Đặt hàng không thành công!",
+  "purchase_failed_message": "Đã xảy ra lỗi khi xử lý khi đặt hàng. Vui lòng thử lại hoặc liên hệ hỗ trợ.",
+  "retry_purchase": "Thử lại đặt hàng",
+  "payment_failed": "Thanh toán thất bại",
+  "payment_failed_message": "Đã xảy ra lỗi trong quá trình thanh toán. Vui lòng thử lại.",
+  "payment_success": "Thanh toán thành công",
+  "payment_success_message": "Thanh toán của bạn đã được xử lý thành công. Cảm ơn bạn đã mua hàng!"
 }

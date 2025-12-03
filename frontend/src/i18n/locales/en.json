@@ -208,5 +208,16 @@
   "yourself": "yourself",
   "delivered_successfully": "DELIVERED SUCCESSFULLY",
   "updated_latest": "Updated Latest",
-  "purchase-notify": "Order Notification"
+  "purchase-notify": "Order Notification",
+  "purchase-notify-message": "Your order has been successfully placed! We will process and deliver it as soon as possible.",
+  "purchase_success": "Order Placed Successfully!!!",
+  "view_order": "View Order",
+  "go_home": "Go to Home",
+  "purchase_failed": "Order Placement Failed!",
+  "purchase_failed_message": "An error occurred while processing your order. Please try again or contact support.",
+  "retry_purchase": "Retry Order",
+  "payment_failed": "Payment Failed",
+  "payment_failed_message": "An error occurred during the payment process. Please try again.",
+  "payment_success": "Payment Successful",
+  "payment_success_message": "Your payment has been processed successfully. Thank you for your purchase!"
 }

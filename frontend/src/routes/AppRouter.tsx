@@ -24,6 +24,8 @@ import ChangePassword from "../pages/user/change-password/ChangePassword";
 import { renderRoutes } from "./RenderRoutes";
 import appRoutes from "./admin-routes/appRoutes";
 import PurchasesFailed from "../pages/purchase/PurchasesFailed/PurchasesFailed";
+import PaymentFailed from "../pages/purchase/paymentFailed/PaymentFailed";
+import PaymentSuccess from "../pages/purchase/paymentSuccess/PaymentSuccess";
 
 export default function AppRouter() {
   return (
@@ -70,6 +72,8 @@ export default function AppRouter() {
         <Route path="/purchases" element={<Purchases />} />
         <Route path="/purchases-success" element={<PurchasesSuccess />} />
         <Route path="/purchase-notify" element={<PurchasesFailed />} />
+        <Route path="/payment-failed" element={<PaymentFailed />} />
+        <Route path="/payment-success" element={<PaymentSuccess />} />
       </Route>
 
       <Route

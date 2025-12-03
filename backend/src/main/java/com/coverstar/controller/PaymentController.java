@@ -52,9 +52,9 @@ public class PaymentController {
     public void handlePaymentReturn(HttpServletRequest request, HttpServletResponse response) throws Exception {
         int paymentStatus = vnPayService.orderReturn(request);
         if (paymentStatus == 1) {
-            response.sendRedirect("http://localhost:4200/purchases-success");
+            response.sendRedirect("http://localhost:4200/payment-success");
         } else {
-            response.sendRedirect("http://localhost:4200/purchases-notify");
+            response.sendRedirect("http://localhost:4200/payment-failed");
         }
     }
 
@@ -65,8 +65,8 @@ public class PaymentController {
             String requestId = String.valueOf(System.currentTimeMillis());
             String orderId = String.valueOf(System.currentTimeMillis());
             String orderInfo = "Pay With MoMo";
-            String returnURL = "http://localhost:4200/purchases-success";
-            String notifyURL = "http://localhost:4200/purchases-notify";
+            String returnURL = "http://localhost:4200/payment-success";
+            String notifyURL = "http://localhost:4200/payment-failed";
             ConfigEnvironment configEnvironment = ConfigEnvironment.selectEnv("dev");
             PaymentResponse captureATMMoMoResponse = CreateOrderMoMo.process(configEnvironment, orderId, requestId,
                     String.valueOf(amount), orderInfo, returnURL, notifyURL, "", RequestType.PAY_WITH_ATM, null);
@@ -84,8 +84,8 @@ public class PaymentController {
             @RequestParam("description") String description
     ) {
         try {
-            String successUrl = "http://localhost:4200/purchases-success";
-            String cancelUrl = "http://localhost:4200/purchases-notify";
+            String successUrl = "http://localhost:4200/payment-success";
+            String cancelUrl = "http://localhost:4200/payment-failed";
             Payment payment = paypalService.createPayment(
                     Double.valueOf(amount),
                     currency,
