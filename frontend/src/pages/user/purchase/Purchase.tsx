@@ -55,12 +55,12 @@ export default function UserPurchases() {
   ];
 
   const tabs = [
-    { key: "", label: t('all') },
-    { key: "1", label: t('waiting_for_confirmation') },
-    { key: "2", label: t('being_delivered') },
-    { key: "3", label: t('delivering') },
-    { key: "4", label: t('delivered') },
-    { key: "5", label: t('cancelled') },
+    { key: "", label: t("all") },
+    { key: "1", label: t("waiting_for_confirmation") },
+    { key: "2", label: t("being_delivered") },
+    { key: "3", label: t("delivering") },
+    { key: "4", label: t("delivered") },
+    { key: "5", label: t("cancelled") },
   ];
 
   useEffect(() => {
@@ -74,7 +74,11 @@ export default function UserPurchases() {
   const fetchOrders = async () => {
     setLoading(true);
     try {
-      const response = await getPurchaseByUserId(Number(userId), searchValue, activeTab);
+      const response = await getPurchaseByUserId(
+        Number(userId),
+        searchValue,
+        activeTab
+      );
       setOrders(response.data);
     } catch (error) {
       console.error("Error fetching orders:", error);
@@ -86,15 +90,15 @@ export default function UserPurchases() {
   const getStatusLabel = (status: number) => {
     switch (status) {
       case 1:
-        return { text: t('waiting_for_confirmation'), color: "#FFA500" };
+        return { text: t("waiting_for_confirmation"), color: "#FFA500" };
       case 2:
-        return { text: t('being_delivered'), color: "#1E90FF" };
+        return { text: t("being_delivered"), color: "#1E90FF" };
       case 3:
-        return { text: t('delivering'), color: "#FFD700" };
+        return { text: t("delivering"), color: "#FFD700" };
       case 4:
-        return { text: t('delivered'), color: "#28a745" };
+        return { text: t("delivered"), color: "#28a745" };
       case 5:
-        return { text: t('cancelled'), color: "#dc3545" };
+        return { text: t("cancelled"), color: "#dc3545" };
       default:
         return { text: "Không xác định", color: "#6c757d" };
     }
@@ -112,7 +116,7 @@ export default function UserPurchases() {
           type: "ORDER",
           title: "Thông báo đơn hàng mới",
           message: `Đơn hàng của bạn đã bị hủy bởi người dùng. Lý do: ${reason}`,
-          failReason: "Đơn hàng bị hủy"
+          failReason: "Đơn hàng bị hủy",
         });
       })
       .catch((error) => {
@@ -144,33 +148,35 @@ export default function UserPurchases() {
         />
       </div>
 
-
       {/* ORDER LIST */}
       <div className="orders-list">
         {orders.length === 0 ? (
           <div className="empty-orders">
             <div className="empty-icon">🛒</div>
-            <div className="empty-text">{t('no_orders')}</div>
-            <div className="empty-subtext">{t('buuy')}</div>
+            <div className="empty-text">{t("no_orders")}</div>
+            <div className="empty-subtext">{t("buuy")}</div>
           </div>
         ) : (
           orders.map((order) => (
             <div key={order.id} className="order-item">
               <div className="order-header-1">
+                {order.status === 4 && (
+                  <div className="order-id">{t("delivered_successfully")}</div>
+                )}
+                {order.status === 4 && (
+                  <div className="order-border-right"></div>
+                )}
                 <div className="order-date">
                   <div className="date-icon">
                     ?
                     <div className="tooltip">
-                      <div className="tooltip-title">{t('updated_latest')}</div>
-                      <div className="tooltip-date">{new Date(order.updatedDate).toLocaleString()}</div>
+                      <div className="tooltip-title">{t("updated_latest")}</div>
+                      <div className="tooltip-date">
+                        {new Date(order.updatedDate).toLocaleString()}
+                      </div>
                     </div>
                   </div>
                 </div>
-                {order.status === 4 && (
-                  <div className="order-id">
-                    {t('delivered_successfully')}
-                  </div>
-                )}
                 <div className="order-border-right"></div>
                 <div
                   className="order-status"
@@ -184,13 +190,22 @@ export default function UserPurchases() {
                   item.productDetail ? (
                     <div key={item.id} className="order-item-detail">
                       <div className="order-item-detail-image">
-                        <img src={item?.productDetail?.directoryPath} alt={item?.productDetail?.name} />
+                        <img
+                          src={item?.productDetail?.directoryPath}
+                          alt={item?.productDetail?.name}
+                        />
                       </div>
                       <div className="order-item-detail-info">
-                        <div className="order-item-detail-name">{item?.productDetail?.name}</div>
+                        <div className="order-item-detail-name">
+                          {item?.productDetail?.name}
+                        </div>
                         <div className="order-item-detail-meta">
-                          <div className="order-item-detail-quantity">x {item?.quantity}</div>
-                          <div className="order-item-detail-total">{t('total_price')}: {item.total}₫</div>
+                          <div className="order-item-detail-quantity">
+                            x {item?.quantity}
+                          </div>
+                          <div className="order-item-detail-total">
+                            {t("total_price")}: {item.total}₫
+                          </div>
                         </div>
                       </div>
                     </div>
@@ -202,14 +217,27 @@ export default function UserPurchases() {
                 <div className="order-actions">
                   {order.status === 5 && (
                     <div className="cancellation-reason">
-                      {t('cancelled_by')} {order.cancelledByAdmin ? t('admin') : t('yourself')}
-                      {order.cancellationReason && ` - ${t('reason')}: ${order.cancellationReason}`}
+                      {t("cancelled_by")}{" "}
+                      {order.cancelledByAdmin ? t("admin") : t("yourself")}
+                      {order.cancellationReason &&
+                        ` - ${t("reason")}: ${order.cancellationReason}`}
                     </div>
                   )}
-                  <div className={order.status != 5 ? "order-total-label-1" : "order-total-label"}>
-                    {t('total_price_1')}: <span className="order-total-amount">{order.purchaseItems
-                      ?.reduce((sum, item) => sum + Number(item.total), 0)}
-                      ₫</span>
+                  <div
+                    className={
+                      order.status != 5
+                        ? "order-total-label-1"
+                        : "order-total-label"
+                    }
+                  >
+                    {t("total_price_1")}:{" "}
+                    <span className="order-total-amount">
+                      {order.purchaseItems?.reduce(
+                        (sum, item) => sum + Number(item.total),
+                        0
+                      )}
+                      ₫
+                    </span>
                   </div>
                 </div>
                 {order.status === 1 && (
