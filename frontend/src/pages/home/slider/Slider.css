@@ -1,0 +1,143 @@
+.slider {
+  width: 70%;
+  padding: 1% 0;
+  margin: 0 auto;
+  background-color: white;
+}
+
+.container__slider {
+  position: relative;
+  width: 100%;
+  height: 60vh;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.slider__track {
+  display: flex;
+  transition: transform 0.5s ease-in-out; /* mượt hơn */
+  width: 100%;
+  height: 100%;
+}
+
+.slider__item {
+  min-width: 100%;
+  height: 100%;
+  overflow: hidden;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.slider__item img {
+  width: 98%;
+  height: 100%;
+  object-fit: fill;
+}
+
+.container__slider > button {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background-color: white;
+  outline: none;
+  border: none;
+  color: red;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  transition: all 0.3s ease;
+  z-index: 5;
+  font-size: 13px;
+}
+.container__slider > button:hover {
+  background-color: rgb(138, 249, 253);
+  color: red;
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.2);
+}
+.container__slider > button:active {
+  color: red;
+}
+.slider__btn-next {
+  position: absolute;
+  right: 2%;
+}
+.slider__btn-prev {
+  position: absolute;
+  left: 2%;
+}
+
+.container__slider__links {
+  margin-top: 10px;
+  display: flex;
+  justify-content: center;
+  gap: 6px;
+}
+
+.container__slider__links-small {
+  width: 30px;
+  height: 8px;
+  border-radius: 10px;
+  border: 1px solid #000;
+  background-color: #fff;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.container__slider__links-small-active {
+  background-color: #000;
+}
+
+/* Tiêu đề */
+.container__slider__titles {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  margin-top: 16px;
+  flex-wrap: wrap;
+}
+
+.slider-title-item {
+  padding: 8px 14px;
+  border-radius: 20px;
+  border: 1px solid #ccc;
+  cursor: pointer;
+  font-size: 14px;
+  color: #555;
+  background-color: transparent;
+  transition: all 0.3s ease;
+  user-select: none;
+}
+
+.slider-title-item:hover {
+  background-color: #4550f7;
+  color: white;
+}
+
+.slider-title-item-active {
+  background-color: #5661f5;
+  color: white;
+  border-color: #5661f5;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .slider {
+    width: 95%;
+  }
+
+  .container__slider {
+    height: 35vh;
+  }
+
+  .slider-title-item {
+    font-size: 12px;
+    padding: 6px 10px;
+  }
+}

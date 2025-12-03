@@ -12,12 +12,11 @@ import java.util.List;
 public class SearchProductDto implements Serializable {
     private Long productTypeId;
     private String name;
-    private BigDecimal minPrice;
-    private BigDecimal maxPrice;
+    private String minPrice;
+    private String maxPrice;
     private Boolean status;
-    private Long brandId;
-    private Long categoryId;
-    private List<String> shippingMethodIds;
+    private List<Long> categoryId;
+//    private List<String> shippingMethodIds;
     private String orderBy;
     private String priceOrder;
     private Integer page;

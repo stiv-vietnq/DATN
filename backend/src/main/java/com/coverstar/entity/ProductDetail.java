@@ -25,19 +25,19 @@ public class ProductDetail implements Serializable {
     private Long id;
 
     @Column(name = "product_id", nullable = false)
-    private Long productId;
+    private String productId;
 
-    @Column(name = "name", nullable = false)
+    @Column(name = "name", nullable = false, columnDefinition = "NVARCHAR(255)")
     private String name;
 
     @Column(name = "quantity", nullable = false)
     private Long quantity;
 
+    @Column(name = "quantity_sold")
+    private Long quantitySold;
+
     @Column(name = "price", nullable = false)
     private BigDecimal price;
-
-    @Column(name = "percentage_reduction", nullable = false)
-    private Float percentageReduction;
 
     @Column(name = "created_date", nullable = false)
     @Temporal(TemporalType.TIMESTAMP)
@@ -50,9 +50,6 @@ public class ProductDetail implements Serializable {
     @Column(name = "directory_path")
     private String directoryPath;
 
-    @Column(name = "type")
-    private Integer type;
-
-    @Column(name = "description")
+    @Column(name = "description", columnDefinition = "NVARCHAR(1000)")
     private String description;
 }

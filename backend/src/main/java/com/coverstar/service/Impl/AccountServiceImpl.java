@@ -3,23 +3,32 @@ package com.coverstar.service.Impl;
 import com.coverstar.component.mail.Mail;
 import com.coverstar.component.mail.MailService;
 import com.coverstar.constant.Constants;
-import com.coverstar.entity.UserVisits;
-import com.coverstar.repository.UserVisitRepository;
-import com.coverstar.utils.RandomUtil;
 import com.coverstar.dao.account.AccountDao;
 import com.coverstar.dao.verify_account.VerifyAccountDao;
-import com.coverstar.dto.*;
+import com.coverstar.dto.AccountCreateDto;
+import com.coverstar.dto.AccountUpdateDto;
+import com.coverstar.dto.ChangeEmailDto;
+import com.coverstar.dto.CustomUserDetails;
+import com.coverstar.dto.EmailOrUser;
+import com.coverstar.dto.LoginDto;
+import com.coverstar.dto.VerifyCodeDto;
 import com.coverstar.entity.Account;
 import com.coverstar.entity.Role;
+import com.coverstar.entity.UserVisits;
 import com.coverstar.entity.VerifyAccount;
 import com.coverstar.repository.AccountRepository;
+import com.coverstar.repository.UserVisitRepository;
 import com.coverstar.service.AccountService;
 import com.coverstar.service.RoleService;
+import com.coverstar.utils.DateUtill;
+import com.coverstar.utils.RandomUtil;
 import com.coverstar.utils.ShopUtil;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -30,11 +39,17 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import javax.crypto.SecretKey;
-import javax.mail.MessagingException;
 import java.io.File;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Random;
 import java.util.regex.Pattern;
 
 @Service
@@ -64,6 +79,14 @@ public class AccountServiceImpl implements AccountService {
     @Autowired
     private UserVisitRepository userVisitRepository;
 
+    @Value("${image.directory}")
+    private String imageDirectory;
+    @Value("${server.port}")
+    private String serverPort;
+
+    private final static String IMAGE_BASE_URL = "/images/";
+    private final static String SERVER_PORT = "http://localhost:";
+
     @Override
     public Map<String, String> authenticateUser(LoginDto loginDto) {
         try {
@@ -84,18 +107,31 @@ public class AccountServiceImpl implements AccountService {
                     .map(GrantedAuthority::getAuthority)
                     .findFirst()
                     .orElse(null);
-            SecretKey KEY = Keys.secretKeyFor(SignatureAlgorithm.HS256);
-            String token = Jwts.builder().setSubject(userDetails.getUsername()).setIssuedAt(new Date())
-                    .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60 * 10))
+            String token = Jwts.builder()
+                    .setSubject(userDetails.getUsername())
+                    .setIssuedAt(new Date())
+                    .setExpiration(new Date(System.currentTimeMillis() + Constants.JWT_EXPIRATION_MS))
                     .claim("role", role)
-                    .signWith(SignatureAlgorithm.HS256, KEY).compact();
+                    .signWith(Constants.JWT_SECRET_KEY, SignatureAlgorithm.HS256)
+                    .compact();
             Map<String, String> response = new HashMap<>();
+            response.put("id", userDetails.getId().toString());
             response.put("token", token);
             response.put("username", userDetails.getUsername());
             response.put("role", role);
             response.put("firstName", userDetails.getFirstName());
             response.put("lastName", userDetails.getLastName());
-
+            UserVisits userVisits = userVisitRepository.findByVisitDate(1);
+            if (userVisits == null) {
+                userVisits = new UserVisits();
+                userVisits.setVisitDate(new Date());
+                userVisits.setVisitCount(1L);
+                userVisits.setType(1);
+                userVisitRepository.save(userVisits);
+            } else {
+                userVisits.setVisitCount(userVisits.getVisitCount() + 1);
+                userVisitRepository.save(userVisits);
+            }
             return response;
         } catch (Exception e) {
             try {
@@ -156,25 +192,23 @@ public class AccountServiceImpl implements AccountService {
     @Override
     public Account findById(Long id) {
         Account account = accountRepository.findById(id).orElse(null);
+        if (StringUtils.isNotEmpty(account.getDirectoryPath())) {
+            String relativePath = account.getDirectoryPath();
+
+            if (relativePath != null && relativePath.startsWith(relativePath)) {
+                relativePath = relativePath.replace(imageDirectory, SERVER_PORT + serverPort + IMAGE_BASE_URL);
+                account.setDirectoryPath(relativePath);
+            }
+        }
         return account;
     }
 
+    @Override
     public void verifyCode(VerifyCodeDto verifyCodeDto) {
         try {
-            UserVisits userVisits = userVisitRepository.findByVisitDate(new Date(), 1);
-            if (userVisits == null) {
-                userVisits = new UserVisits();
-                userVisits.setVisitDate(new Date());
-                userVisits.setVisitCount(1L);
-                userVisits.setType(1);
-                userVisitRepository.save(userVisits);
-            } else {
-                userVisits.setVisitCount(userVisits.getVisitCount() + 1);
-                userVisitRepository.save(userVisits);
-            }
             String token = verifyCodeDto.getToken();
-            VerifyAccount verifyAccount = verifyAccountDao.findByToken(token).get();
-            Account account = verifyAccount.getAccount();
+            Optional<VerifyAccount> verifyAccount = verifyAccountDao.findByToken(token);
+            Account account = verifyAccount.get().getAccount();
             account.setActive(true);
             account.setCountLock(0);
             account.setLocked(false);
@@ -198,8 +232,6 @@ public class AccountServiceImpl implements AccountService {
     public void changePassword(String userNameOrEmail, String newPassword) {
         Account account = getEmailOrUser(userNameOrEmail);
         account.setPassword(passwordEncoder.encode(newPassword));
-        account.setActive(false);
-        sendEmail(account);
         accountDao.update(account);
     }
 
@@ -316,15 +348,56 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
-    public List<Account> getAllAccount() {
-        return accountRepository.findAll();
+    public List<Account> getAllAccount(String username,
+                                       String fromDate,
+                                       String toDate,
+                                       String isActive,
+                                       String isLocked) {
+        Boolean isActiveBl = null;
+        if (StringUtils.isEmpty(isActive)) {
+            isActiveBl = null;
+        } else if ("true".equalsIgnoreCase(isActive)) {
+            isActiveBl = true;
+        } else if ("false".equalsIgnoreCase(isActive)) {
+            isActiveBl = false;
+        }
+        Boolean isLockedBl = null;
+        if (StringUtils.isEmpty(isLocked)) {
+            isLockedBl = null;
+        } else if ("true".equalsIgnoreCase(isLocked)) {
+            isLockedBl = true;
+        } else if ("false".equalsIgnoreCase(isLocked)) {
+            isLockedBl = false;
+        }
+        LocalDateTime fromDateStr = null;
+        if (StringUtils.isNotEmpty(fromDate)) {
+            fromDateStr = DateUtill.toStartOfDay(fromDate);
+        }
+        LocalDateTime toDateStr = null;
+        if (StringUtils.isNotEmpty(toDate)) {
+            toDateStr = DateUtill.toEndOfDay(toDate);
+        }
+
+        List<Account> accounts = accountRepository.findAllByConditions(
+                StringUtils.isEmpty(username) ? null : username,
+                fromDateStr,
+                toDateStr,
+                isActiveBl,
+                isLockedBl
+        );
+        return accounts;
     }
 
     @Override
-    public void lockAccount(String usernameOrEmail) {
+    public void lockAccount(String usernameOrEmail, Map<String, String> body) {
         try {
+            String isLocked = body.get("isLocked");
             Account account = getEmailOrUser(usernameOrEmail);
-            account.setLocked(true);
+            if ("false".equals(isLocked)) {
+                account.setLocked(false);
+            } else {
+                account.setLocked(true);
+            }
             accountDao.update(account);
         } catch (Exception e) {
             e.fillInStackTrace();
@@ -345,6 +418,7 @@ public class AccountServiceImpl implements AccountService {
             account.setLastName(accountUpdateDto.getLastName());
             account.setSex(accountUpdateDto.getSex());
             account.setPhoneNumber(accountUpdateDto.getPhoneNumber());
+            account.setDateOfBirth(accountUpdateDto.getDateOfBirth());
             if (accountUpdateDto.getImageFiles() != null && !accountUpdateDto.getImageFiles().isEmpty()) {
                 if (account.getDirectoryPath() != null) {
                     File oldFile = new File(account.getDirectoryPath());

@@ -29,9 +29,7 @@ public class VerifyAccount {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 
-	@Lob
-	@Column(name = "token", columnDefinition = "text", unique = true)
-	@org.hibernate.annotations.Type(type = "org.hibernate.type.TextType")
+	@Column(name = "token", unique = true, nullable = false, columnDefinition = "nvarchar(20)")
 	private String token;
 
 	@Column

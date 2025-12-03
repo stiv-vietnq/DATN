@@ -1,0 +1,30 @@
+.modal-field-product-detail-list {
+  background: #fafafa;
+  border: 1px solid #ddd;
+  border-radius: 12px;
+  padding: 16px;
+  margin-top: 16px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  transition: all 0.2s ease-in-out;
+}
+
+.modal-field-product-detail-list:hover {
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.08);
+  background: #fff;
+}
+
+.detail-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.detail-header svg {
+  transition: transform 0.2s ease, color 0.2s ease;
+}
+
+.detail-header svg:hover {
+  transform: scale(1.2);
+  color: #c62828;
+}

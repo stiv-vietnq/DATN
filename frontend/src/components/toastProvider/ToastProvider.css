@@ -1,0 +1,88 @@
+.toast-container {
+    position: fixed;
+    top: 0;
+    right: 0;
+    z-index: 9999;
+}
+
+.toast {
+    position: relative;
+    margin-bottom: 12px;
+    padding: 18px 14px;
+    color: #fff;
+    font-size: 16px;
+    width: 400px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    opacity: 0;
+    transform: translateX(100%);
+    animation: slideInOut 2s forwards;
+    text-align: start;
+    border-radius: 4px;
+}
+
+/* Các loại toast */
+.toast-success {
+    background-color: #4caf50;
+}
+
+.toast-error {
+    background-color: #f44336;
+}
+
+.toast-info {
+    background-color: #2196f3;
+}
+
+@keyframes slideInOut {
+    0% {
+        opacity: 0;
+        transform: translateX(100%);
+    }
+
+    10% {
+        opacity: 1;
+        transform: translateX(0);
+    }
+
+    90% {
+        opacity: 1;
+        transform: translateX(0);
+    }
+
+    100% {
+        opacity: 0;
+        transform: translateX(100%);
+    }
+}
+
+.toast-timer {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    height: 4px;
+    width: 100%;
+    border-radius: 0 0 4px 4px;
+    animation: timerBar 2s linear forwards;
+}
+
+.toast-success .toast-timer {
+    background: #c8ffcb;
+}
+
+.toast-error .toast-timer {
+    background: #ffb7b7;
+}
+
+.toast-info .toast-timer {
+    background: #b7d9ff;
+}
+
+@keyframes timerBar {
+    from {
+        width: 100%;
+    }
+
+    to {
+        width: 0%;
+    }
+}

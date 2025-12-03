@@ -18,7 +18,7 @@ public class Category {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "name", nullable = false)
+    @Column(name = "name", nullable = false, columnDefinition = "nvarchar(255)")
     private String name;
 
     @ManyToOne
@@ -37,12 +37,6 @@ public class Category {
     @Column(name = "updated_date")
     private Date updatedDate;
 
-    @Column(name = "description")
+    @Column(name = "description", columnDefinition = "nvarchar(500)")
     private String description;
-
-    @Column(name = "number_of_visits")
-    private Long numberOfVisits;
-
-    @Column(name = "quantity_sold")
-    private Long quantitySold;
 }

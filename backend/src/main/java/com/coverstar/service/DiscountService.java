@@ -1,23 +1,20 @@
 package com.coverstar.service;
 
+import com.coverstar.dto.DiscountCreateRequest;
 import com.coverstar.entity.Discount;
-import org.springframework.web.multipart.MultipartFile;
 
-import java.math.BigDecimal;
 import java.util.List;
 
 public interface DiscountService {
+    Discount createOrUpdateDiscount(DiscountCreateRequest request);
 
-    Discount createOrUpdateDiscount(Long id, String name, String code,
-                                    String description, BigDecimal percent, MultipartFile imageFiles,
-                                    String expiredDate, List<Long> userIds, Integer discountType,
-                                    BigDecimal levelApplied) throws Exception;
+    Discount updateStatus(Long discountId, Boolean status);
 
-    List<Discount> searchDiscount(String name, Boolean status, String code, Long accountId, Integer discountType);
+    Discount updateExpiredDate(Long discountId, String expiredDate);
 
-    Discount getDiscount(Long id, Integer type) throws Exception;
+    Discount getById(Long discountId);
 
-    void deleteDiscount(Long id);
+    List<Discount> search(String name, Boolean status);
 
-    Discount updateStatus(Long id, boolean status);
+    void delete(Long discountId);
 }

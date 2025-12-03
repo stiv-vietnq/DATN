@@ -17,6 +17,19 @@
     background-color: #0069d9;
 }
 
+.btn-green {
+    background-color: #28a745;
+    color: #fff;
+}
+
+.btn-green:hover:not(:disabled) {
+    background-color: #218838;
+}
+
+.btn-primary:hover:not(:disabled) {
+    background-color: #0069d9;
+}
+
 .btn-secondary {
     background-color: #6c757d;
     color: #fff;
@@ -52,7 +65,7 @@
 }
 
 .btn-login-often {
-    background-color: #fb8016;
+    background-color: #5661f5;
     color: #fff;
     border: none;
     outline: none;

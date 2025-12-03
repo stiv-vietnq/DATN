@@ -1,6 +1,5 @@
 package com.coverstar.config;
 
-//import org.apache.catalina.filters.CorsFilter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.context.annotation.Bean;
@@ -15,9 +14,12 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.filter.CorsFilter;
+
+import java.util.List;
 
 @Configuration
 @EnableAutoConfiguration
@@ -36,7 +38,11 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
-        http.cors().and().csrf().disable()
+        http
+                .cors()
+                .and()
+                .csrf().disable()
+                .addFilterBefore(new JwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class)
                 .authorizeRequests()
                 .antMatchers(
                         "/webjars/**",
@@ -46,27 +52,47 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                         "/sign-in/**",
                         "/assets/**",
                         "/forgot-password/**",
-                        "/vnPay/vnpay-payment",
-                        "dashboards/**",
-                        "/products/search/**",
                         "/unlock-account/**",
-                        "/categories/getAllCategory/**")
+                        "/images/**",
+                        "/chat/**",
+                        "/payments/vnpayPayment",
+                        "/notifications/**",
+                        "/ws/**")
                 .permitAll()
                 .antMatchers(
-                        "/productTypes/admin/**",
-                        "/products/admin/**",
-                        "/categories/admin/**",
-                        "/brands/admin/**",
-                        "/discounts/admin/**",
-                        "/purchases/admin/**",
-                        "/shipping-methods/admin/**"
-                )
+                        "/productTypes/**",
+                        "/products/**",
+                        "/vnPay/**",
+                        "/momo/**",
+                        "/address/**",
+                        "/locations/**",
+                        "/carts/**",
+                        "/account/**",
+                        "/comments/**",
+                        "/purchases/**",
+                        "/discounts/**",
+                        "/categories/**",
+                        "/payments/vnpayPayment"
+                ).hasRole("MEMBER")
+                .antMatchers(
+                        "/dashboards/**",
+                        "/productTypes/**",
+                        "/categories/**",
+                        "/products/**",
+                        "/carts/**",
+                        "/purchases/**",
+                        "/admin/**",
+                        "/assets/**",
+                        "/address/**",
+                        "/locations/**",
+                        "/momo/**",
+                        "/vnPay/**",
+                        "/comments/**",
+                        "/purchases/**",
+                        "/account/**",
+                        "/discounts/**")
                 .hasRole("ADMIN")
-                .anyRequest()
-                .authenticated()
-                .and()
-//                .oauth2Login()
-        ;
+                .anyRequest().authenticated();
     }
 
     @Bean
@@ -75,21 +101,20 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     }
 
     @Bean
-    public AuthenticationManager authenticationManager(
-            AuthenticationConfiguration configuration) throws Exception {
+    public AuthenticationManager authenticationManager(AuthenticationConfiguration configuration) throws Exception {
         return configuration.getAuthenticationManager();
     }
 
     @Bean
     public CorsFilter corsFilter() {
-        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         CorsConfiguration config = new CorsConfiguration();
         config.setAllowCredentials(true);
-        config.addAllowedOriginPattern("*");
-        config.addAllowedHeader("*");
-        config.addAllowedMethod("*");
+        config.setAllowedOrigins(List.of("http://localhost:4200"));
+        config.setAllowedHeaders(List.of("*"));
+        config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", config);
         return new CorsFilter(source);
     }
-
 }

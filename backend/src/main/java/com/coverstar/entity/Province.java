@@ -18,6 +18,6 @@ public class Province {
     @Column(name = "province_id", nullable = false)
     private Integer provinceId;
 
-    @Column(name = "name", nullable = false, length = 64)
+    @Column(name = "name", nullable = false, columnDefinition = "nvarchar(64)")
     private String name;
 }

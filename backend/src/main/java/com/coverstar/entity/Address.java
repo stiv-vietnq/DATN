@@ -23,13 +23,13 @@ public class Address implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "full_name", nullable = false)
+    @Column(name = "full_name", nullable = false, columnDefinition = "nvarchar(100)")
     private String fullName;
 
-    @Column(name = "phone_number", nullable = false)
+    @Column(name = "phone_number", nullable = false, columnDefinition = "nvarchar(15)")
     private String phoneNumber;
 
-    @Column(name = "address", nullable = false)
+    @Column(name = "address", nullable = false, columnDefinition = "nvarchar(255)")
     private String address;
 
     @Column(name = "default_value", nullable = false)
@@ -49,9 +49,6 @@ public class Address implements Serializable {
 
     @Column(name = "type")
     private Integer type;
-
-    @Column(name = "map")
-    private String map;
 
     @Column(name = "created_date")
     private Date createdDate;

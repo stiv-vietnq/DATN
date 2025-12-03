@@ -9,6 +9,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.Pattern;
 import java.io.Serializable;
 
 @Getter
@@ -25,9 +26,12 @@ public class BrandOrCategoryDto implements Serializable {
     @NotBlank(message = "Name is required")
     @Length(min = 3, max = 100, message = "First name must be between 3 and 100 characters")
     private String name;
+
     private Boolean status;
 
     @Length(min = 3, max = 512, message = "First name must be between 3 and 512 characters")
     private String description;
+
+    private String directoryPath;
 
 }

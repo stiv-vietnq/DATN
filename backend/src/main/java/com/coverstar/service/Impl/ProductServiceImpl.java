@@ -3,6 +3,7 @@ package com.coverstar.service.Impl;
 import com.coverstar.constant.Constants;
 import com.coverstar.dto.CreateOrUpdateProduct;
 import com.coverstar.dto.ProductDetailDTO;
+import com.coverstar.dto.ProductSearchDto;
 import com.coverstar.dto.SearchProductDto;
 import com.coverstar.entity.*;
 import com.coverstar.repository.*;
@@ -14,15 +15,15 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Lazy;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
+import org.springframework.util.MultiValueMap;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -45,15 +46,13 @@ public class ProductServiceImpl implements ProductService {
     private ProductDetailRepository productDetailRepository;
 
     @Autowired
-    private ShippingMethodRepository shippingMethodRepository;
+    private DiscountProductRepository discountProductRepository;
 
-    @Lazy
-    @Autowired
-    private CategoryService categoryService;
+    @Value("${server.port}")
+    private String serverPort;
 
-    @Lazy
-    @Autowired
-    private CategoryRepository categoryRepository;
+    private final static String IMAGE_BASE_URL = "/images/";
+    private final static String SERVER_PORT = "http://localhost:";
 
     @Autowired
     private UserVisitRepository userVisitRepository;
@@ -62,111 +61,18 @@ public class ProductServiceImpl implements ProductService {
     @Autowired
     private ProductTypeService productTypeService;
 
-//    @Override
-//    public Product saveOrUpdateProduct(Long id,
-//                                       String productName,
-//                                       Long productTypeId,
-//                                       String size,
-//                                       BigDecimal price,
-//                                       Float percentageReduction,
-//                                       String description,
-//                                       List<MultipartFile> imageFiles,
-//                                       String imageIdsToRemove,
-//                                       MultiValueMap<String, String> productDetailsParams,
-//                                       List<MultipartFile> productDetailsFiles,
-//                                       String listProductDetailIdRemove,
-//                                       List<String> shippingMethodIds,
-//                                       Long brandId,
-//                                       Long categoryId,
-//                                       Boolean status) throws Exception {
-//        try {
-//
-//            List<ProductDetailDTO> productDetails = new ArrayList<>();
-//            int i = 0;
-//            while (productDetailsParams.containsKey("productDetails[" + i + "].nameDT")) {
-//                Long idDT = null;
-//                if (StringUtils.isNotEmpty(productDetailsParams.getFirst("productDetails[" + i + "].idDT"))) {
-//                    idDT = Long.valueOf(Objects.requireNonNull(productDetailsParams.getFirst("productDetails[" + i + "].idDT")));
-//                }
-//                String name = productDetailsParams.getFirst("productDetails[" + i + "].nameDT");
-//                Long quantity = Long.valueOf(Objects.requireNonNull(productDetailsParams.getFirst("productDetails[" + i + "].quantityDT")));
-//                BigDecimal priceDT = new BigDecimal(Objects.requireNonNull(productDetailsParams.getFirst("productDetails[" + i + "].priceDT")));
-//                Float percentageReductionDT = Float.valueOf(Objects.requireNonNull(productDetailsParams.getFirst("productDetails[" + i + "].percentageReductionDT")));
-//                MultipartFile imageFile = (productDetailsFiles != null && productDetailsFiles.size() > i) ? productDetailsFiles.get(i) : null;
-//                String descriptionDT = productDetailsParams.getFirst("productDetails[" + i + "].descriptionDT");
-//                Integer type = Integer.valueOf(Objects.requireNonNull(productDetailsParams.getFirst("productDetails[" + i + "].typeDT")));
-//
-//                ProductDetailDTO productDetailDTO = new ProductDetailDTO(idDT, name, quantity, priceDT,
-//                        percentageReductionDT, imageFile, descriptionDT, type);
-//                productDetails.add(productDetailDTO);
-//                i++;
-//            }
-//
-//            Product product = new Product();
-//            if (id != null) {
-//                product = productRepository.getProductById(id);
-//                product.setUpdatedDate(new Date());
-//            } else {
-//                if (!FileUtils.isValidFileList(imageFiles)) {
-//                    throw new Exception(Constants.NOT_IMAGE);
-//                }
-//                product.setCreatedDate(new Date());
-//                product.setUpdatedDate(new Date());
-//                product.setStatus(true);
-//            }
-//            product.setProductName(productName);
-//            ProductType productType = productTypeService.getProductType(productTypeId);
-//            if (productType == null) {
-//                throw new Exception(Constants.PRODUCT_TYPE_NOT_FOUND);
-//            }
-//            product.setProductType(productType);
-//            product.setSize(size);
-//            product.setPrice(price);
-//            product.setPercentageReduction(percentageReduction);
-//            product.setBrandId(brandId);
-//            product.setCategoryId(categoryId);
-//            product.setStatus(status);
-//
-//            List<ShippingMethod> shippingMethods = shippingMethodRepository.findAllById(
-//                    shippingMethodIds.stream().map(Long::parseLong).collect(Collectors.toList())
-//            );
-//            product.setShippingMethods(new HashSet<>(shippingMethods));
-//            product.setDescription(description);
-//            if (StringUtils.isNotEmpty(imageIdsToRemove)) {
-//                List<Long> imageIdsToRemoveDT = Arrays.stream(imageIdsToRemove.split(","))
-//                        .map(Long::parseLong)
-//                        .collect(Collectors.toList());
-//                if (!imageIdsToRemoveDT.isEmpty()) {
-//                    for (Long imageId : imageIdsToRemoveDT) {
-//                        Image image = imageRepository.findImageById(imageId);
-//                        File file = new File(image.getDirectoryPath());
-//                        if (file.exists()) {
-//                            file.delete();
-//                        }
-//                        imageRepository.deleteById(imageId);
-//                    }
-//                }
-//            }
-//            product = productRepository.save(product);
-//            saveProductDetails(product, productDetails, listProductDetailIdRemove);
-//            return saveImageProduct(imageFiles, product);
-//        } catch (Exception e) {
-//            e.fillInStackTrace();
-//            throw e;
-//        }
-//    }
 
     private Product saveImageProduct(List<MultipartFile> imageFiles, Product product) throws Exception {
         try {
             if (imageFiles != null && !imageFiles.isEmpty()) {
                 Set<Image> images = new HashSet<>();
                 for (MultipartFile file : imageFiles) {
-                    String filePath = imageDirectory + "products" + File.separator + product.getId();
+                    String filePath = imageDirectory + "products" + "/" + product.getId();
                     File directory = new File(filePath);
                     if (!directory.exists()) {
                         directory.mkdirs();
                     }
-                    String fullPath = filePath + File.separator + file.getOriginalFilename();
+                    String fullPath = filePath + "/" + file.getOriginalFilename();
                     file.transferTo(new File(fullPath));
 
                     Image image = new Image();
@@ -218,9 +124,7 @@ public class ProductServiceImpl implements ProductService {
             productDetail.setName(productDetailDTO.getName());
             productDetail.setQuantity(productDetailDTO.getQuantity());
             productDetail.setPrice(productDetailDTO.getPrice());
-            productDetail.setPercentageReduction(productDetailDTO.getPercentageReduction());
             productDetail.setDescription(productDetailDTO.getDescription());
-            productDetail.setType(productDetailDTO.getType());
 
             productDetail = productDetailRepository.save(productDetail);
 
@@ -239,21 +143,22 @@ public class ProductServiceImpl implements ProductService {
     }
 
     private String saveImage(MultipartFile imageFile, Long productDetailId) throws Exception {
-        String filePath = imageDirectory + "productDetail" + File.separator + productDetailId;
+        String filePath = imageDirectory + "productDetail" + "/" + productDetailId;
         File directory = new File(filePath);
         if (!directory.exists()) {
             directory.mkdirs();
         }
-        String fullPath = filePath + File.separator + imageFile.getOriginalFilename();
+        String fullPath = filePath + "/" + imageFile.getOriginalFilename();
         imageFile.transferTo(new File(fullPath));
         return fullPath;
     }
 
-
     @Override
-    public List<Product> findByNameAndPriceRange(SearchProductDto searchProductDto) throws Exception {
+    public List<ProductSearchDto> findByNameAndPriceRange(SearchProductDto searchProductDto) throws Exception {
+        List<ProductSearchDto> result = new ArrayList<>();
         try {
-            UserVisits userVisits = userVisitRepository.findByVisitDate(new Date(), 3);
+            // --- Update userVisits ---
+            UserVisits userVisits = userVisitRepository.findByVisitDate(3);
             if (userVisits == null) {
                 userVisits = new UserVisits();
                 userVisits.setVisitDate(new Date());
@@ -264,63 +169,186 @@ public class ProductServiceImpl implements ProductService {
                 userVisits.setVisitCount(userVisits.getVisitCount() + 1);
                 userVisitRepository.save(userVisits);
             }
+
+            BigDecimal SQLSERVER_MAX_DECIMAL = new BigDecimal("9999999999999999.99");
+            String minPrice = searchProductDto.getMinPrice();
+            String maxPrice = searchProductDto.getMaxPrice();
             String nameValue = searchProductDto.getName() != null ? searchProductDto.getName() : StringUtils.EMPTY;
-            BigDecimal minPriceValue = searchProductDto.getMinPrice() != null ? searchProductDto.getMinPrice() : BigDecimal.ZERO;
-            BigDecimal maxPriceValue = searchProductDto.getMaxPrice() != null ? searchProductDto.getMaxPrice() : BigDecimal.valueOf(Double.MAX_VALUE);
-            Long productTypeId = searchProductDto.getProductTypeId() != null ? searchProductDto.getProductTypeId() : 0L;
-            Long brandId = searchProductDto.getBrandId() != null ? searchProductDto.getBrandId() : 0L;
-            if (searchProductDto.getCategoryId() != null) {
-                Category category = categoryService.getCategoryById(searchProductDto.getCategoryId());
-                long numberOfVisits;
-                if (category.getNumberOfVisits() == null) {
-                    numberOfVisits = 1L;
-                } else {
-                    numberOfVisits = category.getNumberOfVisits() + 1;
-                }
-                category.setNumberOfVisits(numberOfVisits);
-                categoryRepository.save(category);
-            }
-            Long categoryId = searchProductDto.getCategoryId() != null ? searchProductDto.getCategoryId() : 0L;
-            List<Long> shippingMethodIds = searchProductDto.getShippingMethodIds().stream()
-                    .map(Long::parseLong)
-                    .collect(Collectors.toList());
+            BigDecimal minPriceValue = StringUtils.isNotEmpty(minPrice) ? new BigDecimal(minPrice) : BigDecimal.ZERO;
+            BigDecimal maxPriceValue = StringUtils.isNotEmpty(maxPrice) ? new BigDecimal(maxPrice) : SQLSERVER_MAX_DECIMAL;
+            Long productTypeId = searchProductDto.getProductTypeId() != null ? searchProductDto.getProductTypeId() : null;
+            List<Long> categoryIds = searchProductDto.getCategoryId() != null ? searchProductDto.getCategoryId() : null;
             Boolean status = searchProductDto.getStatus() != null ? searchProductDto.getStatus() : null;
-            String orderBy = searchProductDto.getOrderBy() != null ? searchProductDto.getOrderBy() : Constants.DESC;
-            String priceOrder = searchProductDto.getPriceOrder() != null ? searchProductDto.getPriceOrder() : Constants.DESC;
-            String quantitySold = searchProductDto.getQuantitySold() != null ? searchProductDto.getQuantitySold() : Constants.DESC;
-            String numberOfVisits = searchProductDto.getNumberOfVisits() != null ? searchProductDto.getNumberOfVisits() : Constants.DESC;
             Float evaluate = searchProductDto.getEvaluate() != null ? Float.valueOf(searchProductDto.getEvaluate()) : null;
 
-            Sort.Order priceSort = Constants.ASC.equalsIgnoreCase(priceOrder) ?
-                    Sort.Order.asc(Constants.PRICE) : Sort.Order.desc(Constants.PRICE);
+            List<Product> products = productRepository.findAllWithDetails(
+                    productTypeId, nameValue, minPriceValue, maxPriceValue,
+                    categoryIds, status, evaluate
+            );
 
-            Sort.Order dateSort = Constants.ASC.equalsIgnoreCase(orderBy) ?
-                    Sort.Order.asc(Constants.CREATED_DATE) : Sort.Order.desc(Constants.CREATED_DATE);
+            List<Product> distinctProducts = products.stream()
+                    .collect(Collectors.toMap(Product::getId, p -> p, (p1, p2) -> p1))
+                    .values().stream()
+                    .collect(Collectors.toList());
 
-            Sort.Order quantitySort = Constants.ASC.equalsIgnoreCase(quantitySold) ?
-                    Sort.Order.asc(Constants.QUANTITY_SOLD) : Sort.Order.desc(Constants.QUANTITY_SOLD);
+            for (Product product : distinctProducts) {
+                Set<Image> images = new HashSet<>();
+                if (!CollectionUtils.isEmpty(product.getImages())) {
+                    for (Image image : product.getImages()) {
 
-            Sort.Order numberOfVisitsSort = Constants.ASC.equalsIgnoreCase(numberOfVisits) ?
-                    Sort.Order.asc(Constants.NUMBER_OF_VISITS) : Sort.Order.desc(Constants.NUMBER_OF_VISITS);
+                        if (image.getCommentId() != null) {
+                            continue;
+                        }
 
-            Sort sort = Sort.by(priceSort, dateSort, quantitySort, numberOfVisitsSort);
+                        String relativePath = image.getDirectoryPath();
 
-            Pageable pageable = PageRequest.of(searchProductDto.getPage(), searchProductDto.getSize(), sort);
-            return productRepository.findByNameContainingAndPriceBetweenWithDetails(productTypeId, nameValue,
-                    minPriceValue, maxPriceValue, brandId, categoryId, shippingMethodIds, status, evaluate, pageable);
+                        if (relativePath != null && relativePath.startsWith(imageDirectory)) {
+                            relativePath = relativePath.replace(imageDirectory, SERVER_PORT + serverPort + IMAGE_BASE_URL);
+                            image.setDirectoryPath(relativePath);
+                        }
+                        images.add(image);
+                    }
+                    product.setImages(images);
+                }
+            }
+
+            Comparator<Product> comparator = Comparator
+                    .comparing(Product::getPrice)
+                    .thenComparing(Product::getCreatedDate)
+                    .thenComparing(Product::getQuantitySold)
+                    .thenComparing(Product::getNumberOfVisits);
+
+            if (Constants.DESC.equalsIgnoreCase(searchProductDto.getPriceOrder())) {
+                comparator = comparator.reversed();
+            }
+
+            // Price
+            if (searchProductDto.getPriceOrder() != null) {
+                comparator = Constants.ASC.equalsIgnoreCase(searchProductDto.getPriceOrder()) ?
+                        Comparator.comparing(Product::getPrice) :
+                        Comparator.comparing(Product::getPrice).reversed();
+            }
+
+            // CreatedDate
+            if (searchProductDto.getOrderBy() != null) {
+                Comparator<Product> dateComparator = Constants.ASC.equalsIgnoreCase(searchProductDto.getOrderBy()) ?
+                        Comparator.comparing(Product::getCreatedDate) :
+                        Comparator.comparing(Product::getCreatedDate).reversed();
+                comparator = comparator.thenComparing(dateComparator);
+            }
+
+            // QuantitySold
+            if (searchProductDto.getQuantitySold() != null) {
+                Comparator<Product> quantityComparator = Constants.ASC.equalsIgnoreCase(searchProductDto.getQuantitySold()) ?
+                        Comparator.comparing(Product::getQuantitySold) :
+                        Comparator.comparing(Product::getQuantitySold).reversed();
+                comparator = comparator.thenComparing(quantityComparator);
+            }
+
+            // NumberOfVisits
+            if (searchProductDto.getNumberOfVisits() != null) {
+                Comparator<Product> visitsComparator = Constants.ASC.equalsIgnoreCase(searchProductDto.getNumberOfVisits()) ?
+                        Comparator.comparing(Product::getNumberOfVisits) :
+                        Comparator.comparing(Product::getNumberOfVisits).reversed();
+                comparator = comparator.thenComparing(visitsComparator);
+            }
+
+            distinctProducts.sort(comparator);
+
+            result.addAll(distinctProducts.stream()
+                    .map(product -> {
+                        ProductSearchDto dto = new ProductSearchDto();
+                        dto.setId(product.getId());
+                        dto.setProductName(product.getProductName());
+                        dto.setPrice(product.getPrice());
+                        dto.setEvaluate(product.getEvaluate());
+                        dto.setNumberOfVisits(product.getNumberOfVisits());
+                        dto.setQuantitySold(product.getQuantitySold());
+                        dto.setStatus(product.getStatus());
+                        dto.setCreatedDate(product.getCreatedDate());
+                        dto.setUpdatedDate(product.getUpdatedDate());
+                        dto.setCategoryId(product.getCategoryId());
+                        dto.setProductType(product.getProductType());
+                        dto.setImages(product.getImages());
+                        dto.setProductDetails(product.getProductDetails());
+
+                        BigDecimal discountPrice = discountProductRepository.findDiscountPriceByDiscountProductId(product.getDiscountProductId());
+                        dto.setDiscountedPrice(discountPrice);
+
+                        return dto;
+                    })
+                    .collect(Collectors.toList()));
+            return result;
+
         } catch (Exception e) {
             e.fillInStackTrace();
             throw e;
         }
     }
 
+
     @Override
-    public Product getProductById(Long id) {
+    public Product getProductById(String id) {
         try {
             Product product = productRepository.getProductById(id);
+            if (product == null) {
+                return null;
+            }
+            Set<Image> images = new HashSet<>();
+            if (!CollectionUtils.isEmpty(product.getImages())) {
+                for (Image image : product.getImages()) {
+                    if (image.getCommentId() != null) {
+                        continue;
+                    }
+                    String relativePath = image.getDirectoryPath();
+
+                    if (relativePath != null && relativePath.startsWith(imageDirectory)) {
+                        relativePath = relativePath.replace(imageDirectory, SERVER_PORT + serverPort + IMAGE_BASE_URL);
+                        image.setDirectoryPath(relativePath);
+                    }
+                    images.add(image);
+                }
+                product.setImages(images);
+            }
+
+            if (!CollectionUtils.isEmpty(product.getProductDetails())) {
+                Set<ProductDetail> productDetails = new HashSet<>();
+                for (ProductDetail productDetail : product.getProductDetails()) {
+                    String relativePath = productDetail.getDirectoryPath();
+
+                    if (relativePath != null && relativePath.startsWith(imageDirectory)) {
+                        relativePath = relativePath.replace(imageDirectory, SERVER_PORT + serverPort + IMAGE_BASE_URL);
+                        productDetail.setDirectoryPath(relativePath);
+                    }
+                    productDetails.add(productDetail);
+                }
+                product.setProductDetails(productDetails);
+            }
+
             Set<Comment> comments = commentRepository.findCommentById(id);
             if (CollectionUtils.isEmpty(comments)) {
                 comments = new HashSet<>();
+            } else {
+                float voteAverage;
+                long totalVotes = 0;
+                for (Comment comment : comments) {
+                    Set<Image> commentImages = new HashSet<>();
+                    if (!CollectionUtils.isEmpty(comment.getImages())) {
+                        for (Image image : comment.getImages()) {
+                            String relativePath = image.getDirectoryPath();
+
+                            if (relativePath != null && relativePath.startsWith(imageDirectory)) {
+                                relativePath = relativePath.replace(imageDirectory, SERVER_PORT + serverPort + IMAGE_BASE_URL);
+                                image.setDirectoryPath(relativePath);
+                            }
+                            commentImages.add(image);
+                        }
+                        comment.setImages(commentImages);
+                    }
+                    totalVotes += comment.getEvaluate();
+                }
+                voteAverage = (float) totalVotes / comments.size();
+                product.setEvaluate(voteAverage);
             }
             product.setComments(comments);
 
@@ -340,7 +368,7 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public void deleteProductById(Long id) throws Exception {
+    public void deleteProductById(String id) throws Exception {
         try {
             Product product = productRepository.getProductById(id);
             if (product == null) {
@@ -384,7 +412,7 @@ public class ProductServiceImpl implements ProductService {
                     }
                 }
             }
-            productRepository.deleteById(id);
+            productRepository.deleteProductById(id);
         } catch (Exception e) {
             e.fillInStackTrace();
             throw e;
@@ -392,7 +420,7 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public Product updateStatus(Long id, Boolean type) {
+    public Product updateStatus(String id, Boolean type) {
         try {
             Product product = productRepository.getProductById(id);
             product.setStatus(type);
@@ -407,34 +435,30 @@ public class ProductServiceImpl implements ProductService {
     public Product createOrUpdate(CreateOrUpdateProduct productDto) throws Exception {
         try {
             Product product = new Product();
-            if ( productDto != null && productDto.getId() != null) {
+            if (productDto != null && productDto.getId() != null) {
                 product = productRepository.getProductById(productDto.getId());
                 product.setUpdatedDate(new Date());
             } else {
                 if (!FileUtils.isValidFileList(productDto.getImages())) {
                     throw new Exception(Constants.NOT_IMAGE);
                 }
+                String timestamp = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMddHHmmssSSS"));
+                String id = productDto.getBrandCode() + "_" + timestamp;
+                product.setId(id);
                 product.setCreatedDate(new Date());
                 product.setUpdatedDate(new Date());
                 product.setStatus(true);
             }
             product.setProductName(productDto.getProductName());
-            ProductType productType = productTypeService.getProductType(productDto.getProductTypeId());
+            ProductType productType = productTypeService.getProductType(Long.valueOf(productDto.getProductTypeId()));
             if (productType == null) {
                 throw new Exception(Constants.PRODUCT_TYPE_NOT_FOUND);
             }
+            BigDecimal price = StringUtils.isNotEmpty(productDto.getPrice()) ? new BigDecimal(productDto.getPrice()) : BigDecimal.ZERO;
             product.setProductType(productType);
-            product.setSize(productDto.getSize());
-            product.setPrice(productDto.getPrice());
-            product.setPercentageReduction(productDto.getPercentageReduction());
-            product.setBrandId(productDto.getBrandId());
-            product.setCategoryId(productDto.getCategoryId());
-            product.setStatus(productDto.getStatus());
-
-            List<ShippingMethod> shippingMethods = shippingMethodRepository.findAllById(
-                    productDto.getShippingMethodIds().stream().map(Long::parseLong).collect(Collectors.toList())
-            );
-            product.setShippingMethods(new HashSet<>(shippingMethods));
+            product.setPrice(price);
+            product.setCategoryId(Long.valueOf(productDto.getCategoryId()));
+            product.setStatus(Boolean.valueOf(productDto.getStatus()));
             product.setDescription(productDto.getDescription());
             if (StringUtils.isNotEmpty(productDto.getImageIdsToRemove())) {
                 List<Long> imageIdsToRemoveDT = Arrays.stream(productDto.getImageIdsToRemove().split(","))
@@ -458,5 +482,11 @@ public class ProductServiceImpl implements ProductService {
             e.fillInStackTrace();
             throw e;
         }
+    }
+
+    @Override
+    public BigDecimal getDiscountedPrice(String id) {
+        BigDecimal discountPrice = discountProductRepository.findDiscountPriceByProductId(id);
+        return discountPrice;
     }
 }

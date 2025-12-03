@@ -1,15 +1,15 @@
 package com.coverstar.controller;
 
 import com.coverstar.constant.Constants;
+import com.coverstar.dto.DiscountCreateRequest;
 import com.coverstar.entity.Discount;
 import com.coverstar.service.DiscountService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 
-import java.math.BigDecimal;
+import javax.validation.Valid;
 import java.util.List;
 
 @RestController
@@ -19,84 +19,67 @@ public class DiscountController {
     @Autowired
     private DiscountService discountService;
 
-    @PostMapping("/admin/createOrUpdateDiscount")
-    public ResponseEntity<?> createOrUpdateDiscount(
-            @RequestParam(value = "id", required = false) Long id,
-            @RequestParam("name") String name,
-            @RequestParam("code") String code,
-            @RequestParam(value = "description", required = false) String description,
-            @RequestParam("percent") BigDecimal percent,
-            @RequestParam(value = "file", required = false) MultipartFile imageFiles,
-            @RequestParam("expiredDate") String expiredDate,
-            @RequestParam(value = "userIds", required = false) List<Long> discountIds,
-            @RequestParam("discountType") Integer discountType,
-            @RequestParam("levelApplied") BigDecimal levelApplied) {
+    @PostMapping("/admin/createOrUpdate")
+    public ResponseEntity<?> createOrUpdate(@Valid @RequestBody DiscountCreateRequest discountCreateRequest) {
         try {
-            Discount discount = discountService.createOrUpdateDiscount(id, name, code,
-                    description, percent, imageFiles, expiredDate, discountIds, discountType, levelApplied);
+            Discount discount = discountService.createOrUpdateDiscount(discountCreateRequest);
             return ResponseEntity.ok(discount);
         } catch (Exception e) {
-
-            if (e.getMessage().equals(Constants.NOT_IMAGE)) {
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Constants.NOT_IMAGE);
-            }
-
-            if (e.getMessage().equals(Constants.DUPLICATE_DISCOUNT)) {
-                return ResponseEntity.status(HttpStatus.CONFLICT).body(Constants.DUPLICATE_DISCOUNT);
-            }
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Constants.ERROR);
         }
     }
 
-    @GetMapping("/search")
-    public ResponseEntity<?> searchDiscount(@RequestParam(value = "name", required = false) String name,
-                                            @RequestParam(value = "status", required = false) Boolean status,
-                                            @RequestParam(value = "code", required = false) String code,
-                                            @RequestParam(value = "accountId", required = false) Long accountId,
-                                            @RequestParam(value = "discountType", required = false) Integer discountType) {
+    @PostMapping("/admin/updateStatus/{discountId}")
+    public ResponseEntity<?> updateStatus(@RequestParam(name = "status", required = false) Boolean status,
+                                          @PathVariable Long discountId) {
         try {
-            List<Discount> discounts = discountService.searchDiscount(name, status, code, accountId, discountType);
+            Discount discount = discountService.updateStatus(discountId, status);
+            return ResponseEntity.ok(discount);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Constants.ERROR);
+        }
+    }
+
+    @PostMapping("/admin/updateExpiredDate/{discountId}")
+    public ResponseEntity<?> updateExpiredDate(@RequestParam(name = "expiredDate", required = false) String expiredDate,
+                                               @PathVariable Long discountId) {
+        try {
+            Discount discount = discountService.updateExpiredDate(discountId, expiredDate);
+            return ResponseEntity.ok(discount);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Constants.ERROR);
+        }
+    }
+
+    @GetMapping("/admin/getById/{discountId}")
+    public ResponseEntity<?> getById(@PathVariable Long discountId) {
+        try {
+            Discount discount = discountService.getById(discountId);
+            return ResponseEntity.ok(discount);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Constants.ERROR);
+        }
+    }
+
+    @GetMapping("/admin/search")
+    public ResponseEntity<?> search(
+            @RequestParam(name = "name", required = false) String name,
+            @RequestParam(name = "status", required = false) Boolean status) {
+        try {
+            List<Discount> discounts = discountService.search(name, status);
             return ResponseEntity.ok(discounts);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Constants.ERROR);
         }
     }
 
-    @GetMapping("/getDiscount/{id}")
-    public ResponseEntity<?> getDiscount(@PathVariable Long id,
-                                         @RequestParam("type") Integer type) {
+    @PostMapping("/admin/delete/{discountId}")
+    public ResponseEntity<?> delete(@PathVariable Long discountId) {
         try {
-            Discount discount = discountService.getDiscount(id, type);
-            return ResponseEntity.ok(discount);
-        } catch (Exception e) {
-
-            if (e.getMessage().equals(Constants.DISCOUNT_EXPIRED)) {
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Constants.DISCOUNT_EXPIRED);
-            }
-
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Constants.ERROR);
-        }
-    }
-
-    @PostMapping("/admin/deleteDiscount/{id}")
-    public ResponseEntity<?> deleteDiscount(@PathVariable Long id) {
-        try {
-            discountService.deleteDiscount(id);
-            return ResponseEntity.ok(HttpStatus.OK);
+            discountService.delete(discountId);
+            return ResponseEntity.ok("Delete successful");
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Constants.ERROR);
         }
     }
-
-    @PostMapping("/admin/updateStatus/{id}")
-    public ResponseEntity<?> updateStatus(@PathVariable Long id, @RequestParam("status") boolean status) {
-        try {
-            Discount discount = discountService.updateStatus(id, status);
-            return ResponseEntity.ok(discount);
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Constants.ERROR);
-        }
-    }
-
-
 }

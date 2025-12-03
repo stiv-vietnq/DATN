@@ -1,0 +1,149 @@
+.address-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-bottom: 20px;
+    padding: 15px;
+    border-bottom: 1px solid #ccc;
+}
+
+.address-title {
+    font-size: 18px;
+    color: #333;
+    text-transform: uppercase;
+}
+
+.address-add-button {
+    background-color: #4CAF50;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+}
+
+.address-add-button:hover {
+    background-color: #45a049;
+}
+
+.address-add-button:focus {
+    outline: none;
+}
+
+.title {
+    font-size: 20px;
+    padding: 15px;
+    text-align: left;
+}
+
+.address-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.address-item {
+    padding: 12px;
+    display: flex;
+    justify-content: space-between;
+    border-bottom: 1px solid #ccc;
+}
+
+.address-actions-item {
+    display: grid;
+    gap: 8px;
+}
+
+.btn-set-default {
+    background-color: #dfdddd;
+    border: 1px solid #8d8c8c;
+    cursor: pointer;
+    padding: 6px;
+    font-size: 14px;
+    border-radius: 0;
+}
+
+.btn-set-default:hover {
+    background-color: #c7c6c6;
+    border: 1px solid #8d8c8c;
+}
+
+.btn-set-default:focus {
+    outline: none;
+}
+
+.btn-delete {
+    background-color: #e74c3c;
+    border: none;
+    color: white;
+    cursor: pointer;
+    padding: 6px 8px;
+    font-size: 14px;
+    border-radius: 0;
+}
+
+.btn-delete:hover {
+    background-color: #c0392b;
+}
+
+.address-info-item {
+    display: flex;
+}
+
+.address-info-name {
+    margin-right: 12px;
+    font-weight: 600;
+    border-right: 1px solid #ccc;
+    padding-right: 12px;
+}
+
+.address-info-phone {
+    color: #666;
+}
+
+.address-default-item {
+    margin-top: 4px;
+    font-size: 12px;
+    color: red;
+    text-align: left;
+}
+
+.address-normal-item {
+    margin-top: 4px;
+    font-size: 12px;
+    color: #333;
+    text-align: left;
+}
+
+.btn-set-default:disabled {
+    background-color: #ccc;
+    color: #666;
+    cursor: not-allowed;
+}
+
+.btn-delete:disabled {
+    background-color: #ccc;
+    color: #666;
+    cursor: not-allowed;
+}
+
+.btn-delete:focus {
+    outline: none;
+}
+
+.btn-update {
+    background-color: #3498db;
+    border: none;
+    color: white;
+    cursor: pointer;
+    padding: 6px 12px;
+    font-size: 14px;
+    border-radius: 0;
+}
+
+.address-action-delete {
+    display: flex;
+    gap: 8px;
+    justify-content: center;
+}

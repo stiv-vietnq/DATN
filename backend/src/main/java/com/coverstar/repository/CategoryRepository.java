@@ -9,6 +9,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface CategoryRepository extends JpaRepository<Category, Long> {
@@ -19,13 +20,16 @@ public interface CategoryRepository extends JpaRepository<Category, Long> {
             "WHERE (:productTypeId IS NULL OR pt.id = :productTypeId) " +
             "AND (:nameValue IS NULL OR LOWER(c.name) LIKE LOWER(CONCAT('%', :nameValue, '%'))) " +
             "AND (:status IS NULL OR c.status = :status) " +
-            "ORDER BY c.numberOfVisits")
+            "ORDER BY c.id DESC")
     List<Category> findAllByConditions(
             @Param("productTypeId") Long productTypeId,
             @Param("status") Boolean status,
-            Pageable pageable,
             @Param("nameValue") String nameValue
     );
 
     List<Category> findAllByProductTypeId(Long id);
+
+    Optional<Category> findByName(String name);
+
+    List<Category> findByNameContainingIgnoreCase(String message);
 }

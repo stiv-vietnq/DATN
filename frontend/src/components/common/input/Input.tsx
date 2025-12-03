@@ -1,4 +1,3 @@
-import React from "react";
 import type { CSSProperties, ChangeEvent } from "react";
 import "./Input.css";
 
@@ -9,6 +8,8 @@ interface InputProps {
   placeholder?: string;
   error?: string;
   style?: CSSProperties;
+  disabled?: boolean;
+  length?: number;
 }
 
 const Input = ({
@@ -18,6 +19,8 @@ const Input = ({
   placeholder,
   error,
   style = {},
+  disabled = false,
+  length,
 }: InputProps) => {
   return (
     <div className="input-wrapper">
@@ -28,6 +31,8 @@ const Input = ({
         placeholder={placeholder}
         className={`input-field ${error ? "input-error" : ""}`}
         style={style}
+        disabled={disabled}
+        maxLength={length}
       />
       {error && <div className="input-error-message">{error}</div>}
     </div>

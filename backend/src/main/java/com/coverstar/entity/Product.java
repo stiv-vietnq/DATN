@@ -18,27 +18,21 @@ import java.util.Set;
 @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
 public class Product {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @Column(name = "id", nullable = false)
+    private String id;
 
-    @Column(name = "product_name", nullable = false)
+    @Column(name = "product_name", nullable = false, columnDefinition = "nvarchar(255)")
     private String productName;
 
     @ManyToOne
     @JoinColumn(name = "productType_id", nullable = false)
     private ProductType productType;
 
-    @Column(name = "brand_id", nullable = false)
-    private Long brandId;
-
     @Column(name = "category_id", nullable = false)
     private Long categoryId;
 
     @Column(name = "price", nullable = false)
     private BigDecimal price;
-
-    @Column(name = "percentage_reduction", nullable = false)
-    private Float percentageReduction;
 
     @Column(name = "created_date", nullable = false)
     @Temporal(TemporalType.TIMESTAMP)
@@ -57,10 +51,7 @@ public class Product {
     @Column(name = "status", nullable = false)
     private Boolean status;
 
-    @Column(name = "size")
-    private String size;
-
-    @Column(name = "description")
+    @Column(name = "description", columnDefinition = "nvarchar(510)")
     private String description;
 
     @Column(name = "quantity_sold")
@@ -75,12 +66,6 @@ public class Product {
     @OneToMany(mappedBy = "productId", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private Set<ProductDetail> productDetails;
 
-    @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    @JoinTable(
-            name = "product_shipping_methods",
-            joinColumns = @JoinColumn(name = "product_id"),
-            inverseJoinColumns = @JoinColumn(name = "shipping_method_id")
-    )
-    @JsonManagedReference
-    private Set<ShippingMethod> shippingMethods;
+    @Column(name = "discount_product_id")
+    private Long discountProductId;
 }

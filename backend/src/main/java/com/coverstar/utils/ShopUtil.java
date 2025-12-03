@@ -12,15 +12,15 @@ import java.util.Map;
 
 public class ShopUtil {
 
-    private static String imageDirectory = "C://Images//";
+    private static String imageDirectory = "C:/images/";
 
     public static String handleFileUpload(MultipartFile file, String type, Long id) throws Exception {
-        String filePath = imageDirectory + type + File.separator + id;
+        String filePath = imageDirectory + type + "/" + id;
         File directory = new File(filePath);
         if (!directory.exists()) {
             directory.mkdirs();
         }
-        String fullPath = filePath + File.separator + file.getOriginalFilename();
+        String fullPath = filePath + "/" + file.getOriginalFilename();
         file.transferTo(new File(fullPath));
         return fullPath;
     }
@@ -30,7 +30,7 @@ public class ShopUtil {
     ) throws MessagingException {
         try {
             if (account != null) {
-                if (account.isNotificationPurchase() && type == 1) {
+                if (type == 1) {
                     Map<String, Object> maps = new HashMap<>();
                     maps.put("fullName", account.getFirstName() + " " + account.getLastName());
                     maps.put("orderTitle", orderTitle);
@@ -44,7 +44,7 @@ public class ShopUtil {
                     mailService.sendEmailPurchase(mail);
                 }
 
-                if (account.isNotificationDiscount() && type == 2) {
+                if (type == 2) {
                     Map<String, Object> maps = new HashMap<>();
                     maps.put("fullName", account.getFirstName() + " " + account.getLastName());
                     maps.put("orderTitle", orderTitle);

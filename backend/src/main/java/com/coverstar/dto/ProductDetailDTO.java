@@ -17,7 +17,6 @@ public class ProductDetailDTO {
     private String name;
     private Long quantity;
     private BigDecimal price;
-    private Float percentageReduction;
     private MultipartFile imageFile;
     private String description;
     private Integer type;

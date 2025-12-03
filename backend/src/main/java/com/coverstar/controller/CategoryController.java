@@ -4,6 +4,7 @@ import com.coverstar.constant.Constants;
 import com.coverstar.dto.BrandOrCategoryDto;
 import com.coverstar.entity.Category;
 import com.coverstar.service.CategoryService;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -24,16 +25,26 @@ public class CategoryController {
 
     @PostMapping("/admin/createOrUpdate")
     public ResponseEntity<?> createOrUpdate(@RequestParam(value = "id", required = false) Long id,
-                                            @RequestParam("productTypeId") Long productTypeId,
+                                            @RequestParam("productTypeId") String productTypeId,
                                             @RequestParam("name") String name,
-                                            @RequestParam("status") Boolean status,
+                                            @RequestParam("status") String status,
                                             @RequestParam("description") String description,
-                                            @RequestParam(value = "file", required = false) MultipartFile imageFiles) {
+                                            @RequestParam(value = "file", required = false) MultipartFile imageFiles,
+                                            @RequestParam(value = "directoryPath", required = false) String directoryPath) {
         try {
+            Long productTypeIdLong = null;
+            if (StringUtils.isNotEmpty(productTypeId)) {
+                productTypeIdLong = Long.parseLong(productTypeId);
+            }
+            Boolean statusBool = Boolean.parseBoolean(status);
             Category category = categoryService.createOrUpdate(
-                    new BrandOrCategoryDto(id, productTypeId, name, status, description), imageFiles);
+                    new BrandOrCategoryDto(id, productTypeIdLong, name, statusBool, description, directoryPath), imageFiles);
             return ResponseEntity.ok(category);
         } catch (Exception e) {
+
+            if (e.getMessage().equals(Constants.DUPLICATE_CATEGORY)) {
+                return ResponseEntity.status(HttpStatus.CONFLICT).body(Constants.DUPLICATE_CATEGORY);
+            }
 
             if (e.getMessage().equals(Constants.PRODUCT_TYPE_NOT_FOUND)) {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Constants.PRODUCT_TYPE_NOT_FOUND);
@@ -52,13 +63,20 @@ public class CategoryController {
     }
 
     @GetMapping("/getAllCategory")
-    public ResponseEntity<?> getAllCategory(@RequestParam(value = "productTypeId", required = false) Long productTypeId,
-                                         @RequestParam(value = "name", required = false) String name,
-                                         @RequestParam(value = "status", required = false) Boolean status,
-                                         @RequestParam(value = "page", required = false) Integer page,
-                                         @RequestParam(value = "size", required = false) Integer size) {
+    public ResponseEntity<?> getAllCategory(@RequestParam(value = "productTypeId", required = false) String productTypeId,
+                                            @RequestParam(value = "name", required = false) String name,
+                                            @RequestParam(value = "status", required = false) String status) {
         try {
-            return ResponseEntity.ok(categoryService.getAllCategory(productTypeId, name, status, page, size));
+            Long productTypeIdLong = null;
+            if (StringUtils.isNotEmpty(productTypeId)) {
+                productTypeIdLong = Long.parseLong(productTypeId);
+            }
+
+            Boolean statusBool = null;
+            if (StringUtils.isNotEmpty(status)) {
+                statusBool = Boolean.parseBoolean(status);
+            }
+            return ResponseEntity.ok(categoryService.getAllCategory(productTypeIdLong, name, statusBool));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Constants.ERROR);
         }
@@ -82,6 +100,25 @@ public class CategoryController {
         try {
             categoryService.delete(id);
             return ResponseEntity.ok(HttpStatus.OK);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Constants.ERROR);
+        }
+    }
+
+    @GetMapping("/getCategorysByProductTypeId")
+    public ResponseEntity<?> getCategorysByProductTypeId(@RequestParam(value = "productTypeId", required = false) String productTypeId,
+                                                         @RequestParam(value = "status", required = false) String status) {
+        try {
+            Long productTypeIdLong = null;
+            if (StringUtils.isNotEmpty(productTypeId)) {
+                productTypeIdLong = Long.parseLong(productTypeId);
+            }
+
+            Boolean statusBool = null;
+            if (StringUtils.isNotEmpty(status)) {
+                statusBool = Boolean.parseBoolean(status);
+            }
+            return ResponseEntity.ok(categoryService.getAllCategory(productTypeIdLong, null, statusBool));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Constants.ERROR);
         }

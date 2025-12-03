@@ -13,6 +13,7 @@ public class CustomUserDetails implements UserDetails {
 
     private static final long serialVersionUID = 1120594063961042973L;
 
+    private Long id;
     private String username;
     private String password;
     private String firstName;

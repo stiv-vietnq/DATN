@@ -25,12 +25,12 @@ public class AddressController {
     public ResponseEntity<?> createOrUpdateAddress(@RequestBody @Valid AddressDto addressDto, BindingResult bindingResult) {
         try {
 
-            if (bindingResult.hasErrors()) {
-                List<String> errors = bindingResult.getFieldErrors().stream()
-                        .map(error -> error.getField() + ": " + error.getDefaultMessage())
-                        .collect(Collectors.toList());
-                return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
-            }
+//            if (bindingResult.hasErrors()) {
+//                List<String> errors = bindingResult.getFieldErrors().stream()
+//                        .map(error -> error.getField() + ": " + error.getDefaultMessage())
+//                        .collect(Collectors.toList());
+//                return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
+//            }
 
             Address address = addressService.createOrUpdateAddress(addressDto);
             return ResponseEntity.ok(address);
@@ -84,7 +84,7 @@ public class AddressController {
         }
     }
 
-    @PostMapping("updateDefaultAddress/{id}")
+    @PostMapping("/updateDefaultAddress/{id}")
     public ResponseEntity<?> updateDefaultAddress(@PathVariable Long id,
                                                   @RequestParam("isDefault") Integer isDefault) {
         try {

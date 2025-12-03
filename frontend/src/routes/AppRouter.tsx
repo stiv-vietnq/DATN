@@ -1,29 +1,37 @@
-import { Routes, Route } from "react-router-dom";
-import Home from "../pages/home/Home";
-import Layout from "../components/layout/Layout";
+import { Route, Routes } from "react-router-dom";
+import ProtectedRoute from "./ProtectedRoute";
 import AuthLayout from "../components/layout/AuthLayout";
+import Layout from "../components/layout/Layout";
+import MainLayout from "../components/layoutAdmin/layout/MainLayout";
+import ForgotPassword from "../pages/account/forgotPassword/ForgotPassword";
 import Login from "../pages/account/login/Login";
 import Register from "../pages/account/register/Register";
-import ForgotPassword from "../pages/account/forgotPassword/ForgotPassword";
 import Verify from "../pages/account/verify/Verify";
+import NoAccess from "../pages/noAccess/noAccess";
+import Home from "../pages/home/Home";
 import Products from "../pages/products/Products";
+import ProductDetail from "../pages/products/productDetail/productDetail";
+import TopProduct from "../pages/topProduct/TopProduct";
+import CartLayout from "../components/layout/CartLayout";
+import Cart from "../pages/cart/Cart";
+import Purchases from "../pages/purchase/Purchases";
+import PurchasesSuccess from "../pages/purchase/purchasesSuccess/PurchasesSuccess";
 import User from "../pages/user/User";
 import Profile from "../pages/user/profile/Profile";
+import Address from "../pages/user/address/Address";
 import Purchase from "../pages/user/purchase/Purchase";
-import TopProduct from "../pages/topProduct/TopProduct";
+import ChangePassword from "../pages/user/change-password/ChangePassword";
+import { renderRoutes } from "./RenderRoutes";
+import appRoutes from "./admin-routes/appRoutes";
+import PurchasesFailed from "../pages/purchase/PurchasesFailed/PurchasesFailed";
+import PaymentFailed from "../pages/purchase/paymentFailed/PaymentFailed";
+import PaymentSuccess from "../pages/purchase/paymentSuccess/PaymentSuccess";
 
 export default function AppRouter() {
   return (
     <Routes>
       <Route element={<Layout />}>
-        <Route path="/" element={<Home />} />
-        <Route path="/home" element={<Home />} />
-        <Route path="/products" element={<Products />} />
-        <Route path="/top-products" element={<TopProduct />} />
-        <Route path="/user" element={<User />} >
-          <Route path="profile" element={<Profile />} />
-          <Route path="purchases" element={<Purchase />} />
-        </Route>
+        <Route path="/no-access" element={<NoAccess />} />
       </Route>
 
       <Route element={<AuthLayout />}>
@@ -31,6 +39,52 @@ export default function AppRouter() {
         <Route path="/register" element={<Register />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/verify" element={<Verify />} />
+      </Route>
+
+      <Route
+        element={
+          <ProtectedRoute>
+            <Layout />
+          </ProtectedRoute>
+        }
+      >
+        <Route path="/" element={<Home />} />
+        <Route path="/home" element={<Home />} />
+        <Route path="/products" element={<Products />} />
+        <Route path="/product-detail/:id" element={<ProductDetail />} />
+        <Route path="/top-products" element={<TopProduct />} />
+        <Route path="/user" element={<User />}>
+          <Route path="profile" element={<Profile />} />
+          <Route path="address" element={<Address />} />
+          <Route path="purchases" element={<Purchase />} />
+          <Route path="change-password" element={<ChangePassword />} />
+        </Route>
+      </Route>
+
+      <Route
+        element={
+          <ProtectedRoute>
+            <CartLayout />
+          </ProtectedRoute>
+        }
+      >
+        <Route path="/cart" element={<Cart />} />
+        <Route path="/purchases" element={<Purchases />} />
+        <Route path="/purchases-success" element={<PurchasesSuccess />} />
+        <Route path="/purchase-notify" element={<PurchasesFailed />} />
+        <Route path="/payment-failed" element={<PaymentFailed />} />
+        <Route path="/payment-success" element={<PaymentSuccess />} />
+      </Route>
+
+      <Route
+        element={
+          <ProtectedRoute>
+            <MainLayout />
+          </ProtectedRoute>
+        }
+        path="/admin/*"
+      >
+        <Route>{renderRoutes(appRoutes)}</Route>
       </Route>
     </Routes>
   );

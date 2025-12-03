@@ -6,11 +6,14 @@ export default defineConfig({
   plugins: [react()],
   server: {
     host: '0.0.0.0',
-    port: 3001,
-    open: '/home'
+    port: 4200,
+    open: '/login'
   },
   preview: {
     host: '0.0.0.0',
-    port: 3001
-  }
+    port: 4200
+  },
+  define: {
+    global: "window",
+  },
 })

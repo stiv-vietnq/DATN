@@ -1,9 +1,14 @@
 package com.coverstar.constant;
 
+import io.jsonwebtoken.security.Keys;
+
+import javax.crypto.SecretKey;
+import java.nio.charset.StandardCharsets;
+
 public class Constants {
     public static final String ERROR = "An error occurred while creating the account";
     public static final String VALID_VERIFICATION = "Valid verification code. Account has been activated.";
-    public static final String VERIFYING_ERROR = "An error occurred while verifying the code.";
+    public static final String VERIFYING_ERROR = "VERIFYING_ERROR";
     public static final String PURCHASE_NOT_FOUND = "Purchase not found";
     public static final String INSUFFICIENT_PRODUCT_QUANTITY = "Insufficient product quantity";
     public static final String LANGUAGE_VI = "vi";
@@ -14,15 +19,15 @@ public class Constants {
     public static final String CREATED_DATE = "createdDate";
     public static final String QUANTITY_SOLD = "quantitySold";
     public static final String NUMBER_OF_VISITS = "numberOfVisits";
-    public static final String BRAND_NOT_FOUND = "Brand not found";
     public static final String CATEGORY_NOT_FOUND = "Category not found";
     public static final String ADDRESS_NOT_FOUND = "Address not found";
     public static final String NOT_IMAGE = "Image field cannot be left blank";
     public static final String DUPLICATE_DISCOUNT = "Discount code already exists";
-    public static final String DUPLICATE_PRODUCT_TYPE = "Product Type name already exists";
+    public static final String DUPLICATE_PRODUCT_TYPE = "name";
+    public static final String DUPLICATE_PRODUCT_TYPE_CODE = "code";
     public static final String DUPLICATE_SHIPPING = "Shipping method not found";
-    public static final String DUPLICATE_EMAIL = "Email already exists";
-    public static final String DUPLICATE_USERNAME = "Username already exists";
+    public static final String DUPLICATE_EMAIL = "DUPLICATE_EMAIL";
+    public static final String DUPLICATE_USERNAME = "DUPLICATE_USERNAME";
     public static final String USERNAME_EMAIL_REQUIRED = "usernameOrEmail is required";
     public static final String LOCK_ACCOUNT = "Account is locked";
     public static final String INVALID_USERNAME = "Invalid username or password";
@@ -32,7 +37,7 @@ public class Constants {
     public static final String ERROR_EMAIL = "Error changing email";
     public static final String ERROR_UNLOCK = "Error unlocking account";
     public static final String ERROR_LOCK = "Error locking account";
-    public static final String ACCOUNT_NOTFOUND = "Account not found";
+    public static final String ACCOUNT_NOTFOUND = "ACCOUNT_NOTFOUND";
     public static final String ERROR_GET_ALL_ACCOUNT = "Error getting all account";
     public static final String DISCOUNT_EXPIRED = "Discount code has expired";
     public static final String EMAIL_INVALID = "Email is invalid";
@@ -40,6 +45,12 @@ public class Constants {
     public static final String ERROR_STATUS_UPDATE = "Cannot update status because the order is already completed or canceled.";
     public static final String PRODUCT_TYPE_NOT_FOUND = "Product Type not found";
     public static final String PRODUCT_DETAIL_NOT_FOUND = "ProductDetail not found";
+    public static final String DUPLICATE_CATEGORY = "Category name already exists";
+    public static final long JWT_EXPIRATION_MS = 1000 * 60 * 30;
+    public static final String JWT_SECRET_STRING = "mysupersecretkeythatismorethan32bytes!";
+
+    // Chuyển sang SecretKey dùng cho HS256
+    public static final SecretKey JWT_SECRET_KEY = Keys.hmacShaKeyFor(JWT_SECRET_STRING.getBytes(StandardCharsets.UTF_8));
 
 
     public static final class Number {

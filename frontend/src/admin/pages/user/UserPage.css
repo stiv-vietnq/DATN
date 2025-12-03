@@ -1,0 +1,151 @@
+/* Header */
+.header-content-user {
+    display: flex;
+    align-items: center;
+    padding: 1%;
+    width: 100%;
+    flex-wrap: wrap;
+}
+
+.header-info-user {
+    width: 90%;
+    display: flex;
+    justify-content: flex-start;
+    gap: 10px;
+    flex-wrap: nowrap;
+}
+
+.header-actions-user {
+    width: 10%;
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.button-create-user button {
+    background-color: #4CAF50;
+    border: none;
+    color: white;
+    padding: 10px 24px;
+    display: flex;
+    font-size: 14px;
+    border-radius: 4px;
+    cursor: pointer;
+    gap: 5px;
+    align-items: center;
+    transition: background 0.3s;
+}
+
+.button-export-user button {
+    background-color: #008CBA;
+    border: none;
+    color: white;
+    padding: 10px 24px;
+    display: flex;
+    font-size: 14px;
+    border-radius: 4px;
+    cursor: pointer;
+    gap: 5px;
+    align-items: center;
+    transition: background 0.3s;
+}
+
+.button-create-category button:hover {
+    background-color: #45a049;
+}
+
+.button-export-category button:hover {
+    background-color: #007bb5;
+}
+
+/* Table */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+    font-family: Arial, sans-serif;
+}
+
+th,
+td {
+    text-align: left;
+    padding: 8px;
+    border-bottom: 1px solid #ddd;
+}
+
+th {
+    background-color: #f2f2f2;
+    font-weight: 600;
+}
+
+tr:hover {
+    background-color: #f5f5f5;
+}
+
+.action-buttons-category {
+    display: flex;
+    gap: 5px;
+    justify-content: center;
+}
+
+.action-buttons-icon-category {
+    cursor: pointer;
+    font-size: 16px;
+    transition: transform 0.2s;
+}
+
+.action-buttons-icon-category:hover {
+    transform: scale(1.2);
+}
+
+/* Pagination */
+.pagination-wrapper-category {
+    margin-top: 20px;
+    font-family: Arial, sans-serif;
+}
+
+.pagination-header-category {
+    margin-bottom: 10px;
+}
+
+.pagination-content-category {
+    margin-bottom: 10px;
+}
+
+.status-active {
+    color: #2ecc71;
+    font-weight: 600;
+    padding: 4px;
+    border-radius: 4px;
+    background-color: white;
+}
+
+.status-inactive {
+    color: #e74c3c;
+    font-weight: 600;
+    padding: 4px;
+    border-radius: 4px;
+    background-color: white;
+}
+
+.locked {
+    color: #c0392b;
+    font-weight: 600;
+    padding: 4px;
+    border-radius: 4px;
+    border: 1px solid #c0392b;
+}
+
+.unlocked {
+    color: #3498db;
+    font-weight: 600;
+    padding: 4px;
+    border-radius: 4px;
+    border: 1px solid #3498db;
+}
+
+.action-buttons-icon-category.disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}

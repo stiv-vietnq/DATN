@@ -28,8 +28,8 @@ public class PurchaseController {
     @PostMapping("/createPurchase")
     public ResponseEntity<?> createPurchase(@RequestBody @Valid List<PurchaseDto> purchases) {
         try {
-            List<Purchase> purchaseList = purchaseService.createPurchase(purchases);
-            return ResponseEntity.ok(purchaseList);
+            purchaseService.createPurchase(purchases);
+            return ResponseEntity.ok().build();
         } catch (Exception e) {
 
             if (e.getMessage().equals(Constants.DISCOUNT_EXPIRED)) {
@@ -58,9 +58,13 @@ public class PurchaseController {
     }
 
     @PostMapping("/updateStatus/{id}")
-    public ResponseEntity<?> updateStatus(@PathVariable Long id, @RequestParam Integer status) {
+    public ResponseEntity<?> updateStatus(@PathVariable Long id,
+                                          @RequestParam Integer status,
+                                          @RequestParam String cancellationReason,
+                                          @RequestParam Boolean cancelledByAdmin
+                                          ) {
         try {
-            Purchase purchase = purchaseService.updateStatus(id, status);
+            Purchase purchase = purchaseService.updateStatus(id, status, cancellationReason, cancelledByAdmin);
             return ResponseEntity.ok(purchase);
         } catch (Exception e) {
 
@@ -76,9 +80,11 @@ public class PurchaseController {
     }
 
     @GetMapping("/getPurchaseByUserId/{userId}")
-    public ResponseEntity<?> getPurchaseByUserId(@PathVariable Long userId, @RequestParam String productName) {
+    public ResponseEntity<?> getPurchaseByUserId(@PathVariable Long userId,
+                                                 @RequestParam(name = "productName", required = false) String productName,
+                                                 @RequestParam(name = "status", required = false) String status) {
         try {
-            List<Purchase> purchases = purchaseService.getPurchaseByUserId(userId, productName);
+            List<Purchase> purchases = purchaseService.getPurchaseByUserId(userId, productName, status);
             return ResponseEntity.ok(purchases);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Constants.ERROR);

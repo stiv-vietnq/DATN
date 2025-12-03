@@ -4,11 +4,13 @@ import com.coverstar.dto.CartDto;
 import com.coverstar.entity.Cart;
 import com.coverstar.repository.CartRepository;
 import com.coverstar.service.CartService;
-import com.coverstar.service.ProductService;
+import com.coverstar.service.ProductDetailService;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Objects;
@@ -20,7 +22,7 @@ public class CartServiceImpl implements CartService {
     private CartRepository cartRepository;
 
     @Autowired
-    private ProductService productService;
+    private ProductDetailService productDetailService;
 
     @Override
     public Cart createOrUpdateCart(CartDto cartDto) {
@@ -29,17 +31,16 @@ public class CartServiceImpl implements CartService {
             if (cartDto.getId() != null) {
                 cart = cartRepository.findById(cartDto.getId()).orElse(null);
                 cart.setUpdatedDate(new Date());
-                if (Objects.equals(cartDto.getProductId(), cart.getProduct().getId())
+                if (Objects.equals(cartDto.getProductDetailId(), cart.getProductDetail().getId())
                         && Objects.equals(cartDto.getUserId(), cart.getUserId())) {
                     cart.setQuantity(cart.getQuantity() + cartDto.getQuantity());
                     cart.setTotal(cart.getTotal().add(cartDto.getTotal()));
-                    cart.setColor(cartDto.getColor());
                     cart.setSize(cartDto.getSize());
                     cart.setStatus(true);
                 }
             } else {
-                cart = cartRepository.findByProductIdAndUserIdAndColorAndSize(cartDto.getProductId(),
-                        cartDto.getUserId(), cartDto.getColor(), cartDto.getSize());
+                cart = cartRepository.findByProductDetailIdAndUserIdAndSize(cartDto.getProductDetailId(),
+                        cartDto.getUserId(), cartDto.getSize());
 
                 if (cart != null) {
                     cart.setUpdatedDate(new Date());
@@ -49,11 +50,10 @@ public class CartServiceImpl implements CartService {
                 } else {
                     cart = new Cart();
                     cart.setCreatedDate(new Date());
-                    cart.setProduct(productService.getProductById(cartDto.getProductId()));
+                    cart.setProductDetail(productDetailService.getProductById(cartDto.getProductDetailId()));
                     cart.setUserId(cartDto.getUserId());
                     cart.setQuantity(cartDto.getQuantity());
                     cart.setTotal(cartDto.getTotal());
-                    cart.setColor(cartDto.getColor());
                     cart.setSize(cartDto.getSize());
                     cart.setStatus(true);
                 }
@@ -88,12 +88,24 @@ public class CartServiceImpl implements CartService {
     }
 
     @Override
-    public void deleteCartById(Long id) {
+    public void deleteCart(List<Long> id) {
         try {
-            cartRepository.deleteById(id);
+            for (Long cartId : id) {
+                cartRepository.deleteById(cartId);
+            }
         } catch (Exception e) {
             e.fillInStackTrace();
             throw e;
         }
+    }
+
+    @Override
+    public Cart changeQuanlityAndTotal(Long id, Long quantity, String total) {
+        Cart cart = getCartById(id);
+        BigDecimal totalUpdate = new BigDecimal(total);
+        cart.setQuantity(quantity);
+        cart.setTotal(totalUpdate);
+        cartRepository.save(cart);
+        return cart;
     }
 }

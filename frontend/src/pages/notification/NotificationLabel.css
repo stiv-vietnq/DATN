@@ -1,0 +1,132 @@
+/* NotificationLabel.css */
+.notification-label {
+  position: relative;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.notification-label .unread-badge {
+  margin-left: 5px;
+  background: red;
+  color: white;
+  border-radius: 50%;
+  padding: 2px 6px;
+  font-size: 12px;
+}
+
+.notification-popup {
+  position: absolute;
+  top: 25px;
+  right: 0;
+  width: 750px;
+  background: #fff;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+  padding: 10px;
+  max-height: 750px;
+  overflow-y: auto;
+  z-index: 100;
+}
+
+.notification-popup-empty {
+  color: #777;
+  text-align: center;
+}
+
+.notification-item {
+  padding: 10px;
+  border-bottom: 1px solid #eee;
+  cursor: pointer;
+  transition: background 0.2s;
+  text-align: left;
+}
+
+.notification-item:hover {
+  background: #f0f0f0;
+}
+
+.notification-item.read {
+  color: #999;
+}
+
+.notification-item p {
+  margin: 0;
+}
+
+.notification-item div.unread {
+  font-weight: 500;
+  color: #000;
+  font-size: 18px;
+}
+
+.notification-item small {
+  color: #999;
+  font-size: 12px;
+}
+
+.no {
+  font-size: 24px;
+  text-align: center;
+  margin-bottom: 10px;
+  font-weight: 500;
+  text-transform: uppercase;
+}
+
+.navbar-container-account-item {
+  color: black;
+  position: relative;
+
+  &:hover {
+    cursor: pointer;
+    color: #5661f5;
+  }
+}
+
+.notification-wrapper {
+  position: relative;
+  display: inline-block;
+  cursor: pointer;
+}
+
+
+.unread-badge {
+  position: absolute;
+  top: -4px;
+  right: -12px;
+  background-color: #ee4d2d;
+  color: white;
+  font-size: 8px;
+  font-weight: 600;
+  padding: 2px;
+
+  border-radius: 999px;
+  min-width: 13px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
+}
+
+.unread-badge::after {
+  content: "";
+}
+
+.noti-row {
+  display: block;
+  padding: 6px 0;
+}
+
+.noti-row.has-reason {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.fail-reason {
+  color: #ee4d2d;
+  font-size: 13px;
+  font-style: italic;
+  opacity: 0.9;
+}

@@ -1,25 +1,21 @@
 package com.coverstar.service.Impl;
 
-import com.coverstar.component.mail.MailService;
-import com.coverstar.constant.Constants;
-import com.coverstar.entity.Account;
+import com.coverstar.dto.DiscountCreateRequest;
 import com.coverstar.entity.Discount;
-import com.coverstar.repository.AccountRepository;
+import com.coverstar.entity.DiscountProduct;
+import com.coverstar.entity.Product;
+import com.coverstar.repository.DiscountProductRepository;
 import com.coverstar.repository.DiscountRepository;
+import com.coverstar.repository.ProductRepository;
 import com.coverstar.service.DiscountService;
 import com.coverstar.utils.DateUtill;
-import com.coverstar.utils.ShopUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
 
-import java.io.File;
-import java.math.BigDecimal;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import javax.transaction.Transactional;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class DiscountServiceImpl implements DiscountService {
@@ -28,145 +24,141 @@ public class DiscountServiceImpl implements DiscountService {
     private DiscountRepository discountRepository;
 
     @Autowired
-    private AccountRepository accountRepository;
+    private ProductRepository productRepository;
 
     @Autowired
-    private MailService mailService;
+    private DiscountProductRepository discountProductRepository;
 
     @Override
-    public Discount createOrUpdateDiscount(Long id,
-                                           String name,
-                                           String code,
-                                           String description,
-                                           BigDecimal percent,
-                                           MultipartFile imageFile,
-                                           String expiredDate,
-                                           List<Long> userIds,
-                                           Integer discountType,
-                                           BigDecimal levelApplied) throws Exception {
-        Discount discount = new Discount();
-        try {
-            String orderTitle = "Có những ưu đãi mới đang chờ đón bạn sử dụng.";
-            String subject = "Thông báo.";
-            boolean isCodeExist = id == null
-                    ? discountRepository.existsByCode(code)
-                    : discountRepository.existsByCodeAndIdNot(code, id);
+    @Transactional
+    public Discount createOrUpdateDiscount(DiscountCreateRequest request) {
+        Discount discount;
+        boolean isCreate = (request.getId() == null);
 
-            if (isCodeExist) {
-                throw new Exception(Constants.DUPLICATE_DISCOUNT);
-            }
-
-            if (id != null) {
-                discount = discountRepository.findById(id).orElse(null);
-                discount.setUpdatedDate(new Date());
-                discount.setStatus(true);
-            } else {
-                if (imageFile == null || imageFile.isEmpty()) {
-                    throw new Exception(Constants.NOT_IMAGE);
-                }
-                discount.setCreatedDate(new Date());
-                discount.setStatus(true);
-            }
-            discount.setName(name);
-            discount.setCode(code);
-            discount.setDiscountPercent(percent);
-            discount.setDescription(description);
-            discount.setExpiredDate(DateUtill.parseDate(expiredDate));
-            discount.setDiscountType(discountType);
-            discount.setLevelApplied(levelApplied);
-            if (userIds != null && !userIds.isEmpty()) {
-                Set<Account> accounts = new HashSet<>();
-                for (Long usedId : userIds) {
-                    Account account = accountRepository.findById(usedId).orElse(null);
-                    if (discount != null) {
-                        accounts.add(account);
-                    }
-                    ShopUtil.sendMailPurchaseOrDiscount(account, orderTitle, subject, mailService, 2);
-                }
-                discount.setAccounts(accounts);
-            }
-            discount = discountRepository.save(discount);
-
-            if (imageFile != null && !imageFile.isEmpty()) {
-                if (discount.getDirectoryPath() != null) {
-                    File oldFile = new File(discount.getDirectoryPath());
-                    if (oldFile.exists()) {
-                        oldFile.delete();
-                    }
-                }
-                String fullPath = ShopUtil.handleFileUpload(imageFile, "discount", discount.getId());
-                discount.setDirectoryPath(fullPath);
-            }
-            discountRepository.save(discount);
-        } catch (Exception e) {
-            e.fillInStackTrace();
-            throw e;
+        if (isCreate) {
+            discount = new Discount();
+            discount.setCreatedDate(new Date());
+        } else {
+            discount = discountRepository.findById(request.getId())
+                    .orElseThrow(() -> new RuntimeException("Discount not found with id = " + request.getId()));
         }
+
+        discount.setName(request.getName());
+        discount.setStatus(request.getStatus());
+        discount.setDiscountPercent(request.getDiscountPercent());
+        discount.setExpiredDate(DateUtill.parseDateMaxTime(request.getExpiredDate()));
+        discount.setUpdatedDate(new Date());
+
+        discount = discountRepository.save(discount);
+
+        List<String> productIds = request.getProductIds();
+        if (productIds == null) productIds = Collections.emptyList();
+
+        if (isCreate && !productIds.isEmpty()) {
+            discountProductRepository.deleteByProductIdIn(productIds);
+
+            List<Product> products = productRepository.findByIdIn(productIds);
+            Discount finalDiscount1 = discount;
+            List<DiscountProduct> discountProducts = products.stream().map(p -> {
+                DiscountProduct dp = new DiscountProduct();
+                dp.setDiscount(finalDiscount1);
+                dp.setProductId(p.getId());
+                return dp;
+            }).collect(Collectors.toList());
+
+            List<DiscountProduct> savedDiscountProducts = discountProductRepository.saveAll(discountProducts);
+            for (DiscountProduct dp : savedDiscountProducts) {
+                Product product = productRepository.getProductById(dp.getProductId());
+                product.setDiscountProductId(dp.getId());
+                productRepository.save(product);
+            }
+        } else if (!isCreate) {
+            if (!productIds.isEmpty()) {
+                discountProductRepository.deleteByProductIdInAndDiscountIdNot(productIds, discount.getId());
+            }
+
+            List<DiscountProduct> currentRelations = discountProductRepository.findByDiscountId(discount.getId());
+            Set<String> currentProductIds = currentRelations.stream()
+                    .map(dp -> dp.getProductId())
+                    .collect(Collectors.toSet());
+
+            Set<String> requestProductIdSet = new HashSet<>(productIds);
+
+            Set<String> toDelete = new HashSet<>(currentProductIds);
+            toDelete.removeAll(requestProductIdSet);
+
+            Set<String> toAdd = new HashSet<>(requestProductIdSet);
+            toAdd.removeAll(currentProductIds);
+
+            if (!toDelete.isEmpty()) {
+                discountProductRepository.deleteByDiscountIdAndProductIdIn(discount.getId(), toDelete);
+            }
+
+            if (!toAdd.isEmpty()) {
+                List<Product> products = productRepository.findByIdIn(new ArrayList<>(toAdd));
+                Discount finalDiscount = discount;
+                List<DiscountProduct> discountProductsToAdd = products.stream().map(p -> {
+                    DiscountProduct dp = new DiscountProduct();
+                    dp.setDiscount(finalDiscount);
+                    dp.setProductId(p.getId());
+                    return dp;
+                }).collect(Collectors.toList());
+
+                List<DiscountProduct> savedDiscountProducts = discountProductRepository.saveAll(discountProductsToAdd);
+                for (DiscountProduct dp : savedDiscountProducts) {
+                    Product product = productRepository.getProductById(dp.getProductId());
+                    product.setDiscountProductId(dp.getId());
+                    productRepository.save(product);
+                }
+            }
+        }
+
         return discount;
     }
 
+
     @Override
-    public List<Discount> searchDiscount(String name, Boolean status, String code, Long accountId, Integer discountType) {
-        List<Discount> discounts;
-        try {
-            String nameValue = name != null ? name : StringUtils.EMPTY;
-            Boolean statusValue = status != null ? status : null;
-            String codeValue = code != null ? code : StringUtils.EMPTY;
-            discounts = discountRepository.findAllByStatus(nameValue, statusValue, codeValue, accountId, discountType);
-        } catch (Exception e) {
-            e.fillInStackTrace();
-            throw e;
-        }
-        return discounts;
+    public Discount updateStatus(Long discountId, Boolean status) {
+        Discount discount = discountRepository.findById(discountId)
+                .orElseThrow(() -> new RuntimeException("Discount not found with id = " + discountId));
+
+        discount.setStatus(status);
+        discount.setUpdatedDate(new Date());
+
+        return discountRepository.save(discount);
     }
 
     @Override
-    public Discount getDiscount(Long id, Integer type) throws Exception {
-        try {
-            Discount discount = discountRepository.findById(id).orElse(null);
-            if (type == 1 && discount != null && discount.getExpiredDate().before(new Date())) {
-                discount.setStatus(false);
-                discountRepository.save(discount);
-                throw new Exception(Constants.DISCOUNT_EXPIRED);
-            }
-            return discount;
-        } catch (Exception e) {
-            e.fillInStackTrace();
-            throw e;
-        }
+    public Discount updateExpiredDate(Long discountId, String expiredDate) {
+        Discount discount = discountRepository.findById(discountId)
+                .orElseThrow(() -> new RuntimeException("Discount not found with id = " + discountId));
+
+        discount.setExpiredDate(DateUtill.parseDateMaxTime(expiredDate));
+        discount.setUpdatedDate(new Date());
+
+        return discountRepository.save(discount);
     }
 
     @Override
-    public void deleteDiscount(Long id) {
-        try {
-            Discount discount = discountRepository.findById(id).orElse(null);
-            if (discount != null && discount.getDirectoryPath() != null) {
-                File oldFile = new File(discount.getDirectoryPath());
-                if (oldFile.exists()) {
-                    oldFile.delete();
-                }
-            }
-
-            discountRepository.deleteById(id);
-        } catch (Exception e) {
-            e.fillInStackTrace();
-            throw e;
-        }
+    public Discount getById(Long discountId) {
+        return discountRepository.findById(discountId)
+                .orElseThrow(() -> new RuntimeException("Discount not found with id = " + discountId));
     }
 
     @Override
-    public Discount updateStatus(Long id, boolean status) {
-        try {
-            Discount discount = discountRepository.findById(id).orElse(null);
-            if (discount != null) {
-                discount.setStatus(status);
-                discount.setUpdatedDate(new Date());
-                discountRepository.save(discount);
-            }
-            return discount;
-        } catch (Exception e) {
-            e.fillInStackTrace();
-            throw e;
-        }
+    public List<Discount> search(String name, Boolean status) {
+        String nameValue = name != null ? name : StringUtils.EMPTY;
+        return discountRepository.search(nameValue, status);
+    }
+
+    @Override
+    @Transactional
+    public void delete(Long discountId) {
+        Discount discount = discountRepository.findById(discountId)
+                .orElseThrow(() -> new RuntimeException("Discount not found with id = " + discountId));
+
+        discountProductRepository.deleteByDiscountId(discountId);
+
+        discountRepository.delete(discount);
     }
 }
