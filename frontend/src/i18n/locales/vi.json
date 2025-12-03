@@ -89,7 +89,12 @@
     "select_version": "Lựa chọn phiên bản",
     "select_color": "Lựa chọn màu sắc",
     "buy_now": "Mua ngay",
-    "add_to_cart": "Thêm vào giỏ hàng"
+    "add_to_cart": "Thêm vào giỏ hàng",
+    "remaining_quantity": "Số lượng còn lại",
+    "in_stock": "Còn hàng",
+    "out_of_stock": "Hết hàng",
+    "sold_quantity": "Đã bán",
+    "select_quantity": "Lựa chọn số lượng"
   },
   "product-description": "Mô tả sản phẩm",
   "comment": {

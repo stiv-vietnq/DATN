@@ -89,7 +89,12 @@
     "select_version": "Select Version",
     "select_color": "Select Color",
     "buy_now": "Buy Now",
-    "add_to_cart": "Add to Cart"
+    "add_to_cart": "Add to Cart",
+    "remaining_quantity": "Remaining Quantity",
+    "in_stock": "In Stock",
+    "out_of_stock": "Out of Stock",
+    "sold_quantity": "Sold Quantity",
+    "select_quantity": "Select Quantity"
   },
   "product-description": "Product Description",
   "comment": {

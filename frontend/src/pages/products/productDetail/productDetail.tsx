@@ -28,6 +28,7 @@ interface ProductDetailType {
   productId: string;
   name: string;
   quantity: number;
+  quantitySold: number;
   price: number;
   directoryPath: string;
   description: string;
@@ -80,6 +81,7 @@ export default function ProductDetail() {
   const navigate = useNavigate();
   const [discountedPrice, setDiscountedPrice] = useState<number | null>(null);
   const { showToast } = useToast();
+  const [quantity, setQuantity] = useState<number>(1);
 
   const handleFileChange = (e: { target: { files: any } }) => {
     setFiles([...e.target.files]);
@@ -193,13 +195,19 @@ export default function ProductDetail() {
     setLoading(true);
     if (!selectedDetail) {
       showToast("Vui lòng chọn chi tiết sản phẩm!", "info");
+      setLoading(false);
+      return;
+    }
+
+    if (quantity <= 0 || quantity > (selectedDetail?.quantity || 0)) {
+      showToast("Vui lòng chọn số lượng hợp lệ!", "info");
+      setLoading(false);
       return;
     }
 
     try {
       const userId = Number(localStorage.getItem("userId") || "0");
 
-      const quantity = 1;
       const total =
         (selectedDetail?.price || 0) *
         (1 - (discountedPrice || 0) / 100) *
@@ -226,13 +234,19 @@ export default function ProductDetail() {
     setLoading(true);
     if (!selectedDetail) {
       showToast("Vui lòng chọn chi tiết sản phẩm!", "info");
+      setLoading(false);
+      return;
+    }
+
+    if (quantity <= 0 || quantity > (selectedDetail?.quantity || 0)) {
+      showToast("Vui lòng chọn số lượng hợp lệ!", "info");
+      setLoading(false);
       return;
     }
 
     try {
       const userId = Number(localStorage.getItem("userId") || "0");
 
-      const quantity = 1;
       const total =
         selectedDetail.price * (1 - (discountedPrice || 0) / 100) * quantity;
 
@@ -253,6 +267,28 @@ export default function ProductDetail() {
     }
   };
 
+  const formatNumber = (num: number) => {
+    if (num == null) return 0;
+
+    if (num >= 1_000_000) {
+      return (num / 1_000_000).toFixed(1).replace(".0", "") + "tr";
+    }
+
+    if (num >= 1_000) {
+      return (num / 1_000).toFixed(1).replace(".0", "") + "k";
+    }
+
+    return num;
+  };
+
+  const increaseQuantity = () => {
+    setQuantity((prev) => prev + 1);
+  };
+
+  const decreaseQuantity = () => {
+    setQuantity((prev) => (prev > 1 ? prev - 1 : 1));
+  };
+
   if (loading) return <Loading />;
 
   return (
@@ -261,8 +297,6 @@ export default function ProductDetail() {
         <div className="product-page">
           <Breadcrumb items={breadcrumbItems} />
           <Banner />
-
-          <div className="product-detail-title">{productData?.productName}</div>
 
           <div className="product-detail">
             {/* LEFT IMAGE */}
@@ -299,6 +333,9 @@ export default function ProductDetail() {
 
             {/* RIGHT INFO */}
             <div className="product-right">
+              <div className="product-detail-title">
+                {productData?.productName}
+              </div>
               {/* Giá */}
               <div className="product-price">
                 {discountedPrice && discountedPrice > 0 ? (
@@ -329,6 +366,41 @@ export default function ProductDetail() {
                 )}
               </div>
 
+              <div className="option-info-group">
+                <div
+                  style={{
+                    borderRight: "1px solid #ccc",
+                    paddingRight: "15px",
+                    marginRight: "15px",
+                  }}
+                >
+                  {t("product_detail.remaining_quantity")}{" "}
+                  {formatNumber(selectedDetail?.quantity ?? 0)}
+                </div>
+
+                <div
+                  style={{
+                    borderRight: "1px solid #ccc",
+                    paddingRight: "15px",
+                    marginRight: "15px",
+                  }}
+                >
+                  {t("product_detail.sold_quantity")}{" "}
+                  {formatNumber(selectedDetail?.quantitySold ?? 0)}
+                </div>
+                <div>
+                  <div className="vote-number">
+                    {productData?.evaluate
+                      ? productData.evaluate.toFixed(1)
+                      : "0"}
+                    <FaStar
+                      className="star small"
+                      style={{ color: "#f8b400" }}
+                    />
+                  </div>
+                </div>
+              </div>
+
               {/* Chọn chi tiết sản phẩm */}
               <div className="option-group">
                 <p className="option-title">
@@ -349,6 +421,29 @@ export default function ProductDetail() {
                 </div>
               </div>
 
+              {/* Chọn số lượng */}
+              <div className="quantity-group">
+                <p className="option-title">
+                  {t("product_detail.select_quantity")}
+                </p>
+                <div className="quantity-controls">
+                  <button className="qty-btn" onClick={decreaseQuantity}>
+                    -
+                  </button>
+                  <input
+                    type="number"
+                    className="qty-input"
+                    value={quantity}
+                    onChange={(e) =>
+                      setQuantity(Math.max(1, Number(e.target.value) || 1))
+                    }
+                  />
+                  <button className="qty-btn" onClick={increaseQuantity}>
+                    +
+                  </button>
+                </div>
+              </div>
+
               {/* Mô tả */}
               <div className="product-description-main">
                 <p className="option-title">{t("product-description")}</p>
@@ -357,23 +452,29 @@ export default function ProductDetail() {
                 </div>
               </div>
 
-              <div className="product-vote-main">
-                <div className="option-title-vote">{t("comment.rating")}: </div>
-                <div className="vote-number">
-                  {productData?.evaluate
-                    ? productData.evaluate.toFixed(1)
-                    : "0"}
-                  <FaStar className="star small" style={{ color: "#f8b400" }} />
-                </div>
-              </div>
-
               {/* Nút mua hàng */}
               <div className="btn-group">
-                <button className="btn-buy" onClick={handleBuyNow}>
+                <button
+                  className="btn-buy"
+                  onClick={handleBuyNow}
+                  disabled={
+                    selectedDetail?.quantity === 0 ||
+                    selectedDetail == null ||
+                    quantity <= 0
+                  }
+                >
                   <FaBagShopping />
                   <div>{t("product_detail.buy_now")}</div>
                 </button>
-                <button className="btn-credit" onClick={handleAddToCart}>
+                <button
+                  className="btn-credit"
+                  onClick={handleAddToCart}
+                  disabled={
+                    selectedDetail?.quantity === 0 ||
+                    selectedDetail == null ||
+                    quantity <= 0
+                  }
+                >
                   <FaCartShopping />
                   <div>{t("product_detail.add_to_cart")}</div>
                 </button>
