@@ -45,12 +45,6 @@ public class PurchaseServiceImpl implements PurchaseService {
     @Autowired
     private ProductDetailRepository productDetailRepository;
 
-    @Autowired
-    private AccountService accountService;
-
-    @Autowired
-    private MailService mailService;
-
     @Override
     @Transactional
     public List<Purchase> createPurchase(List<PurchaseDto> purchaseDtos) throws Exception {
@@ -115,12 +109,6 @@ public class PurchaseServiceImpl implements PurchaseService {
                 purchase = purchaseRepository.save(purchase);
                 purchases.add(purchase);
             }
-
-//            String orderTitle = "Người gửi xác nhận đơn hàng.";
-//            String subject = "Đặt hàng thành công.";
-//            Account account = accountService.findById(purchaseDtos.get(0).getUserId());
-//            ShopUtil.sendMailPurchaseOrDiscount(account, orderTitle, subject, mailService, 1);
-
             return purchases;
         } catch (Exception e) {
             e.printStackTrace();
@@ -156,9 +144,6 @@ public class PurchaseServiceImpl implements PurchaseService {
                 throw new Exception(Constants.ERROR_STATUS_UPDATE);
             }
 
-            String orderTitle = "";
-            String subject = "";
-
             if (status == 5) {
                 for (PurchaseItem item : purchase.getPurchaseItems()) {
                     Product product = productService.getProductById(item.getProduct().getId());
@@ -171,23 +156,6 @@ public class PurchaseServiceImpl implements PurchaseService {
                     productDetailRepository.save(productDetail);
                 }
                 purchase.setCancellationReason(cancellationReason);
-                purchase.setCancelledByAdmin(cancelledByAdmin);
-                orderTitle = "Người gửi đã xác nhận đơn hàng bị hủy.";
-                subject = "Hủy đơn hàng thành công.";
-            } else if (status == 2) {
-                orderTitle = "Đơn hàng chuẩn bị bàn giao cho đơn vị vận chuyển.";
-                subject = "Đang được chuẩn bị.";
-            } else if (status == 3) {
-                orderTitle = "Đơn hàng đã được bàn giao cho đơn vị vận chuyển.";
-                subject = "Đã bàn giao cho đơn vị vận chuyển.";
-            } else if (status == 4) {
-                orderTitle = "Đơn hàng đã được giao thành công.";
-                subject = "Đã giao hàng thành công.";
-            }
-
-            if (!orderTitle.isEmpty()) {
-                Account account = accountService.findById(purchase.getUserId());
-//                ShopUtil.sendMailPurchaseOrDiscount(account, orderTitle, subject, mailService, 1);
             }
 
             purchase.setStatus(status);
