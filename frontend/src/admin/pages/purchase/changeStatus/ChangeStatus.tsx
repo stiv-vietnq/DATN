@@ -60,13 +60,32 @@ const StatusModal: React.FC<StatusModalProps> = ({
     updateStatus(purchaseId, Number(status), cancelReason || "", true)
       .then(() => {
         onClose(true);
-        sendNotification({
+        if( status === "5"){
+          sendNotification({
           userId: Number(purchaseUserId) || 0,
           type: "ORDER",
           title: "Thông báo đơn hàng bị hủy",
           message: `Đơn hàng của bạn đã bị hủy bởi quản trị viên. Lý do: ${cancelReason}`,
           failReason: "Đơn hàng bị hủy"
         });
+        } else if( status === "4"){
+          sendNotification({
+          userId: Number(purchaseUserId) || 0,
+          type: "ORDER_SUCCESS",
+          title: "Thông báo đơn hàng hoàn thành",
+          message: `Đơn hàng của bạn đã được giao thành công.`,
+          failReason: "Đơn hàng hoàn thành"
+        });
+        } else if(status === "2"){
+          sendNotification({
+          userId: Number(purchaseUserId) || 0,
+          type: "ORDER_SUCCESS",
+          title: "Thông báo đơn hàng được xác nhận",
+          message: `Đơn hàng của bạn đã được duyệt, bên cửa hàng sẽ chuẩn bị giao hàng.`,
+          failReason: "Đơn hàng hoàn thành"
+        });
+        }
+        
         showToast("Cập nhật trạng thái đơn hàng thành công", "success");
       })
       .catch(() => {

@@ -3,7 +3,6 @@ import "./PurchaseDetail.css";
 import Loading from "../../../../components/common/loading/Loading";
 import { useToast } from "../../../../components/toastProvider/ToastProvider";
 import { searchUsers } from "../../../../api/user";
-import { getAddressById } from "../../../../api/address";
 import { getPurchaseById } from "../../../../api/purchases";
 import AddressItem from "../../../../pages/user/address/AddressItem";
 
@@ -17,12 +16,6 @@ interface Address {
   wardId: string;
   defaultValue: number;
 }
-
-type PurchaseItem = {
-  productName: string;
-  quantity: number;
-  price: number;
-};
 
 export interface OrderItem {
   id: number;
