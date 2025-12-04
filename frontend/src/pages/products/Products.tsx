@@ -62,8 +62,8 @@ export default function Products() {
 
   const [brandOptions, setBrandOptions] = useState<OptionBrand[]>([]);
   const [categoryOptions, setCategoryOptions] = useState<OptionCategory[]>([]);
-  const [selectedBrandId, setSelectedBrandId] = useState<string | null>(null);
-  const [selectedCategoryId, setSelectedCategoryId] = useState<string | null>(
+  const [selectedBrandId, setSelectedBrandId] = useState<number | null>(null);
+  const [selectedCategoryId, setSelectedCategoryId] = useState<number | null>(
     null
   );
   const [minPrice, setMinPrice] = useState<string>("");
@@ -108,9 +108,9 @@ export default function Products() {
       .finally(() => setLoading(false));
   };
 
-  const fetchCategoriesByProductTypeId = (value: string | null) => {
+  const fetchCategoriesByProductTypeId = (value: number | null) => {
     getCategorysByProductTypeId({
-      productTypeId: value,
+      productTypeId: String(value),
       status: null,
     })
       .then((response) => {
@@ -126,21 +126,33 @@ export default function Products() {
       });
   };
 
+  useEffect(() => {
+    if (selectedBrandId !== null) {
+        handleSearchProducts(); 
+    }
+}, [selectedBrandId]);
+
+useEffect(() => {
+    if (selectedCategoryId !== null) {
+        handleSearchProducts(); 
+    }
+}, [selectedCategoryId]);
+
   const handleSearchProducts = () => {
     setLoading(true);
     ProductSearch({
-      productTypeId: selectedBrandId,
+      productTypeId:  selectedBrandId ? String(selectedBrandId) : null,
       name: "",
       minPrice: minPrice,
       maxPrice: maxPrice,
       status: "true",
-      categoryId: selectedCategoryId,
-      orderBy: "asc",
-      priceOrder: "asc",
+      categoryId: selectedCategoryId ? String(selectedCategoryId) : null,
+      orderBy: sortOrders.createdDate,
+      priceOrder: sortOrders.price,
       page: 1,
       size: 100,
-      quantitySold: "",
-      numberOfVisits: "",
+      quantitySold: sortOrders.quantity,
+      numberOfVisits: sortOrders.views,
       evaluate: selectedRating ? String(selectedRating) : null,
     })
       .then((response) => {
@@ -194,6 +206,7 @@ export default function Products() {
     : brandOptions?.slice(0, 5);
 
   const visibleFields = showAll ? sortFields : sortFields.slice(0, 1);
+  console.log("products", visibleCompanies);
 
   if (loading) return <Loading />;
 
@@ -216,8 +229,7 @@ export default function Products() {
                     }`}
                   onClick={() => {
                     setActiveIndexBrand(index);
-                    setSelectedBrandId(company.id.toString());
-                    handleSearchProducts();
+                    setSelectedBrandId(company.id);
                   }}
                 >
                   <div className="phone-company-search-item-logo">
@@ -256,7 +268,7 @@ export default function Products() {
                   onChange={() => handleCheckboxChange(productType.id)}
                   onClick={() => {
                     handleItemClick(index);
-                    setSelectedCategoryId(productType.id.toString());
+                    setSelectedCategoryId(productType.id);
                     handleSearchProducts();
                   }}
                 >
@@ -342,10 +354,12 @@ export default function Products() {
                     >
                       {sortOrders[key] === "asc" ? (
                         <FaArrowDownWideShort
+                        onClick={handleSearchProducts}
                           style={{ marginRight: "5px", color: "#ff6b6b" }}
                         />
                       ) : (
                         <FaArrowUpShortWide
+                        onClick={handleSearchProducts}
                           style={{ marginRight: "5px", color: "#007bff" }}
                         />
                       )}
