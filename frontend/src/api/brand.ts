@@ -1,7 +1,7 @@
 import api from "./index";
 
 export const getBrandById = (brandId?: number | null | string) => {
-  return api.get(`/productTypes/getProductType/${brandId}`);
+  return api.get(`/productTypes/admin/getProductType/${brandId}`);
 };
 
 export const createOrUpdateBrand = (data: FormData) => {

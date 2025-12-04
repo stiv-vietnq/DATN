@@ -89,8 +89,8 @@ public class ProductTypeController {
         }
     }
 
-    @PostMapping("/admin/updateStatus")
-    public ResponseEntity<?> updateStatus(@RequestParam("id") Long id,
+    @PostMapping("/admin/updateStatus/{id}")
+    public ResponseEntity<?> updateStatus(@PathVariable("id") Long id,
                                           @RequestParam("status") boolean status) {
         try {
             ProductType productType = productTypeService.updateStatus(id, status);

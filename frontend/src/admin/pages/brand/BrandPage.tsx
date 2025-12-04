@@ -79,7 +79,7 @@ const BrandPage = () => {
     {
       key: "createdDate",
       label: "Ngày tạo",
-      width: "10%",
+      width: "15%",
       render: (item: ProductType) =>
         item?.createdDate
           ? new Date(item.createdDate).toLocaleString("vi-VN", {
@@ -90,7 +90,7 @@ const BrandPage = () => {
     {
       key: "updatedDate",
       label: "Ngày cập nhật",
-      width: "10%",
+      width: "15%",
       render: (item: ProductType) =>
         item?.updatedDate
           ? new Date(item.updatedDate).toLocaleString("vi-VN", {
@@ -98,11 +98,11 @@ const BrandPage = () => {
           })
           : "",
     },
-    { key: "description", label: "Mô tả", width: "35%" },
+    { key: "description", label: "Mô tả", width: "20%" },
     {
       key: "status",
       label: "Trạng thái",
-      width: "10%",
+      width: "15%",
       render: (item: ProductType) => (
         <span
           className={`status-label ${item.status ? "status-active" : "status-inactive"
