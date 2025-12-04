@@ -272,8 +272,6 @@ const DiscountPage = () => {
         <BaseTable
           columns={columns}
           data={currentItems}
-          showCheckbox
-          onSelect={(ids: any) => console.log("Chọn:", ids)}
         />
       </Pagination>
 

@@ -93,9 +93,6 @@ export default function TopProduct() {
       }));
   }, [products]);
 
-  console.log("topRanked", topRanked);
-  
-
   const mainCategories = brands?.slice(0, 6);
   const moreCategories = brands?.slice(6);
 

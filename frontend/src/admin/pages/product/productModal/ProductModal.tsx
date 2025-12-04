@@ -14,6 +14,9 @@ import { GetProductById, ProductCreateOrUpdate } from "../../../../api/product";
 import { getCategorysByProductTypeId } from "../../../../api/category";
 import { getProductTypeByStatus } from "../../../../api/brand";
 import { useToast } from "../../../../components/toastProvider/ToastProvider";
+import { sendNotification } from "../../../../api/notification";
+import { UserTable } from "../../user/UserPage";
+import { searchUsers } from "../../../../api/user";
 
 interface ProductModalProps {
   productId?: number | null | string;
@@ -54,6 +57,7 @@ const ProductModal: React.FC<ProductModalProps> = ({
   const [selectedCategory, setSelectedCategory] = useState<Option | null>(null);
   const [initialImages, setInitialImages] = useState<ExistingImage[]>([]);
   const { showToast } = useToast();
+  const [users, setUsers] = useState<UserTable[]>([]);
 
   useEffect(() => {
     getAllBrands();
@@ -108,6 +112,31 @@ const ProductModal: React.FC<ProductModalProps> = ({
         });
     }
   }, [productId, mode]);
+
+  const handleSearch = () => {
+    setLoading(true);
+    const params = {
+      username: "",
+      fromDate: "",
+      toDate: "",
+      isActive: "",
+      isLocked: "",
+    };
+    searchUsers(params)
+      .then((response) => {
+        setUsers(response.data);
+      })
+      .catch(() => {
+        showToast("Lỗi lấy dữ liệu người dùng", "error");
+      })
+      .finally(() => {
+        setLoading(false);
+      });
+  };
+
+  useEffect(() => {
+    handleSearch();
+  }, []);
 
   const getAllBrands = () => {
     setLoading(true);
@@ -267,11 +296,29 @@ const ProductModal: React.FC<ProductModalProps> = ({
     ProductCreateOrUpdate(formData)
       .then(() => {
         showToast(
-          `Sản phẩm đã được ${
-            mode === "add" ? "thêm mới" : "cập nhật"
+          `Sản phẩm đã được ${mode === "add" ? "thêm mới" : "cập nhật"
           } thành công!`,
           "success"
         );
+
+        if (mode === "add") {
+          if (users.length === 0) {
+            showToast("Không có người dùng nào để gửi thông báo giảm giá!", "info");
+            onClose(true);
+            return;
+          } else {
+            const message = `Có sản phẩm mới được thêm: ${name}. Hãy truy cập ngay để khám phá!`;
+            users.forEach((user) => {
+              sendNotification({
+                userId: user.id,
+                type: "DISCOUNT",
+                title: "Thông báo giảm giá sản phẩm",
+                message: message,
+                failReason: ""
+              }).then().catch();
+            });
+          }
+        }
         onClose(true);
       })
       .catch(() => {

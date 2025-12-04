@@ -10,6 +10,7 @@ import Loading from "../../../../components/common/loading/Loading";
 import { useToast } from "../../../../components/toastProvider/ToastProvider";
 import "./DiscountModal.css";
 import { sendNotification } from "../../../../api/notification";
+import { searchUsers } from "../../../../api/user";
 
 interface BrandModalProps {
   discountId?: number | null | string;
@@ -20,6 +21,18 @@ interface BrandModalProps {
 interface Option {
   label: string;
   value: string;
+}
+
+export interface UserTable {
+  id: number;
+  username: string;
+  email: string;
+  active: boolean;
+  locked: boolean;
+  createdDate: string;
+  lastName: string;
+  firstName: string;
+  countLock: number;
 }
 
 const DiscountModal: React.FC<BrandModalProps> = ({
@@ -35,6 +48,8 @@ const DiscountModal: React.FC<BrandModalProps> = ({
   const [productOptions, setProductOptions] = useState<Option[]>([]);
   const [selectedStatus, setSelectedStatus] = useState<boolean | null>(null);
   const { showToast } = useToast();
+  const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [users, setUsers] = useState<UserTable[]>([]);
 
   useEffect(() => {
     if ((mode === "edit" || mode === "view") && discountId) {
@@ -58,6 +73,31 @@ const DiscountModal: React.FC<BrandModalProps> = ({
     }
   }, [discountId, mode]);
 
+
+  const handleSearch = () => {
+    setLoading(true);
+    const params = {
+      username: "",
+      fromDate: "",
+      toDate: "",
+      isActive: "",
+      isLocked: "",
+    };
+    searchUsers(params)
+      .then((response) => {
+        setUsers(response.data);
+      })
+      .catch(() => {
+        showToast("Lỗi lấy dữ liệu người dùng", "error");
+      })
+      .finally(() => {
+        setLoading(false);
+      });
+  };
+
+  useEffect(() => {
+    handleSearch();
+  }, []);
 
   useEffect(() => {
     handleGetProducts();
@@ -163,13 +203,21 @@ const DiscountModal: React.FC<BrandModalProps> = ({
         .map((p) => p.label)
         .join(", ");
       const message = `Có các sản phẩm mới được giảm giá: ${productNames}`;
-      sendNotification({
-        userId: localStorage.getItem("userId") ? Number(localStorage.getItem("userId")) : 0,
-        type: "DISCOUNT",
-        title: "Thông báo giảm giá sản phẩm",
-        message: message,
-        failReason: ""
-      }).then().catch();
+      if (users.length === 0) {
+        showToast("Không có người dùng nào để gửi thông báo giảm giá!", "info");
+        onClose(true);
+        return;
+      } else {
+        users.forEach((user) => {
+          sendNotification({
+            userId: user.id,
+            type: "DISCOUNT",
+            title: "Thông báo giảm giá sản phẩm",
+            message: message,
+            failReason: ""
+          }).then().catch();
+        });
+      }
       onClose(true);
       if (mode === "edit") {
         showToast("Cập nhật mã giảm giá thành công!", "success");

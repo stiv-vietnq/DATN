@@ -54,44 +54,37 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                         "/forgot-password/**",
                         "/unlock-account/**",
                         "/images/**",
-                        "/chat/**",
-                        "/payments/vnpayPayment",
                         "/notifications/**",
-                        "/ws/**")
-                .permitAll()
+                        "/ws/**"
+                ).permitAll()
                 .antMatchers(
-                        "/productTypes/**",
-                        "/products/**",
-                        "/vnPay/**",
-                        "/momo/**",
+                        "/account/change-password",
+                        "/change-email",
+                        "/account/*",
+                        "/productTypes/search",
+                        "/productTypes/getAllProductTypesByStatus",
+                        "/productTypes/getProductsByProductTypeId/*",
                         "/address/**",
-                        "/locations/**",
-                        "/carts/**",
-                        "/account/**",
                         "/comments/**",
+                        "/categories/getAllCategory",
+                        "/categories/getCategoryById/*",
+                        "/categories/getCategorysByProductTypeId",
+                        "/locations/**",
+                        "/products/search",
+                        "/products/getProduct/*",
+                        "/products/getDiscountedPrice/*",
                         "/purchases/**",
-                        "/discounts/**",
-                        "/categories/**",
-                        "/payments/vnpayPayment"
-                ).hasRole("MEMBER")
+                        "/payments/**",
+                        "/carts/**"
+                ).hasAnyRole("ADMIN", "MEMBER")
                 .antMatchers(
-                        "/dashboards/**",
-                        "/productTypes/**",
-                        "/categories/**",
-                        "/products/**",
-                        "/carts/**",
-                        "/purchases/**",
                         "/admin/**",
-                        "/assets/**",
-                        "/address/**",
-                        "/locations/**",
-                        "/momo/**",
-                        "/vnPay/**",
-                        "/comments/**",
-                        "/purchases/**",
-                        "/account/**",
-                        "/discounts/**")
-                .hasRole("ADMIN")
+                        "/discounts/**",
+                        "/productTypes/admin/**",
+                        "/categories/admin/**",
+                        "/products/admin/**",
+                        "/dashboards/**"
+                        ).hasRole("ADMIN")
                 .anyRequest().authenticated();
     }
 

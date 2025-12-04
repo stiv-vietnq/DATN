@@ -396,8 +396,6 @@ const ProductPage = () => {
         <BaseTable
           columns={columns}
           data={currentItems}
-          showCheckbox
-          onSelect={(ids: number[]) => console.log("Chọn:", ids)}
         />
       </Pagination>
 

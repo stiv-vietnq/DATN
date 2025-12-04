@@ -36,6 +36,7 @@ interface Product {
   quantitySold: number;
   images: { directoryPath: string }[];
   percentageReduction?: string;
+  evaluate?: number;
 }
 
 export default function Products() {
@@ -68,8 +69,8 @@ export default function Products() {
   const [minPrice, setMinPrice] = useState<string>("");
   const [maxPrice, setMaxPrice] = useState<string>("");
   const [products, setProducts] = useState<Product[]>([]);
+  const [selectedRating, setSelectedRating] = useState<string | null>(null);
 
-  // Pagination logic
   const totalPages = Math.ceil(products.length / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage;
   const currentProducts = products.slice(
@@ -137,10 +138,10 @@ export default function Products() {
       orderBy: "asc",
       priceOrder: "asc",
       page: 1,
-      size: 100, // lấy nhiều để phân trang local
+      size: 100,
       quantitySold: "",
       numberOfVisits: "",
-      evaluate: null,
+      evaluate: selectedRating ? String(selectedRating) : null,
     })
       .then((response) => {
         const data = response?.data || [];
@@ -184,7 +185,7 @@ export default function Products() {
     setActiveIndexType(index);
   };
 
-    const handleViewProductDetail = (id: number) => {
+  const handleViewProductDetail = (id: number) => {
     navigate(`/product-detail/${id}`);
   };
 
@@ -211,9 +212,8 @@ export default function Products() {
               {visibleCompanies.map((company, index) => (
                 <div
                   key={company.id}
-                  className={`phone-company-search-item ${
-                    activeIndexBrand === index ? "active" : ""
-                  }`}
+                  className={`phone-company-search-item ${activeIndexBrand === index ? "active" : ""
+                    }`}
                   onClick={() => {
                     setActiveIndexBrand(index);
                     setSelectedBrandId(company.id.toString());
@@ -239,7 +239,6 @@ export default function Products() {
               )}
             </div>
 
-            {/* --- Loại sản phẩm --- */}
             <div
               className="phone-company-search-title"
               style={{ marginTop: "20px" }}
@@ -252,11 +251,12 @@ export default function Products() {
               {categoryOptions.map((productType, index) => (
                 <div
                   key={productType.id}
-                  className={`phone-company-search-item ${
-                    activeIndexType === index ? "active" : ""
-                  }`}
+                  className={`phone-company-search-item ${activeIndexType === index ? "active" : ""
+                    }`}
+                  onChange={() => handleCheckboxChange(productType.id)}
                   onClick={() => {
                     handleItemClick(index);
+                    setSelectedCategoryId(productType.id.toString());
                     handleSearchProducts();
                   }}
                 >
@@ -312,11 +312,13 @@ export default function Products() {
               </div>
             </div>
 
-            {/* --- Đánh giá --- */}
             <div className="phone-company-search-list-evaluate">
               <div>{t("evaluate")}</div>
               <RatingFilter
-                onSelect={(rating) => console.log("Đã chọn:", rating)}
+                onSelect={(rating) => {
+                  setSelectedRating(String(rating));
+                  handleSearchProducts();
+                }}
               />
             </div>
 
@@ -378,7 +380,7 @@ export default function Products() {
         <div className="products-container-list">
           <div className="products-data-list">
             {currentProducts.map((product) => (
-              <div className="product-card" key={product.id}  onClick={() => product?.id && handleViewProductDetail(product.id)}>
+              <div className="product-card" key={product.id} onClick={() => product?.id && handleViewProductDetail(product.id)}>
                 {product.percentageReduction && (
                   <div className="discount-badge">
                     -{product.percentageReduction}%
@@ -397,7 +399,10 @@ export default function Products() {
                   </div>
                   <div className="product-meta">
                     <span>Đã bán {product.quantitySold}</span>
-                    <span>⭐ 4.6</span>
+                    <span>⭐  
+                      {product?.evaluate
+                      ? product.evaluate.toFixed(1)
+                      : "0"}</span>
                   </div>
                 </div>
               </div>

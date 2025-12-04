@@ -105,8 +105,6 @@ const ProductStatistics = () => {
     ],
   };
 
-  console.log(selectedValues);
-
   const options = {
     responsive: true,
     interaction: {

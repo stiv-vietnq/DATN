@@ -43,7 +43,7 @@ public class NotificationServiceImpl implements NotificationService {
         if ("ROLE_ADMIN".equalsIgnoreCase(role)) {
             return repo.findAllByOrderByCreatedAtDesc("ORDER");
         }
-        return repo.findByUserIdOrderByCreatedAtDesc(userId);
+        return repo.findByUserIdAndTypeNotOrderByCreatedAtDesc(userId, "ORDER");
     }
 
 

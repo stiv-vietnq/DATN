@@ -45,7 +45,6 @@ export default function Products() {
       .then((response) => {
         const data = response?.data || [];
         setProducts(data);
-        console.log(data);
       })
       .catch((error) => {
         console.error("Lỗi khi tìm kiếm sản phẩm:", error);
