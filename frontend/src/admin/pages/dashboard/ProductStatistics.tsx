@@ -50,7 +50,7 @@ const ProductStatistics = () => {
   });
   const [selected, setSelected] = useState<string | null>("2");
   const [year, setYear] = useState<number | null>(2025);
-  const [month, setMonth] = useState<number | null>(11);
+  const [month, setMonth] = useState<number | null>(12);
   const [fromDate, setFromDate] = useState<string | null>(null);
   const [toDate, setToDate] = useState<string | null>(null);
   const [brandOptions, setBrandOptions] = useState<Option[]>([]);
