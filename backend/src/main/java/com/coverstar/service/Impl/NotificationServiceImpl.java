@@ -51,7 +51,7 @@ public class NotificationServiceImpl implements NotificationService {
         if ("ROLE_ADMIN".equalsIgnoreCase(role)) {
             return repo.countByUserIdAndTypeAndReadIsFalse("ORDER");
         }
-        return repo.countByUserIdAndReadIsFalse(userId);
+        return repo.countByUserIdAndTypeNotAndReadIsFalse(userId, "ORDER");
     }
 
 
