@@ -155,7 +155,7 @@ export default function Pagination({
 
         {showPageSizeSelector && (
           <div className="pagination-size">
-            <label>{translate("show", "Hiển thị")}:</label>
+            <label style={{ width:'150px'}}>{translate("show", "Hiển thị")}:</label>
             <select
               value={itemsPerPage}
               onChange={(e) =>

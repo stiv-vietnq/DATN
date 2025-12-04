@@ -16,15 +16,6 @@ function BaseTable<T extends { id: number }>({
   columns,
   data,
 }: BaseTableProps<T>) {
-  const [selected, setSelected] = React.useState<number[]>([]);
-
-  const toggle = (id: number) => {
-    const newSelected = selected.includes(id)
-      ? selected.filter((x) => x !== id)
-      : [...selected, id];
-    setSelected(newSelected);
-  };
-
   return (
     <table style={{ width: "100%", borderCollapse: "collapse" }}>
       <thead>

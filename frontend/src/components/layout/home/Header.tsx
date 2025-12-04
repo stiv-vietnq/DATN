@@ -106,7 +106,7 @@ export default function Header() {
 
   return (
     <>
-      <header className="quickbuy-top quickbuy-top--sticky">
+      <header className="quickbuy-top quickbuy-top--sticky" style= {{height: '100px'}}>
         <div className="navbar-wrapper">
           <div className="container-wrapper">
             <div className="navbar-container">

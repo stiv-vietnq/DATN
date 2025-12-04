@@ -26,11 +26,6 @@ export interface UserTable {
   countLock: number;
 }
 
-interface Option {
-  label: string;
-  value: string;
-}
-
 const UserPage = () => {
   const [loading, setLoading] = useState(false);
   const [page, setPage] = useState(1);
@@ -108,7 +103,7 @@ const UserPage = () => {
     {
       key: "locked",
       label: "Trạng thái khóa",
-      width: "15%",
+      width: "20%",
       render: (item: UserTable) => (
         <span className={item.locked ? "locked" : "unlocked"}>
           {item.locked ? "Tài khoản đang bị khóa" : "Tài khoản hoạt động"}
@@ -118,7 +113,7 @@ const UserPage = () => {
     {
       key: "actions",
       label: "Thao tác",
-      width: "10%",
+      width: "5%",
       render: (item: UserTable) => {
         const isInactive = !item.active;
 
