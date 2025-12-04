@@ -50,3 +50,7 @@ export const getAllPurchase = (
     params: { userId, paymentMethod, status },
   });
 };
+
+export const getPurchaseById = (id: number) => {
+  return api.get(`/purchases/admin/getById/${id}`);
+};

@@ -11,13 +11,14 @@ import BaseTable, {
 import "./PurchasePage.css";
 import StatusModal from "./changeStatus/ChangeStatus";
 import { useToast } from "../../../components/toastProvider/ToastProvider";
+import { FaEye } from "react-icons/fa6";
+import PurchaseDetailModal from "./purchaseDetail/PurchaseDetail";
 
 interface Option {
   label: string;
   value: string;
 }
 
-// Interface cho đơn hàng
 export interface Purchase {
   id: number;
   userId: number;
@@ -31,6 +32,11 @@ export interface Purchase {
   updatedDate: string;
   total: number;
   cancellationReason?: string;
+  purchaseItems?: {
+    productName: string;
+    quantity: number;
+    price: number;
+  }[];
 }
 
 const PurchasePage = () => {
@@ -56,6 +62,9 @@ const PurchasePage = () => {
     number | null
   >(null);
   const { showToast } = useToast();
+  const [detailOpen, setDetailOpen] = useState(false);
+  const [selectedPurchaseDetail, setSelectedPurchaseDetail] = useState<Purchase | null>(null);
+
 
   const paymentMethodOptions = {
     cod: "Thanh toán khi nhận hàng",
@@ -202,6 +211,13 @@ const PurchasePage = () => {
       width: "10%",
       render: (item: Purchase) => (
         <div className="action-buttons">
+          <FaEye
+             className="action-buttons-icon"
+             color="blue"
+             onClick={() => handleViewDetail(item)}
+             style={{ cursor: "pointer", marginRight: "8px" }}
+             title="Xem chi tiết"
+      />
           {item.status !== 4 && item.status !== 5 && (
             <FaExchangeAlt
               className="action-buttons-icon"
@@ -215,6 +231,11 @@ const PurchasePage = () => {
       ),
     },
   ];
+
+  const handleViewDetail = (purchase: Purchase) => {
+  setSelectedPurchaseDetail(purchase);
+  setDetailOpen(true);
+};
 
   const handleUpdateStatus = (id: number, status: number, userId: number) => {
     setSelectedPurchaseId(id);
@@ -293,6 +314,14 @@ const PurchasePage = () => {
           }}
         />
       )}
+
+      {detailOpen && (
+  <PurchaseDetailModal
+    open={detailOpen}
+    purchasesId={selectedPurchaseDetail?.id ?? undefined}
+    onClose={() => setDetailOpen(false)}
+  />
+)}
     </div>
   );
 };

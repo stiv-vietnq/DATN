@@ -445,12 +445,12 @@ export default function ProductDetail() {
               </div>
 
               {/* Mô tả */}
-              <div className="product-description-main">
+              {/* <div className="product-description-main">
                 <p className="option-title">{t("product-description")}</p>
                 <div className="product-description">
                   {selectedDetail?.description || productData?.description}
                 </div>
-              </div>
+              </div> */}
 
               {/* Nút mua hàng */}
               <div className="btn-group">

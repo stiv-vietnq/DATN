@@ -102,4 +102,17 @@ public class PurchaseController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Constants.ERROR);
         }
     }
+
+    @GetMapping("/admin/getById/{id}")
+    public ResponseEntity<?> getById(@PathVariable Long id) {
+        try {
+            Purchase purchase = purchaseService.getById(id);
+            return ResponseEntity.ok(purchase);
+        } catch (Exception e) {
+            if (e.getMessage().equals(Constants.PURCHASE_NOT_FOUND)) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Constants.PURCHASE_NOT_FOUND);
+            }
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Constants.ERROR);
+        }
+    }
 }

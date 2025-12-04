@@ -26,7 +26,8 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
             "AND p.price BETWEEN :minPrice AND :maxPrice " +
             "AND (:categoryIds IS NULL OR p.categoryId IN :categoryIds) " +
             "AND (:status IS NULL OR p.status = :status) " +
-            "AND (:evaluate IS NULL OR p.evaluate >= :evaluate)")
+            "AND (:evaluate IS NULL OR p.evaluate >= :evaluate)" +
+            "ORDER BY p.id DESC")
     List<Product> findAllWithDetails(
             @Param("productTypeId") Long productTypeId,
             @Param("name") String name,

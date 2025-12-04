@@ -150,11 +150,11 @@ const ProductPage = () => {
   // Columns table
   const columns: BaseColumn<Product>[] = [
     { key: "id", label: "ID", width: "5%" },
-    { key: "productName", label: "Tên sản phẩm", width: "15%" },
+    { key: "productName", label: "Tên sản phẩm", width: "20%" },
     {
       key: "productType",
       label: "Thương hiệu",
-      width: "10%",
+      width: "15%",
       render: (item: Product) => {
         return item.productType?.name || "Không xác định";
       },
@@ -165,7 +165,6 @@ const ProductPage = () => {
       width: "10%",
     },
     { key: "price", label: "Giá (VNĐ)", width: "10%" },
-    { key: "percentageReduction", label: "Giảm giá (%)", width: "10%" },
     { key: "numberOfVisits", label: "Lượt xem", width: "10%" },
     { key: "quantitySold", label: "Đã bán", width: "10%" },
     {

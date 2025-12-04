@@ -229,6 +229,15 @@ public class PurchaseServiceImpl implements PurchaseService {
         }
     }
 
+    @Override
+    public Purchase getById(Long id) {
+        Purchase purchase = purchaseRepository.findById(id).orElse(null);
+        if (purchase != null) {
+            return purchase;
+        }
+        return null;
+    }
+
     private void getUserVisits(Integer type) {
         try {
             UserVisits userVisits = userVisitRepository.findByVisitDate(type);

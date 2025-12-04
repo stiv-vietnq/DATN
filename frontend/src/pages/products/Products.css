@@ -173,7 +173,7 @@
 
 .product-card img {
   width: 100%;
-  height: 250px;
+  height: 200px;
   display: block;
 }
 
@@ -195,7 +195,7 @@
   max-height: 2.8em;
 }
 
-.product-price {
+.product-price-top {
   font-size: 14px;
   font-weight: bold;
   color: #e60023;

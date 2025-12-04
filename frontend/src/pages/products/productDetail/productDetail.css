@@ -153,6 +153,8 @@
   cursor: pointer;
   transition: 0.3s;
   display: grid;
+  font-size: 10px;
+  width: 42%
 }
 
 .option-item.selected {

@@ -395,10 +395,10 @@ export default function Products() {
                 <div className="product-info">
                   <div className="product-name">{product.productName}</div>
                   <div className="product-rating-buy">
-                    <div className="product-price">{product.price}</div>
+                    <div className="product-price-top">{product.price}</div>
                   </div>
                   <div className="product-meta">
-                    <span>Đã bán {product.quantitySold}</span>
+                    <span>Đã bán {product.quantitySold ?? 0}</span>
                     <span>⭐  
                       {product?.evaluate
                       ? product.evaluate.toFixed(1)

@@ -46,7 +46,7 @@ public class Constants {
     public static final String PRODUCT_TYPE_NOT_FOUND = "Product Type not found";
     public static final String PRODUCT_DETAIL_NOT_FOUND = "ProductDetail not found";
     public static final String DUPLICATE_CATEGORY = "Category name already exists";
-    public static final long JWT_EXPIRATION_MS = 1000 * 60 * 30;
+    public static final long JWT_EXPIRATION_MS = 1000 * 60 * 60 * 2;
     public static final String JWT_SECRET_STRING = "mysupersecretkeythatismorethan32bytes!";
 
     // Chuyển sang SecretKey dùng cho HS256

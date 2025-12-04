@@ -15,4 +15,6 @@ public interface PurchaseService {
     List<Purchase> getPurchaseByUserId(Long userId, String productName, String status);
 
     List<Purchase> getAllPurchase(Long userId, String paymentMethod, Integer status);
+
+    Purchase getById(Long id);
 }

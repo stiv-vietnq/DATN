@@ -80,7 +80,7 @@ export default function Products() {
         {products?.slice(0, 48).map((item) => (
           <div
             key={item?.id}
-            className="product-card"
+            className="product-card-product"
             onClick={() => item?.id && handleViewProductDetail(item.id)}
           >
             {item?.discountedPrice && (
@@ -91,7 +91,7 @@ export default function Products() {
             <img
               src={item?.images?.[0]?.directoryPath}
               alt={item?.productName}
-              className="product-img"
+              className="product-img-product"
             />
             <div>
               <div className="product-name-product">{item?.productName}</div>
